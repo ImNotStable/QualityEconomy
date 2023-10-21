@@ -1,0 +1,22 @@
+name: QualityEconomy
+author: "ImNotStable"
+main: com.imnotstable.qualityeconomy.QualityEconomy
+version: '${project.version}'
+api-version: 1.19
+depend: [ ]
+softdepend: [ PlaceholderAPI, Skript, Vault ]
+commands:
+  qualityeconomy:
+    aliases: [ qe ]
+    permission: qualityeconomy.admin
+  economy:
+    aliases: [ eco ]
+    permission: qualityeconomy.admin
+  balancetop:
+    aliases: [ baltop ]
+    permission: qualityeconomy.balancetop
+  balance:
+    aliases: [ bal ]
+    permission: qualityeconomy.balance
+  pay:
+    permission: qualityeconomy.pay

@@ -1,0 +1,13 @@
+# sqlite, yaml, json
+storage-type: "sqlite"
+
+# Number in hours (decimals allowed)
+# 0 to disable
+backup-intervals: 1
+
+MySQL:
+  port: 3306
+  user: root
+  password: root
+
+version: "1.0.0"
