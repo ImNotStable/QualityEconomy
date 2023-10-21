@@ -13,8 +13,6 @@ import com.imnotstable.qualityeconomy.util.TestToolkit;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Objects;
-
 public final class QualityEconomy extends JavaPlugin {
   private static QualityEconomy instance;
 
@@ -36,20 +34,20 @@ public final class QualityEconomy extends JavaPlugin {
     Messages.loadMessages();
     StorageManager.initStorageProcesses();
 
-    Objects.requireNonNull(getCommand("qualityeconomy")).setExecutor(new MainCommand());
-    Objects.requireNonNull(getCommand("qualityeconomy")).setTabCompleter(new MainCommand());
+    getCommand("qualityeconomy").setExecutor(new MainCommand());
+    getCommand("qualityeconomy").setTabCompleter(new MainCommand());
 
-    Objects.requireNonNull(getCommand("economy")).setExecutor(new EconomyCommand());
-    Objects.requireNonNull(getCommand("economy")).setTabCompleter(new EconomyCommand());
+    getCommand("economy").setExecutor(new EconomyCommand());
+    getCommand("economy").setTabCompleter(new EconomyCommand());
 
-    Objects.requireNonNull(getCommand("balancetop")).setExecutor(new BalanceTopCommand());
-    Objects.requireNonNull(getCommand("balancetop")).setTabCompleter(new BalanceTopCommand());
+    getCommand("balancetop").setExecutor(new BalanceTopCommand());
+    getCommand("balancetop").setTabCompleter(new BalanceTopCommand());
     BalanceTopCommand.initScheduler();
 
-    Objects.requireNonNull(getCommand("balance")).setExecutor(new BalanceCommand());
+    getCommand("balance").setExecutor(new BalanceCommand());
 
-    Objects.requireNonNull(getCommand("pay")).setExecutor(new PayCommand());
-    Objects.requireNonNull(getCommand("pay")).setTabCompleter(new PayCommand());
+    getCommand("pay").setExecutor(new PayCommand());
+    getCommand("pay").setTabCompleter(new PayCommand());
 
     timer.end("Enabled QualityEconomy");
   }

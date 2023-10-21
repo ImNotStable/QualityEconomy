@@ -40,6 +40,38 @@ public class QualityEconomyAPI {
     setBalance(uuid, getBalance(uuid) - amount);
   }
   
+  public double getSecondaryBalance(OfflinePlayer player) {
+    return getSecondaryBalance(player.getUniqueId());
+  }
+  
+  public double getSecondaryBalance(UUID uuid) {
+    return AccountManager.getAccount(uuid).getSecondaryBalance();
+  }
+  
+  public void setSecondaryBalance(OfflinePlayer player, double amount) {
+    setSecondaryBalance(player.getUniqueId(), amount);
+  }
+  
+  public void setSecondaryBalance(UUID uuid, double amount) {
+    AccountManager.updateAccount(AccountManager.getAccount(uuid).setSecondaryBalance(amount));
+  }
+  
+  public void addSecondaryBalance(OfflinePlayer player, double amount) {
+    addSecondaryBalance(player.getUniqueId(), amount);
+  }
+  
+  public void addSecondaryBalance(UUID uuid, double amount) {
+    setSecondaryBalance(uuid, getSecondaryBalance(uuid) + amount);
+  }
+  
+  public void removeSecondaryBalance(OfflinePlayer player, double amount) {
+    addSecondaryBalance(player.getUniqueId(), amount);
+  }
+  
+  public void removeSecondaryBalance(UUID uuid, double amount) {
+    setSecondaryBalance(uuid, getSecondaryBalance(uuid) - amount);
+  }
+  
   
   
 }

@@ -27,7 +27,14 @@ public class MainCommand implements TabExecutor {
   @Override
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
-    if (args.length == 1 && args[0].equals("reload")) {
+    if (args.length >= 1 && args[0].equals("reload")) {
+      if (args.length == 2) {
+        if (args[1].equalsIgnoreCase("messages")) {
+          Messages.loadMessages();
+        } else if (args[1].equalsIgnoreCase("configuration")) {
+          Configuration.loadConfiguration();
+        }
+      }
       reload();
       sender.sendMessage(Component.text("Successfully reloaded!", NamedTextColor.GREEN));
       return true;
@@ -83,6 +90,9 @@ public class MainCommand implements TabExecutor {
         if (TestToolkit.DEBUG_MODE) {
           completions.add("createFakeEntries");
         }
+      } else if (args[0].equalsIgnoreCase("reload")) {
+        completions.add("messages");
+        completions.add("configuration");
       }
     } else if (args.length == 3) {
       if (args[0].equalsIgnoreCase("database") && args[1].equalsIgnoreCase("import")) {
