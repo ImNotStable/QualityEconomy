@@ -16,12 +16,6 @@ public class HookManager {
     else
       new Error("Couldn't find Vault. Vault functionality will be disabled.").log();
     
-    if (Bukkit.getServer().getPluginManager().isPluginEnabled("Skript"))
-      SkriptHook.initSkriptHook();
-    else
-      Logger.log(Component.text("Couldn't find Skript. Skript functionality will be disabled.", NamedTextColor.RED));
-    
-    
     if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
       PlaceholderHook.initPlaceholderHook();
     else

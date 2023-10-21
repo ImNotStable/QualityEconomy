@@ -5,7 +5,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 public class TestToolkit {
 
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   public static class Timer {
 

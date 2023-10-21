@@ -3,8 +3,8 @@ author: "ImNotStable"
 main: com.imnotstable.qualityeconomy.QualityEconomy
 version: '${project.version}'
 api-version: 1.19
-depend: [ ]
-softdepend: [ PlaceholderAPI, Skript, Vault ]
+depend: []
+softdepend: [ PlaceholderAPI, Vault ]
 commands:
   qualityeconomy:
     aliases: [ qe ]

@@ -72,6 +72,20 @@ public class QualityEconomyAPI {
     setSecondaryBalance(uuid, getSecondaryBalance(uuid) - amount);
   }
   
+  public void setPayable(OfflinePlayer player, boolean isPayable) {
+    setPayable(player.getUniqueId(), isPayable);
+  }
   
+  public void setPayable(UUID uuid, boolean isPayable) {
+    AccountManager.getAccount(uuid).setPayable(isPayable);
+  }
+  
+  public boolean isPayable(OfflinePlayer player) {
+    return isPayable(player.getUniqueId());
+  }
+  
+  public boolean isPayable(UUID uuid) {
+    return AccountManager.getAccount(uuid).getPayable();
+  }
   
 }
