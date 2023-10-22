@@ -27,21 +27,22 @@ public class SQLStorageFormat implements StorageFormat {
   private static final int MYSQL = 2;
   private final int databaseType;
   private Connection connection;
+  
   public SQLStorageFormat(int databaseType) {
     this.databaseType = databaseType;
   }
-
+  
   private String getPath() {
     if (databaseType == MYSQL) {
       String host = Configuration.getMySQL().get(0);
       String user = Configuration.getMySQL().get(1);
       String password = Configuration.getMySQL().get(2);
-
+      
       return String.format("jdbc:mysql://localhost:%s/QualityEconomy?user=%s&password=%s", host, user, password);
     }
     return "jdbc:sqlite:plugins/QualityEconomy/playerdata.db";
   }
-
+  
   private void connect() {
     try {
       connection = DriverManager.getConnection(getPath());
@@ -54,7 +55,7 @@ public class SQLStorageFormat implements StorageFormat {
         new Error("You fucked my plugin up", exception).log();
     }
   }
-
+  
   private void closeConnection() {
     try {
       if (connection != null && !connection.isClosed()) {
@@ -69,7 +70,7 @@ public class SQLStorageFormat implements StorageFormat {
         new Error("You fucked my plugin up", exception).log();
     }
   }
-
+  
   private void createTable() {
     String sql = "CREATE TABLE IF NOT EXISTS playerdata (uuid TEXT PRIMARY KEY, name TEXT, balance REAL NOT NULL, secondaryBalance REAL NOT NULL, payable BOOLEAN NOT NULL);";
     try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -84,7 +85,7 @@ public class SQLStorageFormat implements StorageFormat {
       new Error("Failed to create table", exception).log();
     }
   }
-
+  
   @Override
   public boolean initStorageProcesses() {
     connect();
@@ -99,12 +100,12 @@ public class SQLStorageFormat implements StorageFormat {
     createTable();
     return true;
   }
-
+  
   @Override
   public void endStorageProcesses() {
     closeConnection();
   }
-
+  
   public void wipeDatabase() {
     try {
       Statement stmt = connection.createStatement();
@@ -113,7 +114,7 @@ public class SQLStorageFormat implements StorageFormat {
       new Error("Failed to wipe database", exception).log();
     }
   }
-
+  
   @Override
   public boolean createAccount(Account account) {
     try (PreparedStatement pstmt = connection.prepareStatement("INSERT INTO playerdata(uuid, name, balance, secondaryBalance, payable) VALUES(?,?,?,?,?)")) {
@@ -124,7 +125,7 @@ public class SQLStorageFormat implements StorageFormat {
       pstmt.setDouble(4, account.getSecondaryBalance());
       pstmt.setBoolean(5, account.getPayable());
       int affectedRows = pstmt.executeUpdate();
-
+      
       if (affectedRows == 0) {
         new Error("Failed to create account (" + uuid + ")").log();
       }
@@ -134,7 +135,7 @@ public class SQLStorageFormat implements StorageFormat {
       return false;
     }
   }
-
+  
   public void createAccounts(Collection<Account> accounts) {
     try (PreparedStatement pstmt = connection.prepareStatement("INSERT INTO playerdata(uuid, name, balance, secondaryBalance, payable) VALUES(?,?,?,?,?)")) {
       int i = 0;
@@ -152,37 +153,37 @@ public class SQLStorageFormat implements StorageFormat {
         }
         i++;
       }
-
+      
       int[] affectedRows = pstmt.executeBatch();
       i = 0;
-
+      
       for (Account account : accounts) {
         if (affectedRows[i] == 0) {
           new Error("Failed to create account (" + account.getUUID().toString() + ")").log();
         }
         i++;
       }
-
+      
     } catch (SQLException exception) {
       new Error("Failed to create accounts", exception).log();
     }
   }
-
+  
   @Override
   public boolean accountExists(UUID uuid) {
     try (PreparedStatement pstmt = connection.prepareStatement("SELECT COUNT(*) FROM playerdata WHERE uuid = ?")) {
       pstmt.setString(1, uuid.toString());
       ResultSet rs = pstmt.executeQuery();
       int count = rs.getInt(1);
-
+      
       return count != 0;
     } catch (SQLException exception) {
       new Error("Failed to check if account exists (" + uuid.toString() + ")", exception).log();
       return false;
     }
   }
-
-
+  
+  
   @Override
   public Account getAccount(UUID uuid) {
     try (PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM playerdata WHERE uuid = ?")) {
@@ -194,61 +195,61 @@ public class SQLStorageFormat implements StorageFormat {
       return null;
     }
   }
-
+  
   @Override
   public Map<UUID, Account> getAccounts(Collection<UUID> uuids) {
     Map<UUID, Account> accounts = new HashMap<>();
-
+    
     if (uuids.isEmpty()) {
       return accounts;
     }
-
+    
     String uuidList = uuids.stream().map(UUID::toString).collect(Collectors.joining("','", "'", "'"));
-
+    
     try (PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM playerdata WHERE uuid IN (" + uuidList + ")")) {
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
         UUID uuid = UUID.fromString(rs.getString("uuid"));
         Account account = new Account(uuid)
-            .setName(rs.getString("name"))
+          .setName(rs.getString("name"))
           .setBalance(rs.getDouble("balance"))
           .setSecondaryBalance(rs.getDouble("secondaryBalance"))
-            .setPayable(rs.getBoolean("payable"));
+          .setPayable(rs.getBoolean("payable"));
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
       new Error("Failed to get accounts", exception).log();
     }
-
+    
     return accounts;
   }
-
+  
   @Override
   public Map<UUID, Account> getAllAccounts() {
     Map<UUID, Account> accounts = new HashMap<>();
-
+    
     try (PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM playerdata")) {
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
         UUID uuid = UUID.fromString(rs.getString("uuid"));
         Account account = new Account(uuid)
-            .setName(rs.getString("name"))
+          .setName(rs.getString("name"))
           .setBalance(rs.getDouble("balance"))
           .setSecondaryBalance(rs.getDouble("secondaryBalance"))
-            .setPayable(rs.getBoolean("payable"));
+          .setPayable(rs.getBoolean("payable"));
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
       new Error("Failed to get all accounts", exception);
     }
-
+    
     return accounts;
   }
-
-
+  
+  
   @Override
   public void updateAccount(Account account) {
-
+    
     try (PreparedStatement pstmt = connection.prepareStatement("UPDATE playerdata SET name = ?, balance = ?, secondaryBalance = ?, payable = ? WHERE uuid = ?")) {
       pstmt.setString(1, account.getName());
       pstmt.setDouble(2, account.getBalance());
@@ -256,7 +257,7 @@ public class SQLStorageFormat implements StorageFormat {
       pstmt.setBoolean(4, account.getPayable());
       pstmt.setString(5, account.getUUID().toString());
       int affectedRows = pstmt.executeUpdate();
-
+      
       if (affectedRows == 0) {
         new Error("Failed to update account (" + account.getUUID().toString() + ")").log();
       }
@@ -264,13 +265,13 @@ public class SQLStorageFormat implements StorageFormat {
       new Error("Failed to update account (" + account.getUUID().toString() + ")", exception).log();
     }
   }
-
+  
   @Override
   public void updateAccounts(Collection<Account> accounts) {
     if (accounts.isEmpty()) {
       return;
     }
-
+    
     try (PreparedStatement pstmt = connection.prepareStatement("UPDATE playerdata SET name = ?, balance = ?, secondaryBalance = ?, payable = ? WHERE uuid = ?")) {
       int i = 0;
       for (Account account : accounts) {
@@ -286,26 +287,26 @@ public class SQLStorageFormat implements StorageFormat {
         }
         i++;
       }
-
+      
       int[] affectedRows = pstmt.executeBatch();
       i = 0;
-
+      
       for (Account account : accounts) {
         if (affectedRows[i] == 0) {
           new Error("Failed to update account (" + account.getUUID().toString() + ")").log();
         }
         i++;
       }
-
+      
     } catch (SQLException exception) {
       new Error("Failed to update accounts", exception).log();
     }
   }
-
+  
   @Override
   public Collection<UUID> getAllUUIDs() {
     Collection<UUID> uuids = new ArrayList<>();
-
+    
     try (PreparedStatement pstmt = connection.prepareStatement("SELECT uuid FROM playerdata")) {
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
@@ -314,8 +315,8 @@ public class SQLStorageFormat implements StorageFormat {
     } catch (SQLException exception) {
       new Error("Failed to get all UUIDs", exception);
     }
-
+    
     return uuids;
   }
-
+  
 }

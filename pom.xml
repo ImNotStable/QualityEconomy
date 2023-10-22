@@ -6,7 +6,7 @@
 
     <groupId>com.imnotstable</groupId>
     <artifactId>QualityEconomy</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>QualityEconomy</name>
@@ -49,6 +49,29 @@
                 <version>2.4</version>
                 <configuration>
                     <outputDirectory>M:\Economy\plugins</outputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>shade</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <minimizeJar>true</minimizeJar>
+                    <relocations>
+                        <relocation>
+                            <pattern>dev.jorel.commandapi</pattern>
+                            <shadedPattern>com.imnotstable.qualityeconomy</shadedPattern>
+                        </relocation>
+                    </relocations>
                 </configuration>
             </plugin>
         </plugins>
@@ -102,6 +125,12 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20230618</version>
+        </dependency>
+        <dependency>
+            <groupId>dev.jorel</groupId>
+            <artifactId>commandapi-bukkit-shade</artifactId>
+            <version>9.2.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

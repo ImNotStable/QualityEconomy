@@ -5,9 +5,9 @@ import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.storageformats.JsonStorageFormat;
 import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageFormat;
 import com.imnotstable.qualityeconomy.storage.storageformats.YamlStorageFormat;
-import com.imnotstable.qualityeconomy.util.TestToolkit;
 import com.imnotstable.qualityeconomy.util.Error;
 import com.imnotstable.qualityeconomy.util.Logger;
+import com.imnotstable.qualityeconomy.util.TestToolkit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -22,22 +22,22 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
 public class StorageManager implements Listener {
-
+  
+  private static final DateTimeFormatter EXPORT_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy.MM.dd HH-mm");
   public static boolean lock = false;
-
   private static StorageFormat activeStorageFormat;
-
+  
   public static StorageFormat getActiveStorageFormat() {
     return activeStorageFormat;
   }
-
+  
   public static void initStorageProcesses() {
     if (lock) {
       Logger.log(Component.text("Cancelled initiation of storage processes (ENTRY_LOCK)", NamedTextColor.RED));
@@ -65,7 +65,7 @@ public class StorageManager implements Listener {
       Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), StorageManager::createBackup, backupInterval, backupInterval);
     timer.end("Initiated storage processes");
   }
-
+  
   public static void endStorageProcesses() {
     if (lock) {
       Logger.log(Component.text("Cancelled termination of storage processes (ENTRY_LOCK)", NamedTextColor.RED));
@@ -76,9 +76,7 @@ public class StorageManager implements Listener {
     activeStorageFormat.endStorageProcesses();
     timer.end("Terminated storage processes");
   }
-
-  private static final DateTimeFormatter EXPORT_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
+  
   public static void exportDatabase(final String path) {
     if (lock) {
       Logger.log(Component.text("Cancelled database export (ENTRY_LOCK)", NamedTextColor.RED));
@@ -99,18 +97,18 @@ public class StorageManager implements Listener {
           accountJson.put("payable", account.getPayable());
           rootJson.put(uuid.toString(), accountJson);
         });
-        String fileName = String.format("%sQualityEconomy-%s.json", path, LocalDate.now().format(EXPORT_DATE_FORMAT));
+        String fileName = String.format("%sQualityEconomy %s.json", path, LocalDateTime.now().format(EXPORT_DATE_FORMAT));
         try (FileWriter file = new FileWriter(fileName)) {
           file.write(rootJson.toString());
-        } catch (IOException e) {
-          e.printStackTrace();
+        } catch (IOException exception) {
+          new Error("Failed to export database", exception).log();
         }
         lock = false;
         timer.end("Exported database");
       }
     }.runTaskAsynchronously(QualityEconomy.getInstance());
   }
-
+  
   public static void importDatabase(final String fileName) {
     if (lock) {
       Logger.log(Component.text("Cancelled database import (ENTRY_LOCK)", NamedTextColor.RED));
@@ -142,8 +140,8 @@ public class StorageManager implements Listener {
           });
           storageFormat.createAccounts(accounts);
           timer.progress();
-        } catch (IOException e) {
-          e.printStackTrace();
+        } catch (IOException exception) {
+          new Error("Failed to import database", exception).log();
         }
         lock = false;
         timer.end("Imported database");
@@ -151,7 +149,7 @@ public class StorageManager implements Listener {
       }
     }.runTaskAsynchronously(QualityEconomy.getInstance());
   }
-
+  
   public static void createBackup() {
     if (lock) {
       Logger.log(Component.text("Cancelled database backup (ENTRY_LOCK)", NamedTextColor.RED));
@@ -159,15 +157,15 @@ public class StorageManager implements Listener {
     }
     exportDatabase("plugins/QualityEconomy/backups/");
   }
-
+  
   public static UUID getUUID(OfflinePlayer player) {
     return player.getUniqueId();
   }
-
+  
   public static UUID getUUID(String player) {
     return Bukkit.getOfflinePlayer(player).getUniqueId();
   }
-
+  
   @EventHandler
   public void onPlayerJoinEvent(PlayerJoinEvent event) {
     TestToolkit.Timer timer = new TestToolkit.Timer("Running PlayerJoinEvent...");
@@ -176,5 +174,5 @@ public class StorageManager implements Listener {
     AccountManager.updateAccount(AccountManager.getAccount(uuid).setName(event.getPlayer().getName()));
     timer.end("Ran PlayerJoinEvent");
   }
-
+  
 }
