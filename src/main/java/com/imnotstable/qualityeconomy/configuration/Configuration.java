@@ -12,8 +12,10 @@ public class Configuration {
   private static final String PATH = QualityEconomy.getInstance().getDataFolder().getPath();
   private static YamlConfiguration configuration;
   private static String version;
-  private static boolean balancetopEnabled;
-  private static boolean payEnabled;
+  public static boolean COMMAND_BALANCE;
+  public static boolean COMMAND_BALANCETOP;
+  public static boolean COMMAND_ECONOMY;
+  public static boolean COMMAND_PAY;
   
   public static void loadConfiguration() {
     File file = new File(PATH, RESOURCE_NAME);
@@ -21,8 +23,10 @@ public class Configuration {
       QualityEconomy.getInstance().saveResource(RESOURCE_NAME, false);
     configuration = YamlConfiguration.loadConfiguration(file);
     version = configuration.getString("version");
-    balancetopEnabled = configuration.getBoolean("balancetop");
-    payEnabled = configuration.getBoolean("pay");
+    COMMAND_BALANCE = configuration.getBoolean("commands.balance");
+    COMMAND_BALANCETOP = configuration.getBoolean("commands.balancetop");
+    COMMAND_ECONOMY = configuration.getBoolean("commands.economy");
+    COMMAND_PAY = configuration.getBoolean("commands.pay");
   }
   
   public static String getStorageType() {

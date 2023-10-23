@@ -4,6 +4,7 @@ import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.Account;
 import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.util.Number;
+import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.DoubleArgument;
@@ -20,7 +21,7 @@ import org.bukkit.entity.Player;
 
 public class PayCommand {
   
-  public static void loadPayCommand() {
+  public static void loadCommand() {
     new CommandTree("pay")
       .then(new LiteralArgument("toggle")
         .executesPlayer((sender, args) -> {
@@ -65,6 +66,10 @@ public class PayCommand {
             AccountManager.updateAccount(receiverAccount.setBalance(receiverAccount.getBalance() + amount));
           })))
       .register();
+  }
+  
+  public static void unloadCommand() {
+    CommandAPI.unregister("pay", true);
   }
   
 }

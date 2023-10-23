@@ -24,7 +24,7 @@ public class MainCommand {
   
   private static final Pattern IMPORT_FILE_PATTERN = Pattern.compile("^QualityEconomy \\d{4}.\\d{2}.\\d{2} \\d{2}-\\d{2}\\.json$");
   
-  public static void loadMainCommand() {
+  public static void loadCommand() {
     new CommandTree("qualityeconomy")
       .withAliases("qe")
       .withPermission("qualityeconomy.admin")
@@ -81,6 +81,8 @@ public class MainCommand {
     StorageManager.endStorageProcesses();
     Configuration.loadConfiguration();
     Messages.loadMessages();
+    CommandManager.unloadCommands();
+    CommandManager.loadCommands();
     StorageManager.initStorageProcesses();
     timer.end("Reloaded QualityEconomy");
   }

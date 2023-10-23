@@ -1,10 +1,8 @@
 package com.imnotstable.qualityeconomy;
 
-import com.imnotstable.qualityeconomy.commands.BalanceCommand;
+import com.imnotstable.qualityeconomy.bStats.Metrics;
 import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
-import com.imnotstable.qualityeconomy.commands.EconomyCommand;
-import com.imnotstable.qualityeconomy.commands.MainCommand;
-import com.imnotstable.qualityeconomy.commands.PayCommand;
+import com.imnotstable.qualityeconomy.commands.CommandManager;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.hooks.HookManager;
@@ -33,20 +31,16 @@ public final class QualityEconomy extends JavaPlugin {
     TestToolkit.Timer timer = new TestToolkit.Timer("Enabling QualityEconomy...");
     instance = this;
     CommandAPI.onEnable();
+    new Metrics(this, 20121);
     new HookManager(this);
     
     Bukkit.getPluginManager().registerEvents(new StorageManager(), this);
     
     Configuration.loadConfiguration();
     Messages.loadMessages();
+    CommandManager.loadCommands();
+    
     StorageManager.initStorageProcesses();
-    
-    MainCommand.loadMainCommand();
-    EconomyCommand.loadEconomyCommand();
-    BalanceCommand.loadBalanceCommand();
-    PayCommand.loadPayCommand();
-    BalanceTopCommand.loadBalanceTopCommand();
-    
     BalanceTopCommand.initScheduler();
     
     timer.end("Enabled QualityEconomy");

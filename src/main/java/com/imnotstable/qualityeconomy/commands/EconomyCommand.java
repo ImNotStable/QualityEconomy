@@ -4,6 +4,7 @@ import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.Account;
 import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.util.Number;
+import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.DoubleArgument;
@@ -20,7 +21,7 @@ import org.bukkit.entity.Player;
 
 public class EconomyCommand {
   
-  public static void loadEconomyCommand() {
+  public static void loadCommand() {
     new CommandTree("economy")
       .withAliases("eco")
       .withPermission("qualityeconomy.economy")
@@ -83,7 +84,10 @@ public class EconomyCommand {
                 TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName())))));
             }))))
       .register();
-    
+  }
+  
+  public static void unloadCommand() {
+    CommandAPI.unregister("economy", true);
   }
   
 }

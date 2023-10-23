@@ -1,13 +1,20 @@
 # sqlite, yaml, json
 storage-type: "sqlite"
 
+# Whether you want to use these commands
+commands:
+  balance: true
+  balancetop: true
+  economy: true
+  pay: true
+
 # Number in hours (decimals allowed)
 # 0 to disable
-backup-intervals: 1
+backup-interval: 1
 
 MySQL:
   port: 3306
   user: root
   password: root
 
-version: "1.1.0"
+version: "1.2.0"

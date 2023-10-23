@@ -6,6 +6,7 @@ import com.imnotstable.qualityeconomy.storage.Account;
 import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
+import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
@@ -26,28 +27,7 @@ public class BalanceTopCommand {
   private static double serverTotal = 0;
   private static int maxPage;
   
-  public static void initScheduler() {
-    Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), BalanceTopCommand::updateBalanceTop, 0L, 300L);
-  }
-  
-  public static void updateBalanceTop() {
-    TestToolkit.Timer timer = new TestToolkit.Timer("Reloading balancetop...");
-    
-    Collection<Account> accounts = AccountManager.getAllAccounts();
-    
-    serverTotal = accounts.parallelStream()
-      .mapToDouble(Account::getBalance)
-      .sum();
-    
-    orderedPlayerList = accounts.parallelStream()
-      .sorted(Comparator.comparing(Account::getBalance).reversed())
-      .toList();
-    
-    maxPage = (int) Math.ceil(orderedPlayerList.size() / 10.0);
-    timer.end("Reloaded balancetop");
-  }
-  
-  public static void loadBalanceTopCommand() {
+  public static void loadCommand() {
     new CommandTree("balancetop")
       .withAliases("baltop")
       .then(new LiteralArgument("update")
@@ -85,6 +65,31 @@ public class BalanceTopCommand {
           sender.sendMessage(nextPageMessage);
         }))
       .register();
+  }
+  
+  public static void unloadCommand() {
+    CommandAPI.unregister("balancetop", true);
+  }
+  
+  public static void initScheduler() {
+    Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), BalanceTopCommand::updateBalanceTop, 0L, 300L);
+  }
+  
+  public static void updateBalanceTop() {
+    TestToolkit.Timer timer = new TestToolkit.Timer("Reloading balancetop...");
+    
+    Collection<Account> accounts = AccountManager.getAllAccounts();
+    
+    serverTotal = accounts.parallelStream()
+      .mapToDouble(Account::getBalance)
+      .sum();
+    
+    orderedPlayerList = accounts.parallelStream()
+      .sorted(Comparator.comparing(Account::getBalance).reversed())
+      .toList();
+    
+    maxPage = (int) Math.ceil(orderedPlayerList.size() / 10.0);
+    timer.end("Reloaded balancetop");
   }
   
   private static int parsePageNumber(String page) {

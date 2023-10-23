@@ -4,7 +4,7 @@
   <groupId>com.imnotstable</groupId>
   <artifactId>QualityEconomy</artifactId>
   <name>QualityEconomy</name>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
   <build>
     <resources>
       <resource>
@@ -20,21 +20,6 @@
           <source>16</source>
           <target>16</target>
         </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>

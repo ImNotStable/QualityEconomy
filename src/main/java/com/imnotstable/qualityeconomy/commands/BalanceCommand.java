@@ -3,6 +3,7 @@ package com.imnotstable.qualityeconomy.commands;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.util.Number;
+import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
@@ -17,7 +18,7 @@ import org.bukkit.entity.Player;
 
 public class BalanceCommand {
   
-  public static void loadBalanceCommand() {
+  public static void loadCommand() {
     new CommandTree("balance")
       .withAliases("bal")
       .then(new OfflinePlayerArgument("target")
@@ -37,6 +38,10 @@ public class BalanceCommand {
           TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(AccountManager.getAccount(sender.getUniqueId()).getBalance()))))));
       })
       .register();
+  }
+  
+  public static void unloadCommand() {
+    CommandAPI.unregister("balance", true);
   }
   
 }
