@@ -13,6 +13,7 @@ public class CommandManager {
   }
   
   public static void unloadCommands() {
+    MainCommand.unloadCommand();
     BalanceCommand.unloadCommand();
     BalanceTopCommand.unloadCommand();
     EconomyCommand.unloadCommand();

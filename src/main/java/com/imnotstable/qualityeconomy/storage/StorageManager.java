@@ -4,6 +4,7 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.storageformats.JsonStorageFormat;
 import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageFormat;
+import com.imnotstable.qualityeconomy.storage.storageformats.StorageFormat;
 import com.imnotstable.qualityeconomy.storage.storageformats.YamlStorageFormat;
 import com.imnotstable.qualityeconomy.util.Error;
 import com.imnotstable.qualityeconomy.util.Logger;

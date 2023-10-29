@@ -18,7 +18,7 @@ public class HookManager {
     if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
       PlaceholderHook.initPlaceholderHook();
     else
-      Logger.log(Component.text("Couldn't find PlaceholderAPI. PAPI functionality will be disabled.", NamedTextColor.RED));
+      Logger.log(Component.text("Couldn't find PlaceholderAPI. PlaceholderAPI functionality will be disabled.", NamedTextColor.RED));
     
   }
   

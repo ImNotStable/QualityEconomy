@@ -2,7 +2,6 @@ package com.imnotstable.qualityeconomy.storage.storageformats;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.Account;
-import com.imnotstable.qualityeconomy.storage.StorageFormat;
 import com.imnotstable.qualityeconomy.util.Error;
 import org.bukkit.configuration.file.YamlConfiguration;
 

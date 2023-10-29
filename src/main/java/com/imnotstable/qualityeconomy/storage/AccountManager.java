@@ -1,6 +1,7 @@
 package com.imnotstable.qualityeconomy.storage;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.storage.storageformats.StorageFormat;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
 import net.kyori.adventure.text.Component;

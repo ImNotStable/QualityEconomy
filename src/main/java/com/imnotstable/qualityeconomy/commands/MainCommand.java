@@ -7,6 +7,7 @@ import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
+import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
@@ -102,4 +103,9 @@ public class MainCommand {
     }
     return importableFiles;
   }
+  
+  public static void unloadCommand() {
+    CommandAPI.unregister("qualityeconomy");
+  }
+  
 }
