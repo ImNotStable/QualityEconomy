@@ -1,5 +1,7 @@
 package com.imnotstable.qualityeconomy.storage;
 
+import com.imnotstable.qualityeconomy.util.Number;
+
 import java.util.UUID;
 
 public class Account {
@@ -28,20 +30,20 @@ public class Account {
   }
   
   public double getBalance() {
-    return balance;
+    return Number.round(balance);
   }
   
   public Account setBalance(double balance) {
-    this.balance = balance;
+    this.balance = Number.round(balance);
     return this;
   }
   
   public double getSecondaryBalance() {
-    return secondaryBalance;
+    return Number.round(secondaryBalance);
   }
   
   public Account setSecondaryBalance(double secondaryBalance) {
-    this.secondaryBalance = secondaryBalance;
+    this.secondaryBalance = Number.round(secondaryBalance);
     return this;
   }
   

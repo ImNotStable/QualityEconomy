@@ -16,7 +16,7 @@ import java.util.UUID;
 public class YamlStorageFormat implements StorageFormat {
   
   private final HashMap<UUID, YamlConfiguration> configurations = new HashMap<>();
-  private final String PATH = QualityEconomy.getInstance().getDataFolder().getPath() + "/playerdata/";
+  private final String PATH = QualityEconomy.getPluginFolder() + "/playerdata/";
   
   private File getFile(UUID uuid) {
     return new File(PATH + uuid + ".yml");

@@ -90,7 +90,7 @@ public class MainCommand {
   
   private static List<String> getImportableFiles() {
     List<String> importableFiles = new ArrayList<>();
-    File[] files = QualityEconomy.getInstance().getDataFolder().listFiles();
+    File[] files = QualityEconomy.getPluginFolder().listFiles();
     
     if (files != null) {
       

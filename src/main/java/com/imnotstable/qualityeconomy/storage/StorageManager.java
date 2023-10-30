@@ -43,7 +43,8 @@ public class StorageManager implements Listener {
   
   public static void initStorageProcesses() {
     if (lock) {
-      Logger.log(Component.text("Cancelled initiation of storage processes (ENTRY_LOCK)", NamedTextColor.RED));
+      if (TestToolkit.DEBUG_MODE)
+        Logger.log(Component.text("Cancelled initiation of storage processes (ENTRY_LOCK)", NamedTextColor.RED));
       return;
     }
     TestToolkit.Timer timer = new TestToolkit.Timer("Initiating storage processes...");
@@ -71,7 +72,8 @@ public class StorageManager implements Listener {
   
   public static void endStorageProcesses() {
     if (lock) {
-      Logger.log(Component.text("Cancelled termination of storage processes (ENTRY_LOCK)", NamedTextColor.RED));
+      if (TestToolkit.DEBUG_MODE)
+        Logger.log(Component.text("Cancelled termination of storage processes (ENTRY_LOCK)", NamedTextColor.RED));
       return;
     }
     TestToolkit.Timer timer = new TestToolkit.Timer("Terminating storage processes...");
@@ -88,7 +90,8 @@ public class StorageManager implements Listener {
   
   public static void exportDatabase(final String path) {
     if (lock) {
-      Logger.log(Component.text("Cancelled database export (ENTRY_LOCK)", NamedTextColor.RED));
+      if (TestToolkit.DEBUG_MODE)
+        Logger.log(Component.text("Cancelled database export (ENTRY_LOCK)", NamedTextColor.RED));
       return;
     }
     new BukkitRunnable() {
@@ -129,7 +132,8 @@ public class StorageManager implements Listener {
   
   public static void importDatabase(final String fileName) {
     if (lock) {
-      Logger.log(Component.text("Cancelled database import (ENTRY_LOCK)", NamedTextColor.RED));
+      if (TestToolkit.DEBUG_MODE)
+        Logger.log(Component.text("Cancelled database import (ENTRY_LOCK)", NamedTextColor.RED));
       return;
     }
     new BukkitRunnable() {
@@ -169,11 +173,12 @@ public class StorageManager implements Listener {
   }
   
   public static void createBackup() {
-    Logger.log(Component.text("Creating backup...", NamedTextColor.GRAY));
     if (lock) {
-      Logger.log(Component.text("Cancelled database backup (ENTRY_LOCK)", NamedTextColor.RED));
+      if (TestToolkit.DEBUG_MODE)
+        Logger.log(Component.text("Cancelled database backup (ENTRY_LOCK)", NamedTextColor.RED));
       return;
     }
+    Logger.log(Component.text("Creating backup...", NamedTextColor.GRAY));
     exportDatabase("plugins/QualityEconomy/backups/");
   }
   

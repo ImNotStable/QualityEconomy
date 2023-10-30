@@ -1,5 +1,6 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.banknotes.WithdrawCommand;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 
 public class CommandManager {
@@ -10,6 +11,7 @@ public class CommandManager {
     if (Configuration.COMMAND_BALANCETOP) BalanceTopCommand.loadCommand();
     if (Configuration.COMMAND_ECONOMY) EconomyCommand.loadCommand();
     if (Configuration.COMMAND_PAY) PayCommand.loadCommand();
+    if (Configuration.BANKNOTES) WithdrawCommand.loadCommand();
   }
   
   public static void unloadCommands() {
@@ -18,6 +20,7 @@ public class CommandManager {
     BalanceTopCommand.unloadCommand();
     EconomyCommand.unloadCommand();
     PayCommand.unloadCommand();
+    WithdrawCommand.unloadCommand();
   }
   
 }

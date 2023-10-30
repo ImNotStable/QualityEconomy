@@ -1,6 +1,7 @@
 package com.imnotstable.qualityeconomy;
 
 import com.imnotstable.qualityeconomy.bStats.Metrics;
+import com.imnotstable.qualityeconomy.banknotes.BankNotes;
 import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
 import com.imnotstable.qualityeconomy.commands.CommandManager;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
@@ -13,9 +14,12 @@ import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+
 public final class QualityEconomy extends JavaPlugin {
   private static QualityEconomy instance;
   
+  private static File path;
   
   public static QualityEconomy getInstance() {
     return instance;
@@ -30,13 +34,16 @@ public final class QualityEconomy extends JavaPlugin {
   public void onEnable() {
     TestToolkit.Timer timer = new TestToolkit.Timer("Enabling QualityEconomy...");
     instance = this;
+    path = getInstance().getDataFolder();
     CommandAPI.onEnable();
     new Metrics(this, 20121);
     new HookManager(this);
     
     Bukkit.getPluginManager().registerEvents(new StorageManager(), this);
+    Bukkit.getPluginManager().registerEvents(new BankNotes(), this);
     
     Configuration.loadConfiguration();
+    Configuration.updateConfiguration();
     Messages.loadMessages();
     CommandManager.loadCommands();
     
@@ -53,4 +60,7 @@ public final class QualityEconomy extends JavaPlugin {
     timer.end("Disabled QualityEconomy");
   }
   
+  public static File getPluginFolder() {
+    return path;
+  }
 }

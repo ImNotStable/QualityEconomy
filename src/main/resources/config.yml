@@ -1,7 +1,12 @@
 # sqlite, yaml, json
-storage-type: "sqlite"
+storage-type: sqlite
 
-# Whether you want to use these commands
+# Amount of decimal places allowed within balances
+decimal-places: 4
+
+banknotes: false
+
+# Whether you want these commands enabled
 commands:
   balance: true
   balancetop: true
@@ -17,4 +22,5 @@ MySQL:
   user: root
   password: root
 
-version: "1.2.0"
+# Don't touch this
+version: ${project.version}

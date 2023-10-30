@@ -1,5 +1,7 @@
 package com.imnotstable.qualityeconomy.util;
 
+import com.imnotstable.qualityeconomy.configuration.Configuration;
+
 import java.text.DecimalFormat;
 
 public class Number {
@@ -18,6 +20,11 @@ public class Number {
   
   public static String formatCommas(double value) {
     return COMMA_FORMAT.format(value);
+  }
+  
+  public static double round(double n) {
+    double multiplier = Math.pow(10, Configuration.DECIMAL_PLACES);
+    return Math.round(n * multiplier) / multiplier;
   }
   
 }

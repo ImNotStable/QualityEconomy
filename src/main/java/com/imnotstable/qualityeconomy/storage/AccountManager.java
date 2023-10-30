@@ -59,7 +59,8 @@ public class AccountManager {
   
   public synchronized static void setupAccounts() {
     if (StorageManager.lock) {
-      Logger.log(Component.text("Cancelled account setup process (ENTRY_LOCK)", NamedTextColor.RED));
+      if (TestToolkit.DEBUG_MODE)
+        Logger.log(Component.text("Cancelled account setup process (ENTRY_LOCK)", NamedTextColor.RED));
       return;
     }
     TestToolkit.Timer timer = new TestToolkit.Timer("Setting up all accounts...");
@@ -73,7 +74,8 @@ public class AccountManager {
   
   public synchronized static void saveAllAccounts() {
     if (StorageManager.lock) {
-      Logger.log(Component.text("Cancelled account saving process (ENTRY_LOCK)", NamedTextColor.RED));
+      if (TestToolkit.DEBUG_MODE)
+        Logger.log(Component.text("Cancelled account saving process (ENTRY_LOCK)", NamedTextColor.RED));
       return;
     }
     TestToolkit.Timer timer = new TestToolkit.Timer("Saving all accounts...");
@@ -91,7 +93,8 @@ public class AccountManager {
   
   public synchronized static void createFakeAccounts(int entries) {
     if (StorageManager.lock) {
-      Logger.log(Component.text("Cancelled account fake entry creation process (ENTRY_LOCK)", NamedTextColor.RED));
+      if (TestToolkit.DEBUG_MODE)
+        Logger.log(Component.text("Cancelled account fake entry creation process (ENTRY_LOCK)", NamedTextColor.RED));
       return;
     }
     new BukkitRunnable() {
