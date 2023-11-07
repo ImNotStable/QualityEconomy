@@ -2,6 +2,7 @@ package com.imnotstable.qualityeconomy.storage.storageformats;
 
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.Account;
+import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
 import com.imnotstable.qualityeconomy.util.Error;
 import com.imnotstable.qualityeconomy.util.Logger;
 import net.kyori.adventure.text.Component;
@@ -17,6 +18,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,11 +35,12 @@ public class SQLStorageFormat implements StorageFormat {
   
   private String getPath() {
     if (databaseType == MYSQL) {
-      String host = Configuration.getMySQL().get(0);
-      String user = Configuration.getMySQL().get(1);
-      String password = Configuration.getMySQL().get(2);
+      String host = Configuration.MYSQL_INFO.get(0);
+      String port = Configuration.MYSQL_INFO.get(1);
+      String user = Configuration.MYSQL_INFO.get(2);
+      String password = Configuration.MYSQL_INFO.get(3);
       
-      return String.format("jdbc:mysql://localhost:%s/QualityEconomy?user=%s&password=%s", host, user, password);
+      return String.format("jdbc:mysql://%s:%s/QualityEconomy?user=%s&password=%s", host, port, user, password);
     }
     return "jdbc:sqlite:plugins/QualityEconomy/playerdata.db";
   }
@@ -50,8 +53,6 @@ public class SQLStorageFormat implements StorageFormat {
         new Error("Failed to connect to SQLite database", exception).log();
       else if (databaseType == MYSQL)
         new Error("Failed to connect to MySQL database", exception).log();
-      else
-        new Error("You fucked my plugin up", exception).log();
     }
   }
   
@@ -65,17 +66,14 @@ public class SQLStorageFormat implements StorageFormat {
         new Error("Error while closing SQLite database connection", exception).log();
       else if (databaseType == MYSQL)
         new Error("Error while closing MySQL database connection", exception).log();
-      else
-        new Error("You fucked my plugin up", exception).log();
     }
   }
   
   private void createTable() {
-    String sql = "CREATE TABLE IF NOT EXISTS playerdata (uuid TEXT PRIMARY KEY, name TEXT, balance REAL NOT NULL, secondaryBalance REAL NOT NULL, payable BOOLEAN NOT NULL);";
+    String sql = "CREATE TABLE IF NOT EXISTS playerdata (uuid CHAR(36) PRIMARY KEY, name CHAR(16), balance REAL NOT NULL, payable BOOL NOT NULL);";
     try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
       pstmt.execute();
-      DatabaseMetaData dbm = connection.getMetaData();
-      ResultSet tables = dbm.getTables(null, null, "playerdata", null);
+      ResultSet tables = connection.getMetaData().getTables(null, null, "playerdata", null);
       if (tables.next())
         Logger.log(Component.text("Successfully created table", NamedTextColor.GREEN));
       else
@@ -94,10 +92,35 @@ public class SQLStorageFormat implements StorageFormat {
       else
         Logger.log(Component.text("Successfully opened connection", NamedTextColor.GREEN));
     } catch (SQLException exception) {
-      new Error("Failed to check if connection is closed", exception).log();
+      new Error("Failed to check if connection was opened", exception).log();
     }
     createTable();
+    checkCustomCurrencyColumns();
     return true;
+  }
+  
+  
+  public void checkCustomCurrencyColumns() {
+    if (CustomCurrencies.getCustomCurrencies().isEmpty())
+      return;
+    
+    DatabaseMetaData metaData;
+    try {
+      metaData = connection.getMetaData();
+    } catch (SQLException exception) {
+      new Error("Failed to get database metadata", exception).log();
+      return;
+    }
+    
+    for (String currency : CustomCurrencies.getCustomCurrencies()) {
+      try (ResultSet columns = metaData.getColumns(null, null, "playerdata", currency)) {
+        if (!columns.next()) {
+          addCurrency(currency);
+        }
+      } catch (SQLException exception) {
+        new Error("Failed to check if currency exists (" + currency + ")", exception).log();
+      }
+    }
   }
   
   @Override
@@ -106,8 +129,7 @@ public class SQLStorageFormat implements StorageFormat {
   }
   
   public void wipeDatabase() {
-    try {
-      Statement stmt = connection.createStatement();
+    try (Statement stmt = connection.createStatement()) {
       stmt.executeUpdate("DELETE FROM playerdata");
     } catch (SQLException exception) {
       new Error("Failed to wipe database", exception).log();
@@ -116,13 +138,27 @@ public class SQLStorageFormat implements StorageFormat {
   
   @Override
   public boolean createAccount(Account account) {
-    try (PreparedStatement pstmt = connection.prepareStatement("INSERT INTO playerdata(uuid, name, balance, secondaryBalance, payable) VALUES(?,?,?,?,?)")) {
+    StringBuilder columns = new StringBuilder("uuid, name, balance, payable");
+    StringBuilder placeholders = new StringBuilder("?,?,?,?");
+    
+    List<String> customCurrencies = CustomCurrencies.getCustomCurrencies();
+    for (String currency : customCurrencies) {
+      columns.append(", ").append(currency);
+      placeholders.append(", ?");
+    }
+    
+    String sql = "INSERT INTO playerdata(" + columns + ") VALUES(" + placeholders + ")";
+    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
       UUID uuid = account.getUUID();
       pstmt.setString(1, uuid.toString());
       pstmt.setString(2, account.getName());
       pstmt.setDouble(3, account.getBalance());
-      pstmt.setDouble(4, account.getSecondaryBalance());
-      pstmt.setBoolean(5, account.getPayable());
+      pstmt.setBoolean(4, account.getPayable());
+      int index = 5;
+      for (String currency : customCurrencies) {
+        pstmt.setDouble(index, account.getCustomBalance(currency));
+        index++;
+      }
       int affectedRows = pstmt.executeUpdate();
       
       if (affectedRows == 0) {
@@ -136,37 +172,55 @@ public class SQLStorageFormat implements StorageFormat {
   }
   
   public void createAccounts(Collection<Account> accounts) {
-    try (PreparedStatement pstmt = connection.prepareStatement("INSERT INTO playerdata(uuid, name, balance, secondaryBalance, payable) VALUES(?,?,?,?,?)")) {
-      int i = 0;
+    if (accounts.isEmpty())
+      return;
+    
+    StringBuilder columns = new StringBuilder("uuid, name, balance, payable");
+    StringBuilder placeholders = new StringBuilder("?,?,?,?");
+    
+    List<String> customCurrencies = CustomCurrencies.getCustomCurrencies();
+    for (String currency : customCurrencies) {
+      columns.append(",").append(currency);
+      placeholders.append(",?");
+    }
+    
+    String sql = "INSERT INTO playerdata(" + columns + ") VALUES(" + placeholders + ")";
+    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+      connection.setAutoCommit(false);
+      
       for (Account account : accounts) {
         UUID uuid = account.getUUID();
-        try {
-          pstmt.setString(1, uuid.toString());
-          pstmt.setString(2, account.getName());
-          pstmt.setDouble(3, account.getBalance());
-          pstmt.setDouble(4, account.getSecondaryBalance());
-          pstmt.setBoolean(5, account.getPayable());
-          pstmt.addBatch();
-        } catch (SQLException exception) {
-          new Error("Failed to create account (" + uuid + ")", exception).log();
+        pstmt.setString(1, uuid.toString());
+        pstmt.setString(2, account.getName());
+        pstmt.setDouble(3, account.getBalance());
+        pstmt.setBoolean(4, account.getPayable());
+        int index = 5;
+        for (String currency : customCurrencies) {
+          pstmt.setDouble(index, account.getCustomBalance(currency));
+          index++;
         }
-        i++;
+        pstmt.addBatch();
       }
       
-      int[] affectedRows = pstmt.executeBatch();
-      i = 0;
+      pstmt.executeBatch();
+      connection.commit();
       
-      for (Account account : accounts) {
-        if (affectedRows[i] == 0) {
-          new Error("Failed to create account (" + account.getUUID().toString() + ")").log();
-        }
-        i++;
+    } catch (SQLException exception1) {
+      new Error("Failed to create accounts", exception1).log();
+      try {
+        connection.rollback();
+      } catch (SQLException exception2) {
+        new Error("Failed to rollback transaction", exception2).log();
       }
-      
-    } catch (SQLException exception) {
-      new Error("Failed to create accounts", exception).log();
+    } finally {
+      try {
+        connection.setAutoCommit(true);
+      } catch (SQLException exception3) {
+        new Error("Failed to restore auto-commit mode", exception3).log();
+      }
     }
   }
+  
   
   @Override
   public boolean accountExists(UUID uuid) {
@@ -188,7 +242,15 @@ public class SQLStorageFormat implements StorageFormat {
     try (PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM playerdata WHERE uuid = ?")) {
       pstmt.setString(1, uuid.toString());
       ResultSet rs = pstmt.executeQuery();
-      return new Account(uuid).setName(rs.getString("name")).setBalance(rs.getDouble("balance")).setSecondaryBalance(rs.getDouble("secondaryBalance")).setPayable(rs.getBoolean("payable"));
+      Map<String, Double> customCurrencies = new HashMap<>();
+      for (String currency : CustomCurrencies.getCustomCurrencies()) {
+        customCurrencies.put(currency, rs.getDouble(currency));
+      }
+      return new Account(uuid)
+        .setName(rs.getString("name"))
+        .setBalance(rs.getDouble("balance"))
+        .setPayable(rs.getBoolean("payable"))
+        .setCustomBalances(customCurrencies);
     } catch (SQLException exception) {
       new Error("Failed to get account (" + uuid.toString() + ")", exception).log();
       return null;
@@ -209,11 +271,15 @@ public class SQLStorageFormat implements StorageFormat {
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
         UUID uuid = UUID.fromString(rs.getString("uuid"));
+        Map<String, Double> customCurrencies = new HashMap<>();
+        for (String currency : CustomCurrencies.getCustomCurrencies()) {
+          customCurrencies.put(currency, rs.getDouble(currency));
+        }
         Account account = new Account(uuid)
           .setName(rs.getString("name"))
           .setBalance(rs.getDouble("balance"))
-          .setSecondaryBalance(rs.getDouble("secondaryBalance"))
-          .setPayable(rs.getBoolean("payable"));
+          .setPayable(rs.getBoolean("payable"))
+          .setCustomBalances(customCurrencies);
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
@@ -231,11 +297,15 @@ public class SQLStorageFormat implements StorageFormat {
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
         UUID uuid = UUID.fromString(rs.getString("uuid"));
+        Map<String, Double> customCurrencies = new HashMap<>();
+        for (String currency : CustomCurrencies.getCustomCurrencies()) {
+          customCurrencies.put(currency, rs.getDouble(currency));
+        }
         Account account = new Account(uuid)
           .setName(rs.getString("name"))
           .setBalance(rs.getDouble("balance"))
-          .setSecondaryBalance(rs.getDouble("secondaryBalance"))
-          .setPayable(rs.getBoolean("payable"));
+          .setPayable(rs.getBoolean("payable"))
+          .setCustomBalances(customCurrencies);
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
@@ -245,16 +315,27 @@ public class SQLStorageFormat implements StorageFormat {
     return accounts;
   }
   
-  
   @Override
   public void updateAccount(Account account) {
+    StringBuilder sql = new StringBuilder("UPDATE playerdata SET name = ?, balance = ?, payable = ?");
     
-    try (PreparedStatement pstmt = connection.prepareStatement("UPDATE playerdata SET name = ?, balance = ?, secondaryBalance = ?, payable = ? WHERE uuid = ?")) {
+    List<String> customCurrencies = CustomCurrencies.getCustomCurrencies();
+    for (String currency : customCurrencies) {
+      sql.append(", ").append(currency).append(" = ?");
+    }
+    sql.append(" WHERE uuid = ?");
+    
+    try (PreparedStatement pstmt = connection.prepareStatement(sql.toString())) {
       pstmt.setString(1, account.getName());
       pstmt.setDouble(2, account.getBalance());
-      pstmt.setDouble(3, account.getSecondaryBalance());
-      pstmt.setBoolean(4, account.getPayable());
-      pstmt.setString(5, account.getUUID().toString());
+      pstmt.setBoolean(3, account.getPayable());
+      pstmt.setString(4, account.getUUID().toString());
+      int index = 4;
+      for (String currency : customCurrencies) {
+        pstmt.setDouble(index, account.getCustomBalance(currency));
+        index++;
+      }
+      pstmt.setString(index, account.getUUID().toString());
       int affectedRows = pstmt.executeUpdate();
       
       if (affectedRows == 0) {
@@ -265,57 +346,83 @@ public class SQLStorageFormat implements StorageFormat {
     }
   }
   
-  @Override
   public void updateAccounts(Collection<Account> accounts) {
-    if (accounts.isEmpty()) {
+    if (accounts.isEmpty())
       return;
-    }
     
-    try (PreparedStatement pstmt = connection.prepareStatement("UPDATE playerdata SET name = ?, balance = ?, secondaryBalance = ?, payable = ? WHERE uuid = ?")) {
-      int i = 0;
-      for (Account account : accounts) {
-        try {
-          pstmt.setString(1, account.getName());
-          pstmt.setDouble(2, account.getBalance());
-          pstmt.setDouble(3, account.getSecondaryBalance());
-          pstmt.setBoolean(4, account.getPayable());
-          pstmt.setString(5, account.getUUID().toString());
-          pstmt.addBatch();
-        } catch (SQLException exception) {
-          new Error("Failed to update account (" + account.getUUID().toString() + ")", exception).log();
-        }
-        i++;
-      }
-      
-      int[] affectedRows = pstmt.executeBatch();
-      i = 0;
+    StringBuilder sql = new StringBuilder("UPDATE playerdata SET name = ?, balance = ?, payable = ?");
+    
+    List<String> customCurrencies = CustomCurrencies.getCustomCurrencies();
+    for (String currency : customCurrencies) {
+      sql.append(", ").append(currency).append(" = ?");
+    }
+    sql.append(" WHERE uuid = ?");
+    
+    try (PreparedStatement pstmt = connection.prepareStatement(sql.toString())) {
+      connection.setAutoCommit(false);
       
       for (Account account : accounts) {
-        if (affectedRows[i] == 0) {
-          new Error("Failed to update account (" + account.getUUID().toString() + ")").log();
+        pstmt.setString(1, account.getName());
+        pstmt.setDouble(2, account.getBalance());
+        pstmt.setBoolean(3, account.getPayable());
+        int index = 4;
+        for (String currency : customCurrencies) {
+          pstmt.setDouble(index, account.getCustomBalance(currency));
+          index++;
         }
-        i++;
+        pstmt.setString(index, account.getUUID().toString());
+        pstmt.addBatch();
       }
       
-    } catch (SQLException exception) {
-      new Error("Failed to update accounts", exception).log();
+      pstmt.executeBatch();
+      connection.commit();
+      
+    } catch (SQLException exception1) {
+      new Error("Failed to update accounts", exception1).log();
+      try {
+        connection.rollback();
+      } catch (SQLException exception2) {
+        new Error("Failed to rollback transaction", exception2).log();
+      }
+    } finally {
+      try {
+        connection.setAutoCommit(true);
+      } catch (SQLException exception3) {
+        new Error("Failed to restore auto-commit mode", exception3).log();
+      }
     }
   }
   
+  
   @Override
   public Collection<UUID> getAllUUIDs() {
-    Collection<UUID> uuids = new ArrayList<>();
-    
+    Collection<String> rawUUIDs = new ArrayList<>();
     try (PreparedStatement pstmt = connection.prepareStatement("SELECT uuid FROM playerdata")) {
       ResultSet rs = pstmt.executeQuery();
-      while (rs.next()) {
-        uuids.add(UUID.fromString(rs.getString("uuid")));
-      }
+      while (rs.next())
+        rawUUIDs.add(rs.getString("uuid"));
     } catch (SQLException exception) {
       new Error("Failed to get all UUIDs", exception);
     }
     
-    return uuids;
+    return rawUUIDs.stream().map(UUID::fromString).toList();
+  }
+  
+  public void addCurrency(String currencyName) {
+    try (Statement stmt = connection.createStatement()) {
+      stmt.executeUpdate("ALTER TABLE playerdata ADD COLUMN " + currencyName + " REAL NOT NULL DEFAULT 0.0");
+    } catch (SQLException exception) {
+      new Error("Failed to add currency to database (" + currencyName + ")", exception).log();
+    }
+  }
+  
+  
+  public void removeCurrency(String currencyName) {
+    try (Statement stmt = connection.createStatement()) {
+      stmt.executeUpdate("ALTER TABLE playerdata DROP COLUMN " + currencyName);
+    } catch (SQLException exception) {
+      new Error("Failed to remove currency from database (" + currencyName + ")", exception).log();
+    }
   }
   
 }

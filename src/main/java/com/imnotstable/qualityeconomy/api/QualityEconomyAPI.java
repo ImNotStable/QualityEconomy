@@ -40,36 +40,36 @@ public class QualityEconomyAPI {
     setBalance(uuid, getBalance(uuid) - amount);
   }
   
-  public static double getSecondaryBalance(OfflinePlayer player) {
-    return getSecondaryBalance(player.getUniqueId());
+  public static double getCustomBalance(OfflinePlayer player, String currency) {
+    return getCustomBalance(player.getUniqueId(), currency);
   }
   
-  public static double getSecondaryBalance(UUID uuid) {
-    return AccountManager.getAccount(uuid).getSecondaryBalance();
+  public static double getCustomBalance(UUID uuid, String currency) {
+    return AccountManager.getAccount(uuid).getCustomBalance(currency);
   }
   
-  public static void setSecondaryBalance(OfflinePlayer player, double amount) {
-    setSecondaryBalance(player.getUniqueId(), amount);
+  public static void setCustomBalance(OfflinePlayer player, String currency, double amount) {
+    setCustomBalance(player.getUniqueId(), currency, amount);
   }
   
-  public static void setSecondaryBalance(UUID uuid, double amount) {
-    AccountManager.updateAccount(AccountManager.getAccount(uuid).setSecondaryBalance(amount));
+  public static void setCustomBalance(UUID uuid, String currency, double amount) {
+    AccountManager.updateAccount(AccountManager.getAccount(uuid).setCustomBalance(currency, amount));
   }
   
-  public static void addSecondaryBalance(OfflinePlayer player, double amount) {
-    addSecondaryBalance(player.getUniqueId(), amount);
+  public static void addCustomBalance(OfflinePlayer player, String currency, double amount) {
+    addCustomBalance(player.getUniqueId(), currency, amount);
   }
   
-  public static void addSecondaryBalance(UUID uuid, double amount) {
-    setSecondaryBalance(uuid, getSecondaryBalance(uuid) + amount);
+  public static void addCustomBalance(UUID uuid, String currency, double amount) {
+    setCustomBalance(uuid, currency, getCustomBalance(uuid, currency) + amount);
   }
   
-  public static void removeSecondaryBalance(OfflinePlayer player, double amount) {
-    addSecondaryBalance(player.getUniqueId(), amount);
+  public static void removeCustomBalance(OfflinePlayer player, String currency, double amount) {
+    addCustomBalance(player.getUniqueId(), currency, amount);
   }
   
-  public static void removeSecondaryBalance(UUID uuid, double amount) {
-    setSecondaryBalance(uuid, getSecondaryBalance(uuid) - amount);
+  public static void removeCustomBalance(UUID uuid, String currency, double amount) {
+    setCustomBalance(uuid, currency, getCustomBalance(uuid, currency) - amount);
   }
   
   public static void setPayable(OfflinePlayer player, boolean isPayable) {

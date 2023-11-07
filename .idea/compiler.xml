@@ -9,5 +9,8 @@
         <module name="QualityEconomy" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="StableUtilities" target="15" />
+    </bytecodeTargetLevel>
   </component>
 </project>

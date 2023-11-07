@@ -8,7 +8,7 @@ import org.bukkit.Bukkit;
 
 public class HookManager {
   
-  public HookManager(QualityEconomy plugin) {
+  public static void loadHooks(QualityEconomy plugin) {
     
     if (Bukkit.getPluginManager().isPluginEnabled("Vault"))
       VaultHook.initVaultHook(plugin);

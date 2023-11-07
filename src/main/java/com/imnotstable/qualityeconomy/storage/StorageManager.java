@@ -5,7 +5,6 @@ import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.storageformats.JsonStorageFormat;
 import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageFormat;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageFormat;
-import com.imnotstable.qualityeconomy.storage.storageformats.YamlStorageFormat;
 import com.imnotstable.qualityeconomy.util.Error;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
@@ -28,12 +27,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class StorageManager implements Listener {
   
   private static final DateTimeFormatter EXPORT_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy.MM.dd HH-mm");
-  public static boolean lock = false;
+  public static final Object lock = new Object();
   private static StorageFormat activeStorageFormat;
   private static int backupSchedulerID = 0;
   
@@ -42,144 +44,143 @@ public class StorageManager implements Listener {
   }
   
   public static void initStorageProcesses() {
-    if (lock) {
-      if (TestToolkit.DEBUG_MODE)
-        Logger.log(Component.text("Cancelled initiation of storage processes (ENTRY_LOCK)", NamedTextColor.RED));
-      return;
+    synchronized (lock) {
+      TestToolkit.Timer timer = new TestToolkit.Timer("Initiating storage processes...");
+      switch (Configuration.STORAGE_TYPE) {
+        case "sqlite" -> activeStorageFormat = new SQLStorageFormat(1);
+        case "mysql" -> activeStorageFormat = new SQLStorageFormat(2);
+        case "json" -> activeStorageFormat = new JsonStorageFormat();
+        default -> {
+          new Error("Unexpected Storage Type: " + Configuration.STORAGE_TYPE).log();
+          timer.interrupt("Failed to initiate storage processes");
+          Bukkit.getPluginManager().disablePlugin(QualityEconomy.getInstance());
+          return;
+        }
+      }
+      if (!activeStorageFormat.initStorageProcesses()) {
+        new Error("Failed to initiate storage processes").log();
+        timer.interrupt("Failed to initiate storage processes");
+        return;
+      }
+      AccountManager.setupAccounts();
+      Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), AccountManager::saveAllAccounts, 1200, 1200);
+      long backupInterval = (long) (Configuration.BACKUP_INTERVAL * 20 * 60 * 60);
+      if (backupInterval > 0)
+        backupSchedulerID = Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), StorageManager::createBackup, backupInterval, backupInterval);
+      timer.end("Initiated storage processes");
     }
-    TestToolkit.Timer timer = new TestToolkit.Timer("Initiating storage processes...");
-    StorageFormat storageFormat;
-    switch (Configuration.getStorageType()) {
-      case "sqlite" -> storageFormat = new SQLStorageFormat(1);
-      case "yaml" -> storageFormat = new YamlStorageFormat();
-      case "json" -> storageFormat = new JsonStorageFormat();
-      case "mysql" -> storageFormat = new SQLStorageFormat(2);
-      default -> throw new IllegalStateException("Unexpected value: " + Configuration.getStorageType());
-    }
-    activeStorageFormat = storageFormat;
-    if (!activeStorageFormat.initStorageProcesses()) {
-      new Error("Failed to initiate storage processes").log();
-      timer.interrupt("Failed to initiate storage processes");
-      return;
-    }
-    AccountManager.setupAccounts();
-    Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), AccountManager::saveAllAccounts, 1200, 1200);
-    long backupInterval = (long) (Configuration.getBackupInterval() * 20 * 60 * 60);
-    if (backupInterval > 0)
-      backupSchedulerID = Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), StorageManager::createBackup, backupInterval, backupInterval);
-    timer.end("Initiated storage processes");
   }
   
   public static void endStorageProcesses() {
-    if (lock) {
-      if (TestToolkit.DEBUG_MODE)
-        Logger.log(Component.text("Cancelled termination of storage processes (ENTRY_LOCK)", NamedTextColor.RED));
-      return;
+    synchronized (lock) {
+      TestToolkit.Timer timer = new TestToolkit.Timer("Terminating storage processes...");
+      AccountManager.saveAllAccounts();
+      
+      if (backupSchedulerID != 0) {
+        Bukkit.getScheduler().cancelTask(backupSchedulerID);
+        backupSchedulerID = 0;
+      }
+      
+      activeStorageFormat.endStorageProcesses();
+      timer.end("Terminated storage processes");
     }
-    TestToolkit.Timer timer = new TestToolkit.Timer("Terminating storage processes...");
-    AccountManager.saveAllAccounts();
-    
-    if (backupSchedulerID != 0) {
-      Bukkit.getScheduler().cancelTask(backupSchedulerID);
-      backupSchedulerID = 0;
-    }
-    
-    activeStorageFormat.endStorageProcesses();
-    timer.end("Terminated storage processes");
   }
   
   public static void exportDatabase(final String path) {
-    if (lock) {
-      if (TestToolkit.DEBUG_MODE)
-        Logger.log(Component.text("Cancelled database export (ENTRY_LOCK)", NamedTextColor.RED));
-      return;
+    synchronized (lock) {
+      new BukkitRunnable() {
+        @Override
+        public void run() {
+          AccountManager.saveAllAccounts();
+          TestToolkit.Timer timer = new TestToolkit.Timer("Exporting database...");
+          File dir = new File(path);
+          if (!dir.exists() || !dir.isDirectory()) {
+            Logger.log(Component.text("Specified directory not found...", NamedTextColor.RED));
+            Logger.log(Component.text("Creating directory...", NamedTextColor.GRAY));
+            Logger.log(dir.mkdir() ?
+              Component.text("Successfully created directory", NamedTextColor.GREEN) :
+              Component.text("Failed to create directory", NamedTextColor.RED));
+          }
+          JSONObject rootJson = new JSONObject();
+          rootJson.put("custom-currencies", CustomCurrencies.getCustomCurrencies());
+          StorageFormat storageFormat = StorageManager.getActiveStorageFormat();
+          storageFormat.getAllAccounts().forEach((uuid, account) -> {
+            JSONObject accountJson = new JSONObject();
+            accountJson.put("name", account.getName());
+            accountJson.put("balance", account.getBalance());
+            accountJson.put("payable", account.getPayable());
+            for (String currency : CustomCurrencies.getCustomCurrencies())
+              accountJson.put(currency, account.getCustomBalance(currency));
+            rootJson.put(uuid.toString(), accountJson);
+          });
+          String fileName = String.format("%sQualityEconomy %s.json", path, LocalDateTime.now().format(EXPORT_DATE_FORMAT));
+          try (FileWriter file = new FileWriter(fileName)) {
+            file.write(rootJson.toString());
+          } catch (IOException exception) {
+            new Error("Failed to export database", exception).log();
+          }
+          timer.end("Exported database");
+        }
+      }.runTaskAsynchronously(QualityEconomy.getInstance());
     }
-    new BukkitRunnable() {
-      @Override
-      public void run() {
-        AccountManager.saveAllAccounts();
-        TestToolkit.Timer timer = new TestToolkit.Timer("Exporting database...");
-        lock = true;
-        File dir = new File(path);
-        if (!dir.exists() || !dir.isDirectory()) {
-          Logger.log(Component.text("Specified directory not found...", NamedTextColor.RED));
-          Logger.log(Component.text("Creating directory...", NamedTextColor.GRAY));
-          Logger.log(dir.mkdir() ?
-            Component.text("Successfully created directory", NamedTextColor.GREEN) :
-            Component.text("Failed to create directory", NamedTextColor.RED));
-        }
-        JSONObject rootJson = new JSONObject();
-        StorageFormat storageFormat = StorageManager.getActiveStorageFormat();
-        storageFormat.getAllAccounts().forEach((uuid, account) -> {
-          JSONObject accountJson = new JSONObject();
-          accountJson.put("name", account.getName());
-          accountJson.put("balance", account.getBalance());
-          accountJson.put("secondaryBalance", account.getSecondaryBalance());
-          accountJson.put("payable", account.getPayable());
-          rootJson.put(uuid.toString(), accountJson);
-        });
-        String fileName = String.format("%sQualityEconomy %s.json", path, LocalDateTime.now().format(EXPORT_DATE_FORMAT));
-        try (FileWriter file = new FileWriter(fileName)) {
-          file.write(rootJson.toString());
-        } catch (IOException exception) {
-          new Error("Failed to export database", exception).log();
-        }
-        lock = false;
-        timer.end("Exported database");
-      }
-    }.runTaskAsynchronously(QualityEconomy.getInstance());
   }
   
   public static void importDatabase(final String fileName) {
-    if (lock) {
-      if (TestToolkit.DEBUG_MODE)
-        Logger.log(Component.text("Cancelled database import (ENTRY_LOCK)", NamedTextColor.RED));
-      return;
-    }
-    new BukkitRunnable() {
-      @Override
-      public void run() {
-        TestToolkit.Timer timer = new TestToolkit.Timer("Importing database...");
-        lock = true;
-        String path = String.format("plugins/QualityEconomy/%s", fileName);
-        AccountManager.clearAccounts();
-        StorageFormat storageFormat = StorageManager.getActiveStorageFormat();
-        storageFormat.wipeDatabase();
-        Collection<Account> accounts = new ArrayList<>();
-        try {
-          String content = new String(Files.readAllBytes(Paths.get(path)));
-          JSONObject rootJson = new JSONObject(content);
-          rootJson.keys().forEachRemaining(key -> {
-            UUID uuid = UUID.fromString(key);
-            JSONObject accountJson = rootJson.getJSONObject(key);
-            String name = accountJson.getString("name");
-            double balance = accountJson.getDouble("balance");
-            double secondaryBalance = accountJson.getDouble("secondaryBalance");
-            boolean payable = accountJson.getBoolean("payable");
-            accounts.add(new Account(uuid).setName(name).setBalance(balance).setSecondaryBalance(secondaryBalance).setPayable(payable));
-            if (accounts.size() % 100 == 0)
-              timer.progress();
-          });
-          storageFormat.createAccounts(accounts);
-          timer.progress();
-        } catch (IOException exception) {
-          new Error("Failed to import database", exception).log();
+    synchronized (lock) {
+      new BukkitRunnable() {
+        @Override
+        public void run() {
+          TestToolkit.Timer timer = new TestToolkit.Timer("Importing database...");
+          String path = String.format("plugins/QualityEconomy/%s", fileName);
+          AccountManager.clearAccounts();
+          StorageFormat storageFormat = StorageManager.getActiveStorageFormat();
+          storageFormat.wipeDatabase();
+          for (String currency : new ArrayList<>(CustomCurrencies.getCustomCurrencies()))
+            CustomCurrencies.deleteCustomCurrency(currency);
+          Collection<Account> accounts = new ArrayList<>();
+          try {
+            String content = new String(Files.readAllBytes(Paths.get(path)));
+            JSONObject rootJson = new JSONObject(content);
+            
+            List<String> customCurrencies = new ArrayList<>();
+            if (!rootJson.isNull("custom-currencies"))
+              for (int i = 0; i < rootJson.getJSONArray("custom-currencies").length(); i++) {
+                String currency = rootJson.getJSONArray("custom-currencies").getString(i);
+                customCurrencies.add(currency);
+                CustomCurrencies.createCustomCurrency(currency);
+              }
+            
+            rootJson.keySet().stream().filter(key -> !key.equalsIgnoreCase("custom-currencies")).forEach(key -> {
+              UUID uuid = UUID.fromString(key);
+              JSONObject accountJson = rootJson.getJSONObject(key);
+              String name = accountJson.getString("name");
+              double balance = accountJson.getDouble("balance");
+              boolean payable = accountJson.getBoolean("payable");
+              Map<String, Double> balanceMap = new HashMap<>();
+              for (String currency : customCurrencies) {
+                balanceMap.put(currency, accountJson.getDouble(currency));
+              }
+              accounts.add(new Account(uuid).setName(name).setBalance(balance).setPayable(payable).setCustomBalances(balanceMap));
+              if (accounts.size() % 100 == 0)
+                timer.progress();
+            });
+            storageFormat.createAccounts(accounts);
+            timer.progress();
+          } catch (IOException exception) {
+            new Error("Failed to import database", exception).log();
+          }
+          timer.end("Imported database");
+          AccountManager.setupAccounts();
         }
-        lock = false;
-        timer.end("Imported database");
-        AccountManager.setupAccounts();
-      }
-    }.runTaskAsynchronously(QualityEconomy.getInstance());
+      }.runTaskAsynchronously(QualityEconomy.getInstance());
+    }
   }
   
   public static void createBackup() {
-    if (lock) {
-      if (TestToolkit.DEBUG_MODE)
-        Logger.log(Component.text("Cancelled database backup (ENTRY_LOCK)", NamedTextColor.RED));
-      return;
+    synchronized (lock) {
+      Logger.log(Component.text("Creating backup...", NamedTextColor.GRAY));
+      exportDatabase("plugins/QualityEconomy/backups/");
     }
-    Logger.log(Component.text("Creating backup...", NamedTextColor.GRAY));
-    exportDatabase("plugins/QualityEconomy/backups/");
   }
   
   public static UUID getUUID(OfflinePlayer player) {
@@ -193,9 +194,7 @@ public class StorageManager implements Listener {
   @EventHandler
   public void onPlayerJoinEvent(PlayerJoinEvent event) {
     TestToolkit.Timer timer = new TestToolkit.Timer("Running PlayerJoinEvent...");
-    UUID uuid = event.getPlayer().getUniqueId();
-    AccountManager.createAccount(uuid);
-    AccountManager.updateAccount(AccountManager.getAccount(uuid).setName(event.getPlayer().getName()));
+    AccountManager.createAccount(event.getPlayer().getUniqueId());
     timer.end("Ran PlayerJoinEvent");
   }
   

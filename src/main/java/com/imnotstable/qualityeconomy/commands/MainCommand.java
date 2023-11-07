@@ -4,17 +4,19 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.AccountManager;
+import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
-import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
-import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
+import dev.jorel.commandapi.arguments.StringArgument;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,6 +31,16 @@ public class MainCommand {
     new CommandTree("qualityeconomy")
       .withAliases("qe")
       .withPermission("qualityeconomy.admin")
+      .then(new LiteralArgument("help")
+        .executes((sender, args) -> {
+          sender.sendMessage(Component.text("Find any bugs or think of a suggestion?", NamedTextColor.GRAY));
+          sender.sendMessage(Component.text("Let me know here!", NamedTextColor.YELLOW, TextDecoration.UNDERLINED, TextDecoration.ITALIC)
+            .clickEvent(ClickEvent.openUrl("https://github.com/ImNotStable/QualityEconomy/issues")));
+          sender.sendMessage(Component.empty());
+          sender.sendMessage(Component.text("Need help with the plugin?", NamedTextColor.GRAY));
+          sender.sendMessage(Component.text("Join my Discord here!", NamedTextColor.YELLOW, TextDecoration.UNDERLINED, TextDecoration.ITALIC)
+            .clickEvent(ClickEvent.openUrl("https://discord.gg/PzCGk5XpUU")));
+        }))
       .then(new LiteralArgument("reload")
         .executes((sender, args) -> {
           reload();
@@ -47,7 +59,7 @@ public class MainCommand {
       .then(new LiteralArgument("database")
         .then(new LiteralArgument("import")
           .then(new GreedyStringArgument("fileName")
-            .includeSuggestions(ArgumentSuggestions.strings(getImportableFiles()))
+            .replaceSuggestions(ArgumentSuggestions.strings(info -> getImportableFiles()))
             .executes((sender, args) -> {
               sender.sendMessage(Component.text("Importing Database...", NamedTextColor.GRAY));
               StorageManager.importDatabase(args.get("fileName").toString());
@@ -61,7 +73,7 @@ public class MainCommand {
           }))
         .then(new LiteralArgument("createFakeEntries")
           .withRequirement(sender -> TestToolkit.DEBUG_MODE)
-          .then(new IntegerArgument("entries", 1, 9999)
+          .then(new IntegerArgument("entries", 1)
             .executes((sender, args) -> {
               try {
                 int entries = (int) args.get("entries");
@@ -70,25 +82,36 @@ public class MainCommand {
                 sender.sendMessage(Component.text("Invalid amount.", NamedTextColor.RED));
               }
             }))))
+      .then(new LiteralArgument("economy")
+        .then(new LiteralArgument("createCurrency")
+          .then(new StringArgument("name")
+            .executes((sender, args) -> {
+              CustomCurrencies.createCustomCurrency((String) args.get("name"));
+            })))
+        .then(new LiteralArgument("removeCurrency")
+          .then(new StringArgument("name")
+            .replaceSuggestions(ArgumentSuggestions.strings(info -> CustomCurrencies.getCustomCurrencies().toArray(new String[0])))
+            .executes((sender, args) -> {
+              CustomCurrencies.deleteCustomCurrency((String) args.get("name"));
+            })
+          )))
       .register();
   }
   
   private static void reload() {
-    if (StorageManager.lock) {
-      Logger.log(Component.text("Cancelled reload process (ENTRY_LOCK)", NamedTextColor.RED));
-      return;
+    synchronized (StorageManager.lock) {
+      TestToolkit.Timer timer = new TestToolkit.Timer("Reloading QualityEconomy...");
+      StorageManager.endStorageProcesses();
+      Configuration.loadConfiguration();
+      Messages.loadMessages();
+      CommandManager.unloadCommands();
+      CommandManager.loadCommands();
+      StorageManager.initStorageProcesses();
+      timer.end("Reloaded QualityEconomy");
     }
-    TestToolkit.Timer timer = new TestToolkit.Timer("Reloading QualityEconomy...");
-    StorageManager.endStorageProcesses();
-    Configuration.loadConfiguration();
-    Messages.loadMessages();
-    CommandManager.unloadCommands();
-    CommandManager.loadCommands();
-    StorageManager.initStorageProcesses();
-    timer.end("Reloaded QualityEconomy");
   }
   
-  private static List<String> getImportableFiles() {
+  private static String[] getImportableFiles() {
     List<String> importableFiles = new ArrayList<>();
     File[] files = QualityEconomy.getPluginFolder().listFiles();
     
@@ -101,11 +124,7 @@ public class MainCommand {
         }
       }
     }
-    return importableFiles;
-  }
-  
-  public static void unloadCommand() {
-    CommandAPI.unregister("qualityeconomy");
+    return importableFiles.toArray(new String[0]);
   }
   
 }

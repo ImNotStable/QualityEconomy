@@ -39,7 +39,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
   
   @Override
   public @NotNull String getVersion() {
-    return Configuration.getVersion();
+    return Configuration.VERSION;
   }
   
   @Override

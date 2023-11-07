@@ -1,6 +1,7 @@
 package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.Account;
 import com.imnotstable.qualityeconomy.storage.AccountManager;
@@ -26,12 +27,14 @@ public class BalanceTopCommand {
   public static List<Account> orderedPlayerList = new ArrayList<>();
   private static double serverTotal = 0;
   private static int maxPage;
+  private static int taskID;
   
   public static void loadCommand() {
+    taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), BalanceTopCommand::updateBalanceTop, 0L, Configuration.BALANCETOP_INTERVAL * 20);
     new CommandTree("balancetop")
       .withAliases("baltop")
       .then(new LiteralArgument("update")
-        .withPermission("qualityeconomy.admin")
+        .withPermission("qualityeconomy.balancetop.update")
         .executes((sender, args) -> {
           updateBalanceTop();
         }))
@@ -68,11 +71,8 @@ public class BalanceTopCommand {
   }
   
   public static void unloadCommand() {
+    Bukkit.getScheduler().cancelTask(taskID);
     CommandAPI.unregister("balancetop", true);
-  }
-  
-  public static void initScheduler() {
-    Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), BalanceTopCommand::updateBalanceTop, 0L, 300L);
   }
   
   public static void updateBalanceTop() {

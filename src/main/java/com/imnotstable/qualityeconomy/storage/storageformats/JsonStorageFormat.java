@@ -2,22 +2,27 @@ package com.imnotstable.qualityeconomy.storage.storageformats;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.Account;
+import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
 import com.imnotstable.qualityeconomy.util.Error;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class JsonStorageFormat implements StorageFormat {
   
-  private final HashMap<UUID, JSONObject> accounts = new HashMap<>();
+  private final HashMap<UUID, JSONObject> configurations = new HashMap<>();
   private final String PATH = QualityEconomy.getPluginFolder() + "/playerdata/";
   
   private File getFile(UUID uuid) {
@@ -25,12 +30,11 @@ public class JsonStorageFormat implements StorageFormat {
   }
   
   private JSONObject getConfiguration(UUID uuid) {
-    return accounts.containsKey(uuid) ? accounts.get(uuid) : createAccount(new Account(uuid)) ? accounts.get(uuid) : null;
+    return configurations.containsKey(uuid) ? configurations.get(uuid) : createAccount(new Account(uuid)) ? configurations.get(uuid) : null;
   }
   
   @Override
   public boolean initStorageProcesses() {
-    //noinspection ResultOfMethodCallIgnored
     new File(PATH).mkdir();
     return true;
   }
@@ -43,17 +47,14 @@ public class JsonStorageFormat implements StorageFormat {
   public void wipeDatabase() {
     File dir = new File(PATH);
     
-    if (!dir.exists())
-      return;
-    
     if (!dir.isDirectory())
       return;
     
     if (!dir.delete()) {
-      new Error("Failed to wipe database").log();
+      new Error("Failed to wipe playerdata").log();
+      return;
     }
     
-    //noinspection ResultOfMethodCallIgnored
     dir.mkdir();
   }
   
@@ -63,19 +64,20 @@ public class JsonStorageFormat implements StorageFormat {
     File file = getFile(uuid);
     
     JSONObject configuration;
-    
     try {
       if (!file.exists()) {
         configuration = new JSONObject();
         configuration.put("name", account.getName());
         configuration.put("balance", account.getBalance());
-        configuration.put("secondaryBalance", account.getSecondaryBalance());
         configuration.put("payable", account.getPayable());
+        for (String currency : CustomCurrencies.getCustomCurrencies()) {
+          configuration.put(currency, account.getCustomBalance(currency));
+        }
       } else {
         String content = new String(Files.readAllBytes(Paths.get(file.getPath())));
         configuration = new JSONObject(content);
       }
-      accounts.put(uuid, configuration);
+      configurations.put(uuid, configuration);
       try {
         Files.write(Paths.get(getFile(account.getUUID()).getPath()), configuration.toString().getBytes());
       } catch (IOException exception) {
@@ -95,16 +97,25 @@ public class JsonStorageFormat implements StorageFormat {
   
   @Override
   public boolean accountExists(UUID uuid) {
-    return accounts.containsKey(uuid) || getFile(uuid).exists();
+    return configurations.containsKey(uuid) || getFile(uuid).exists();
   }
   
   public Account getAccount(UUID uuid) {
     JSONObject configuration = getConfiguration(uuid);
-    String name = configuration != null ? configuration.getString("name") : "null";
-    double balance = configuration != null ? configuration.getDouble("balance") : 0d;
-    double secondaryBalance = configuration != null ? configuration.getDouble("secondaryBalance") : 0d;
-    boolean payable = configuration == null || configuration.getBoolean("payable");
-    return new Account(uuid).setName(name).setBalance(balance).setSecondaryBalance(secondaryBalance).setPayable(payable);
+    if (!accountExists(uuid)) {
+      return new Account(uuid).setName("null").setBalance(0.0).setPayable(true).setCustomBalances(new HashMap<>());
+    }
+    
+    Map<String, Double> balanceMap = new HashMap<>();
+    for (String currency : CustomCurrencies.getCustomCurrencies()) {
+      balanceMap.put(currency, configuration != null ? configuration.optDouble(currency, 0.0) : 0.0);
+    }
+    
+    return new Account(uuid)
+      .setName(configuration.optString("name"))
+      .setBalance(configuration.optDouble("balance"))
+      .setPayable(configuration.optBoolean("payable"))
+      .setCustomBalances(balanceMap);
   }
   
   @Override
@@ -125,13 +136,17 @@ public class JsonStorageFormat implements StorageFormat {
     if (configuration != null) {
       configuration.put("name", account.getName());
       configuration.put("balance", account.getBalance());
-      configuration.put("secondaryBalance", account.getSecondaryBalance());
       configuration.put("payable", account.getPayable());
-    }
-    try {
-      Files.write(Paths.get(getFile(account.getUUID()).getPath()), accounts.get(account.getUUID()).toString().getBytes());
-    } catch (IOException exception) {
-      new Error("Failed to save account (" + account.getUUID() + ")", exception).log();
+      for (String currency : CustomCurrencies.getCustomCurrencies()) {
+        configuration.put(currency, account.getCustomBalance(currency));
+      }
+      try {
+        Files.write(Paths.get(getFile(account.getUUID()).getPath()), configurations.get(account.getUUID()).toString().getBytes());
+      } catch (IOException exception) {
+        new Error("Failed to save account (" + account.getUUID() + ")", exception).log();
+      }
+    } else {
+      new Error("Failed to find account (" + account.getUUID().toString() + ")").log();
     }
   }
   
@@ -142,36 +157,25 @@ public class JsonStorageFormat implements StorageFormat {
   
   @Override
   public Collection<UUID> getAllUUIDs() {
-    Collection<UUID> uuids = new ArrayList<>();
+    Path dirPath = Paths.get(PATH);
     
-    File[] files = new File(PATH).listFiles();
-    
-    if (files == null) {
-      return uuids;
+    try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath, "*.json")) {
+      return StreamSupport.stream(stream.spliterator(), false)
+        .map(path -> path.getFileName().toString())
+        .map(fileName -> fileName.substring(0, fileName.lastIndexOf('.')))
+        .filter(com.imnotstable.qualityeconomy.util.UUID::isValidUUID)
+        .map(UUID::fromString)
+        .collect(Collectors.toList());
+    } catch (IOException exception) {
+      new Error("Failed to collect all uuids.", exception).log();
     }
-    
-    for (File file : files) {
-      if (!file.isFile()) {
-        continue;
-      }
-      
-      String name = file.getName();
-      
-      if (!name.endsWith(".json")) {
-        continue;
-      }
-      
-      int lastIndex = name.lastIndexOf('.');
-      
-      if (lastIndex > 0) {
-        String uuidString = name.substring(0, lastIndex);
-        if (com.imnotstable.qualityeconomy.util.UUID.isValidUUID(uuidString)) {
-          uuids.add(UUID.fromString(uuidString));
-        }
-      }
-    }
-    
-    return uuids;
+    return Collections.emptyList();
   }
+
+  @Override
+  public void addCurrency(String currencyName) {}
+  
+  @Override
+  public void removeCurrency(String currencyName) {}
   
 }

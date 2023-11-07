@@ -1,23 +1,34 @@
-# sqlite, yaml, json
+# This is the storage type the plugin with use
+# Choose sqlite or json
+# sqlite is faster and more efficient
+# json allows for editing accounts via files
 storage-type: sqlite
 
 # Amount of decimal places allowed within balances
 decimal-places: 4
 
+# Whether you want players to be able to withdraw
+# they're money to 'checks' or 'banknotes'
 banknotes: false
 
-# Whether you want these commands enabled
+# Chose whether you want these commands enabled
 commands:
   balance: true
   balancetop: true
   economy: true
   pay: true
+custom-economy-commands: true
 
 # Number in hours (decimals allowed)
 # 0 to disable
 backup-interval: 1
 
+# Number in seconds
+# 0 to disable
+balancetop-interval: 5
+
 MySQL:
+  host: localhost
   port: 3306
   user: root
   password: root

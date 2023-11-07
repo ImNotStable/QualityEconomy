@@ -23,8 +23,8 @@ public class EconomyCommand {
   
   public static void loadCommand() {
     new CommandTree("economy")
-      .withAliases("eco")
       .withPermission("qualityeconomy.economy")
+      .withAliases("eco")
       .then(new OfflinePlayerArgument("target")
         .replaceSuggestions(ArgumentSuggestions.strings((x) -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toList().toArray(new String[0])))
         .then(new LiteralArgument("set")

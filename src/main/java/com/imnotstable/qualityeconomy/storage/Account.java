@@ -2,6 +2,8 @@ package com.imnotstable.qualityeconomy.storage;
 
 import com.imnotstable.qualityeconomy.util.Number;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class Account {
@@ -9,7 +11,7 @@ public class Account {
   private final UUID uuid;
   private String name;
   private double balance = 0D;
-  private double secondaryBalance = 0D;
+  private final Map<String, Double> otherBalances = new HashMap<>();
   private boolean payable = true;
   
   public Account(UUID uuid) {
@@ -38,12 +40,17 @@ public class Account {
     return this;
   }
   
-  public double getSecondaryBalance() {
-    return Number.round(secondaryBalance);
+  public double getCustomBalance(String currency) {
+    return otherBalances.getOrDefault(currency, 0.0);
   }
   
-  public Account setSecondaryBalance(double secondaryBalance) {
-    this.secondaryBalance = Number.round(secondaryBalance);
+  public Account setCustomBalance(String currency, double balance) {
+    otherBalances.put(currency, balance);
+    return this;
+  }
+  
+  public Account setCustomBalances(Map<String, Double> balanceMap) {
+    otherBalances.putAll(balanceMap);
     return this;
   }
   

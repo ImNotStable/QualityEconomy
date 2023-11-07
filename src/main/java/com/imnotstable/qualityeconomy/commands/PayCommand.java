@@ -35,7 +35,7 @@ public class PayCommand {
           }
         }))
       .then(new OfflinePlayerArgument("target")
-        .replaceSuggestions(ArgumentSuggestions.strings((x) -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toList().toArray(new String[0])))
+        .includeSuggestions(ArgumentSuggestions.strings((x) -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toList().toArray(new String[0])))
         .then(new DoubleArgument("amount", 0.01)
           .executesPlayer((sender, args) -> {
             OfflinePlayer target = (OfflinePlayer) args.get("target");

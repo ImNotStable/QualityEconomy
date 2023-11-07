@@ -32,4 +32,8 @@ public interface StorageFormat {
   
   Collection<UUID> getAllUUIDs();
   
+  void addCurrency(String currencyName);
+  
+  void removeCurrency(String currencyName);
+  
 }
