@@ -46,6 +46,9 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
@@ -53,6 +56,10 @@
                     <relocations>
                         <relocation>
                             <pattern>dev.jorel.commandapi</pattern>
+                            <shadedPattern>com.imnotstable.qualityeconomy</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
                             <shadedPattern>com.imnotstable.qualityeconomy</shadedPattern>
                         </relocation>
                     </relocations>
@@ -128,6 +135,12 @@
             <groupId>dev.jorel</groupId>
             <artifactId>commandapi-bukkit-shade</artifactId>
             <version>9.2.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>3.0.2</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

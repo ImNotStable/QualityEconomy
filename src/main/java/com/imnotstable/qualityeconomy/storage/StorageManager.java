@@ -46,12 +46,12 @@ public class StorageManager implements Listener {
   public static void initStorageProcesses() {
     synchronized (lock) {
       TestToolkit.Timer timer = new TestToolkit.Timer("Initiating storage processes...");
-      switch (Configuration.STORAGE_TYPE) {
+      switch (Configuration.getStorageType()) {
         case "sqlite" -> activeStorageFormat = new SQLStorageFormat(1);
         case "mysql" -> activeStorageFormat = new SQLStorageFormat(2);
         case "json" -> activeStorageFormat = new JsonStorageFormat();
         default -> {
-          new Error("Unexpected Storage Type: " + Configuration.STORAGE_TYPE).log();
+          new Error("Unexpected Storage Type: " + Configuration.getStorageType()).log();
           timer.interrupt("Failed to initiate storage processes");
           Bukkit.getPluginManager().disablePlugin(QualityEconomy.getInstance());
           return;
@@ -64,9 +64,13 @@ public class StorageManager implements Listener {
       }
       AccountManager.setupAccounts();
       Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), AccountManager::saveAllAccounts, 1200, 1200);
-      long backupInterval = (long) (Configuration.BACKUP_INTERVAL * 20 * 60 * 60);
-      if (backupInterval > 0)
-        backupSchedulerID = Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), StorageManager::createBackup, backupInterval, backupInterval);
+      if (Configuration.getBackupInterval() > 0)
+        backupSchedulerID = Bukkit.getScheduler().scheduleSyncRepeatingTask(
+          QualityEconomy.getInstance(),
+          () -> exportDatabase("plugins/QualityEconomy/backups/"),
+          Configuration.getBackupInterval(),
+          Configuration.getBackupInterval()
+        );
       timer.end("Initiated storage processes");
     }
   }
@@ -117,7 +121,7 @@ public class StorageManager implements Listener {
           try (FileWriter file = new FileWriter(fileName)) {
             file.write(rootJson.toString());
           } catch (IOException exception) {
-            new Error("Failed to export database", exception).log();
+            new Error("Error while exporting playerdata", exception).log();
           }
           timer.end("Exported database");
         }
@@ -135,7 +139,7 @@ public class StorageManager implements Listener {
           AccountManager.clearAccounts();
           StorageFormat storageFormat = StorageManager.getActiveStorageFormat();
           storageFormat.wipeDatabase();
-          for (String currency : new ArrayList<>(CustomCurrencies.getCustomCurrencies()))
+          for (String currency : CustomCurrencies.getCustomCurrencies())
             CustomCurrencies.deleteCustomCurrency(currency);
           Collection<Account> accounts = new ArrayList<>();
           try {
@@ -161,25 +165,16 @@ public class StorageManager implements Listener {
                 balanceMap.put(currency, accountJson.getDouble(currency));
               }
               accounts.add(new Account(uuid).setName(name).setBalance(balance).setPayable(payable).setCustomBalances(balanceMap));
-              if (accounts.size() % 100 == 0)
-                timer.progress();
             });
             storageFormat.createAccounts(accounts);
             timer.progress();
           } catch (IOException exception) {
-            new Error("Failed to import database", exception).log();
+            new Error("Error while importing playerdata", exception).log();
           }
           timer.end("Imported database");
           AccountManager.setupAccounts();
         }
       }.runTaskAsynchronously(QualityEconomy.getInstance());
-    }
-  }
-  
-  public static void createBackup() {
-    synchronized (lock) {
-      Logger.log(Component.text("Creating backup...", NamedTextColor.GRAY));
-      exportDatabase("plugins/QualityEconomy/backups/");
     }
   }
   

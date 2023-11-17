@@ -7,12 +7,12 @@ import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
 public class CommandManager {
   
   public static void loadCommands() {
-    if (Configuration.COMMAND_BALANCE) BalanceCommand.loadCommand();
-    if (Configuration.COMMAND_BALANCETOP) BalanceTopCommand.loadCommand();
-    if (Configuration.COMMAND_ECONOMY) EconomyCommand.loadCommand();
-    if (Configuration.COMMAND_PAY) PayCommand.loadCommand();
-    if (Configuration.BANKNOTES) BankNotes.loadCommand();
-    if (!CustomCurrencies.getCustomCurrencies().isEmpty()) CustomCurrencies.loadCommand();
+    if (Configuration.isBalanceCommandEnabled()) BalanceCommand.loadCommand();
+    if (Configuration.isBalancetopCommandEnabled()) BalanceTopCommand.loadCommand();
+    if (Configuration.isEconomyCommandEnabled()) EconomyCommand.loadCommand();
+    if (Configuration.isPayCommandEnabled()) PayCommand.loadCommand();
+    if (Configuration.areBanknotesEnabled()) BankNotes.loadCommand();
+    if (!CustomCurrencies.getCustomCurrencies().isEmpty()) CustomCurrencies.loadCommands();
   }
   
   public static void unloadCommands() {
@@ -21,7 +21,7 @@ public class CommandManager {
     EconomyCommand.unloadCommand();
     PayCommand.unloadCommand();
     BankNotes.unloadCommand();
-    CustomCurrencies.unloadCommand();
+    CustomCurrencies.unloadCommands();
   }
   
 }

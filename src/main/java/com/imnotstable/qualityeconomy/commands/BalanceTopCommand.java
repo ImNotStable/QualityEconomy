@@ -2,6 +2,7 @@ package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.Account;
 import com.imnotstable.qualityeconomy.storage.AccountManager;
@@ -30,7 +31,7 @@ public class BalanceTopCommand {
   private static int taskID;
   
   public static void loadCommand() {
-    taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), BalanceTopCommand::updateBalanceTop, 0L, Configuration.BALANCETOP_INTERVAL * 20);
+    taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), BalanceTopCommand::updateBalanceTop, 0L, Configuration.getBalancetopInterval());
     new CommandTree("balancetop")
       .withAliases("baltop")
       .then(new LiteralArgument("update")
@@ -41,16 +42,16 @@ public class BalanceTopCommand {
       .then(new IntegerArgument("page", 1)
         .setOptional(true)
         .executes((sender, args) -> {
-          int page = parsePageNumber(args.getRaw("page"));
+          int page = (int) args.getOrDefault("page", 1);
           int startIndex = (page - 1) * 10;
           int endIndex = Math.min(startIndex + 10, orderedPlayerList.size());
           
-          Component titleMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage("balancetop.title"),
+          Component titleMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCETOP_TITLE),
             TagResolver.resolver("page", Tag.selfClosingInserting(Component.text(page))),
             TagResolver.resolver("maxpage", Tag.selfClosingInserting(Component.text(maxPage))));
-          Component serverTotalMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage("balancetop.server-total"),
+          Component serverTotalMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCETOP_SERVER_TOTAL),
             TagResolver.resolver("servertotal", Tag.selfClosingInserting(Component.text(Number.formatCommas(serverTotal)))));
-          Component nextPageMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage("balancetop.next-page"),
+          Component nextPageMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCETOP_NEXT_PAGE),
             TagResolver.resolver("command", Tag.selfClosingInserting(Component.text("balancetop"))),
             TagResolver.resolver("nextpage", Tag.selfClosingInserting(Component.text((page + 1)))));
           
@@ -59,7 +60,7 @@ public class BalanceTopCommand {
           
           for (int i = startIndex; i < endIndex; i++) {
             Account account = orderedPlayerList.get(i);
-            Component balanceMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage("balancetop.balance-view"),
+            Component balanceMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCETOP_BALANCE_VIEW),
               TagResolver.resolver("place", Tag.selfClosingInserting(Component.text(i + 1))),
               TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(account.getName()))),
               TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(account.getBalance())))));
@@ -80,27 +81,16 @@ public class BalanceTopCommand {
     
     Collection<Account> accounts = AccountManager.getAllAccounts();
     
-    serverTotal = accounts.parallelStream()
+    serverTotal = accounts.stream()
       .mapToDouble(Account::getBalance)
       .sum();
     
-    orderedPlayerList = accounts.parallelStream()
+    orderedPlayerList = accounts.stream()
       .sorted(Comparator.comparing(Account::getBalance).reversed())
       .toList();
     
     maxPage = (int) Math.ceil(orderedPlayerList.size() / 10.0);
     timer.end("Reloaded balancetop");
-  }
-  
-  private static int parsePageNumber(String page) {
-    if (page == null) {
-      return 1;
-    }
-    try {
-      return Math.max(Math.min(Integer.parseInt(page), maxPage), 1);
-    } catch (NumberFormatException ignored) {
-      return 1;
-    }
   }
   
 }

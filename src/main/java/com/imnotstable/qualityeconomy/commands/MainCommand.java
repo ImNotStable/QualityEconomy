@@ -48,12 +48,12 @@ public class MainCommand {
         })
         .then(new LiteralArgument("messages")
           .executes((sender, args) -> {
-            Messages.loadMessages();
+            Messages.load();
             sender.sendMessage(Component.text("Reloading QualityEconomy messages.yml...", NamedTextColor.GRAY));
           }))
         .then(new LiteralArgument("configuration")
           .executes((sender, args) -> {
-            Configuration.loadConfiguration();
+            Configuration.load();
             sender.sendMessage(Component.text("Reloading QualityEconomy config.yml...", NamedTextColor.GRAY));
           })))
       .then(new LiteralArgument("database")
@@ -83,12 +83,12 @@ public class MainCommand {
               }
             }))))
       .then(new LiteralArgument("economy")
-        .then(new LiteralArgument("createCurrency")
+        .then(new LiteralArgument("createCustomCurrency")
           .then(new StringArgument("name")
             .executes((sender, args) -> {
               CustomCurrencies.createCustomCurrency((String) args.get("name"));
             })))
-        .then(new LiteralArgument("removeCurrency")
+        .then(new LiteralArgument("deleteCustomCurrency")
           .then(new StringArgument("name")
             .replaceSuggestions(ArgumentSuggestions.strings(info -> CustomCurrencies.getCustomCurrencies().toArray(new String[0])))
             .executes((sender, args) -> {
@@ -102,8 +102,8 @@ public class MainCommand {
     synchronized (StorageManager.lock) {
       TestToolkit.Timer timer = new TestToolkit.Timer("Reloading QualityEconomy...");
       StorageManager.endStorageProcesses();
-      Configuration.loadConfiguration();
-      Messages.loadMessages();
+      Configuration.load();
+      Messages.load();
       CommandManager.unloadCommands();
       CommandManager.loadCommands();
       StorageManager.initStorageProcesses();

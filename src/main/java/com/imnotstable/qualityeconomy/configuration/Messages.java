@@ -11,36 +11,43 @@ import java.util.Map;
 
 public class Messages {
   
+  private static File file;
   private static final HashMap<String, String> messages = new HashMap<>();
   
-  public static void loadMessages() {
-    File file = new File(QualityEconomy.getPluginFolder(), "messages.yml");
+  public static String getMessage(MessageType id) {
+    return messages.getOrDefault(id.getValue(), "");
+  }
+  
+  public static void load() {
+    file = new File(QualityEconomy.getPluginFolder(), "messages.yml");
     if (!file.exists())
       QualityEconomy.getInstance().saveResource("messages.yml", false);
+    else
+      update();
+    reload();
+  }
+  
+  public static void reload() {
     YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
     for (String path : configuration.getKeys(true)) {
       messages.put(path, configuration.getString(path, ""));
     }
   }
   
-  public static String getMessage(String id) {
-    return messages.getOrDefault(id, "");
-  }
-  
-  public static void updateMessages() {
+  public static void update() {
+    YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
     Map<String, Object> values = new HashMap<>();
-    File file = new File(QualityEconomy.getPluginFolder(), "messages.yml");
-    final YamlConfiguration tempMessages = YamlConfiguration.loadConfiguration(file);
-    tempMessages.getKeys(true).forEach(key -> values.putIfAbsent(key, tempMessages.get(key)));
+    configuration.getKeys(true).forEach(key -> values.putIfAbsent(key, configuration.get(key)));
     QualityEconomy.getInstance().saveResource("messages.yml", true);
-    YamlConfiguration messages = YamlConfiguration.loadConfiguration(file);
-    values.forEach(messages::set);
+    YamlConfiguration finalConfiguration = YamlConfiguration.loadConfiguration(file);
+    values.forEach((key, value) -> {
+      if (finalConfiguration.contains(key))
+        finalConfiguration.set(key, value);
+    });
     try {
-      messages.save(file);
+      finalConfiguration.save(file);
     } catch (IOException exception) {
-      new Error("Failed to update configuration", exception).log();
+      new Error("Failed to update messages.yml", exception).log();
     }
-    Messages.loadMessages();
   }
-  
 }

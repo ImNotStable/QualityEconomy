@@ -24,8 +24,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class SQLStorageFormat implements StorageFormat {
-  private static final int SQLITE = 1;
-  private static final int MYSQL = 2;
   private final int databaseType;
   private Connection connection;
   
@@ -34,50 +32,52 @@ public class SQLStorageFormat implements StorageFormat {
   }
   
   private String getPath() {
-    if (databaseType == MYSQL) {
-      String host = Configuration.MYSQL_INFO.get(0);
-      String port = Configuration.MYSQL_INFO.get(1);
-      String user = Configuration.MYSQL_INFO.get(2);
-      String password = Configuration.MYSQL_INFO.get(3);
+    if (databaseType == 2) {
+      String address = Configuration.getMySQLInfo().get(0);
+      String name = Configuration.getMySQLInfo().get(1);
+      String user = Configuration.getMySQLInfo().get(2);
+      String password = Configuration.getMySQLInfo().get(3);
       
-      return String.format("jdbc:mysql://%s:%s/QualityEconomy?user=%s&password=%s", host, port, user, password);
+      return String.format("jdbc:mysql://%s/%s?user=%s&password=%s", address, name, user, password);
     }
     return "jdbc:sqlite:plugins/QualityEconomy/playerdata.db";
   }
   
   private void connect() {
     try {
+      if (connection != null && !connection.isClosed()) {
+        new Error("Attempted to connect to database when already connected").log();
+        return;
+      }
       connection = DriverManager.getConnection(getPath());
     } catch (SQLException exception) {
-      if (databaseType == SQLITE)
-        new Error("Failed to connect to SQLite database", exception).log();
-      else if (databaseType == MYSQL)
-        new Error("Failed to connect to MySQL database", exception).log();
+      new Error("Failed to connect to database", exception).log();
     }
   }
   
   private void closeConnection() {
     try {
-      if (connection != null && !connection.isClosed()) {
-        connection.close();
+      if (connection == null) {
+        new Error("Attempted to close connection with database when connection doesn't exist").log();
+        return;
       }
+      if (connection.isClosed()) {
+        new Error("Attempted to close connection with database when connection is already closed").log();
+        return;
+      }
+      connection.close();
     } catch (SQLException exception) {
-      if (databaseType == SQLITE)
-        new Error("Error while closing SQLite database connection", exception).log();
-      else if (databaseType == MYSQL)
-        new Error("Error while closing MySQL database connection", exception).log();
+      new Error("Error while closing database connection", exception).log();
     }
   }
   
   private void createTable() {
-    String sql = "CREATE TABLE IF NOT EXISTS playerdata (uuid CHAR(36) PRIMARY KEY, name CHAR(16), balance REAL NOT NULL, payable BOOL NOT NULL);";
-    try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-      pstmt.execute();
+    String sql = "CREATE TABLE IF NOT EXISTS playerdata (uuid CHAR(36) PRIMARY KEY, name CHAR(16), balance REAL NOT NULL, payable BOOLEAN NOT NULL);";
+    try (Statement stmt = connection.createStatement()) {
+      stmt.execute(sql);
       ResultSet tables = connection.getMetaData().getTables(null, null, "playerdata", null);
-      if (tables.next())
-        Logger.log(Component.text("Successfully created table", NamedTextColor.GREEN));
-      else
-        new Error("Failed to create table").log();
+      if (!tables.next())
+        new Error("Failed to create table", tables.getWarnings()).log();
     } catch (SQLException exception) {
       new Error("Failed to create table", exception).log();
     }
@@ -89,13 +89,12 @@ public class SQLStorageFormat implements StorageFormat {
     try {
       if (connection == null || connection.isClosed())
         new Error("Failed to open connection").log();
-      else
-        Logger.log(Component.text("Successfully opened connection", NamedTextColor.GREEN));
     } catch (SQLException exception) {
       new Error("Failed to check if connection was opened", exception).log();
     }
     createTable();
     checkCustomCurrencyColumns();
+    Logger.log(Component.text("Successfully initiated storage processes", NamedTextColor.GREEN));
     return true;
   }
   

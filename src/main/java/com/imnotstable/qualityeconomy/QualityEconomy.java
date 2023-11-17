@@ -1,6 +1,5 @@
 package com.imnotstable.qualityeconomy;
 
-import com.imnotstable.qualityeconomy.bStats.Metrics;
 import com.imnotstable.qualityeconomy.banknotes.BankNotes;
 import com.imnotstable.qualityeconomy.commands.CommandManager;
 import com.imnotstable.qualityeconomy.commands.MainCommand;
@@ -12,6 +11,7 @@ import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -40,18 +40,16 @@ public final class QualityEconomy extends JavaPlugin {
     CommandAPI.onEnable();
     new Metrics(this, 20121);
     
+    Configuration.load();
+    Messages.load();
+    CustomCurrencies.loadCustomCurrencies();
+    MainCommand.loadCommand();
+    CommandManager.loadCommands();
+    
     HookManager.loadHooks(this);
     
     Bukkit.getPluginManager().registerEvents(new StorageManager(), this);
     Bukkit.getPluginManager().registerEvents(new BankNotes(), this);
-    
-    Configuration.loadConfiguration();
-    Configuration.updateConfiguration();
-    Messages.loadMessages();
-    Messages.updateMessages();
-    CustomCurrencies.loadCustomCurrencies();
-    MainCommand.loadCommand();
-    CommandManager.loadCommands();
     
     StorageManager.initStorageProcesses();
     

@@ -1,6 +1,7 @@
 package com.imnotstable.qualityeconomy.banknotes;
 
 import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.Account;
 import com.imnotstable.qualityeconomy.storage.AccountManager;
@@ -31,7 +32,7 @@ public class BankNotes implements Listener {
   
   public static void loadCommand() {
     new CommandAPICommand("withdraw")
-      .withArguments(new DoubleArgument("amount", 0.01))
+      .withArguments(new DoubleArgument("amount", Number.getMinimumValue()))
       .executesPlayer((sender, args) -> {
         double amount = Number.round((double) args.get("amount"));
         Account account = AccountManager.getAccount(sender.getUniqueId());
@@ -43,7 +44,7 @@ public class BankNotes implements Listener {
         AccountManager.updateAccount(account.setBalance(account.getBalance() - amount));
         ItemStack item = BankNotes.getBankNote(amount, sender);
         sender.getInventory().addItem(item);
-        sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage("withdraw.withdraw"),
+        sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.WITHDRAW),
           TagResolver.resolver("amount", Tag.selfClosingInserting(Component.text(Number.formatCommas(amount))))));
       })
       .register();
@@ -68,7 +69,7 @@ public class BankNotes implements Listener {
   
   @EventHandler
   public void on(PlayerInteractEvent event) {
-    if (!Configuration.BANKNOTES || event.getItem() == null || !event.getItem().getType().equals(Material.PAPER) || !event.getAction().isRightClick())
+    if (!Configuration.areBanknotesEnabled() || event.getItem() == null || !event.getItem().getType().equals(Material.PAPER) || !event.getAction().isRightClick())
       return;
     ItemMeta meta = event.getItem().getItemMeta();
     if (!meta.hasCustomModelData() || meta.getCustomModelData() != 1234567890)

@@ -1,7 +1,7 @@
 name: QualityEconomy
-author: "ImNotStable"
+authors: ["ImNotStable"]
 main: com.imnotstable.qualityeconomy.QualityEconomy
 version: '${project.version}'
 api-version: 1.19
-depend: [ ]
-softdepend: [ PlaceholderAPI, Vault ]
+depend: []
+softdepend: [PlaceholderAPI, Vault]

@@ -23,8 +23,15 @@ public class Number {
   }
   
   public static double round(double n) {
-    double multiplier = Math.pow(10, Configuration.DECIMAL_PLACES);
+    double multiplier = Math.pow(10, (Configuration.getDecimalPlaces() + 1));
     return Math.round(n * multiplier) / multiplier;
+  }
+  
+  public static double getMinimumValue() {
+    if (Configuration.getDecimalPlaces() <= 0)
+      return 0.0;
+    else
+      return Math.pow(10, -Configuration.getDecimalPlaces());
   }
   
 }

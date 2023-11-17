@@ -20,6 +20,8 @@ public class AccountManager {
   public static Account createAccount(UUID uuid) {
     synchronized (StorageManager.lock) {
       TestToolkit.Timer timer = new TestToolkit.Timer("Creating account...");
+      if (!Bukkit.getOfflinePlayer(uuid).hasPlayedBefore())
+        return new Account(uuid).setName(uuid.toString()).setBalance(0).setPayable(false);
       StorageFormat activeStorageFormat = StorageManager.getActiveStorageFormat();
       Account account;
       String name = Bukkit.getOfflinePlayer(uuid).getName();

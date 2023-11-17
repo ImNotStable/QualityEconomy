@@ -9,10 +9,16 @@ public class Error {
   private final Component informativeMessage;
   private Component title = Component.text("QualityEconomy Error", NamedTextColor.DARK_RED);
   private Exception exception;
+  private String extraInformation;
   
   public Error(String informativeMessage, Exception exception) {
     this.informativeMessage = Component.text(informativeMessage);
     this.exception = exception;
+  }
+  
+  public Error(String informativeMessage, String extraInformation) {
+    this.informativeMessage = Component.text(informativeMessage);
+    this.extraInformation = extraInformation;
   }
   
   public Error(String informativeMessage) {
@@ -40,6 +46,9 @@ public class Error {
     Logger.nl();
     if (exception != null) {
       Logger.log(Component.text("Exception: " + exception.getMessage(), NamedTextColor.RED));
+      Logger.nl();
+    } else if (extraInformation != null) {
+      Logger.log(Component.text("Extra Information: " + exception.getMessage(), NamedTextColor.RED));
       Logger.nl();
     }
   }

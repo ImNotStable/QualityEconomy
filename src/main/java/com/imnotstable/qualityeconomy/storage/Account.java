@@ -45,11 +45,12 @@ public class Account {
   }
   
   public Account setCustomBalance(String currency, double balance) {
-    otherBalances.put(currency, balance);
+    otherBalances.put(currency, Number.round(balance));
     return this;
   }
   
   public Account setCustomBalances(Map<String, Double> balanceMap) {
+    balanceMap.replaceAll((currency, balance) -> Number.round(balance));
     otherBalances.putAll(balanceMap);
     return this;
   }

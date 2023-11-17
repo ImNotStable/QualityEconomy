@@ -4,22 +4,28 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.AccountManager;
-import com.imnotstable.qualityeconomy.storage.StorageManager;
+import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
+import com.imnotstable.qualityeconomy.util.Error;
 import com.imnotstable.qualityeconomy.util.Logger;
-import com.imnotstable.qualityeconomy.util.UUID;
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.UUID;
 
 public class PlaceholderHook extends PlaceholderExpansion {
   
   public static void initPlaceholderHook() {
     new PlaceholderHook().register();
-    Logger.log(Component.text("Successfully loaded PlaceholderAPI hook.", NamedTextColor.GREEN));
+    if (PlaceholderAPI.isRegistered(QualityEconomy.getInstance().getName()))
+      Logger.log(Component.text("Successfully registered expansion with PlaceholderAPI", NamedTextColor.GREEN));
+    else
+      Logger.log(Component.text("Failed to register expansion with PlaceholderAPI", NamedTextColor.RED));
   }
   
   @Override
@@ -29,7 +35,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
   
   @Override
   public @NotNull String getAuthor() {
-    return "ImNotStable";
+    return String.join(", ", QualityEconomy.getInstance().getDescription().getAuthors());
   }
   
   @Override
@@ -39,7 +45,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
   
   @Override
   public @NotNull String getVersion() {
-    return Configuration.VERSION;
+    return Configuration.getVersion();
   }
   
   @Override
@@ -49,49 +55,80 @@ public class PlaceholderHook extends PlaceholderExpansion {
   
   @Override
   public @NotNull List<String> getPlaceholders() {
-    return List.of("balancetop_#<number>", "balance", "balance_<uuid>", "balance_<player>", "isPayable", "isPayable_<uuid>", "isPayable_<player>");
+    return List.of(
+      "balancetop_#<integer>",
+      "balance", "balance_<uuid>", "balance_<player>",
+      "cbalance_<currency>", "cbalance_<currency>_<uuid>", "cbalance_<currency>_<player>",
+      "isPayable", "isPayable_<uuid>", "isPayable_<player>"
+    );
   }
   
   @Override
-  public String onPlaceholderRequest(Player player, String identifier) {
-    String[] splitIdentifier = identifier.split("_");
+  public String onPlaceholderRequest(Player player, @NotNull String input) {
+    String[] elements = input.split("_");
     
-    switch (splitIdentifier[0]) {
-      
+    switch (elements[0]) {
       case "balancetop" -> {
-        int place = Integer.parseInt(splitIdentifier[1].substring(1)) - 1;
-        return BalanceTopCommand.orderedPlayerList.get(place).getName();
-      }
-      
-      case "balance" -> {
-        java.util.UUID uuid;
-        if (splitIdentifier.length > 1) {
-          if (UUID.isValidUUID(splitIdentifier[1])) {
-            uuid = java.util.UUID.fromString(splitIdentifier[1]);
-          } else {
-            uuid = StorageManager.getUUID(splitIdentifier[1]);
+        if (elements.length == 2 && elements[1].startsWith("#")) {
+          try {
+            int place = Integer.parseInt(elements[1].substring(1)) - 1;
+            return BalanceTopCommand.orderedPlayerList.get(place).getName();
+          } catch (NumberFormatException exception) {
+            new Error("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
           }
-        } else {
-          uuid = StorageManager.getUUID(player);
         }
+      }
+      case "balance" -> {
+        UUID uuid = null;
+        if (elements.length == 2) {
+          if (com.imnotstable.qualityeconomy.util.UUID.isValidUUID(elements[1])) {
+            uuid = UUID.fromString(elements[1]);
+          } else {
+            uuid = Bukkit.getOfflinePlayer(elements[1]).getUniqueId();
+          }
+        }
+        else if (elements.length == 1) {
+          uuid = player.getUniqueId();
+        }
+        if (uuid == null)
+          return null;
         return String.valueOf(AccountManager.getAccount(uuid).getBalance());
       }
-      
-      case "isPayable" -> {
-        java.util.UUID uuid;
-        if (splitIdentifier.length > 1) {
-          if (UUID.isValidUUID(splitIdentifier[1])) {
-            uuid = java.util.UUID.fromString(splitIdentifier[1]);
+      case "cbalance" -> {
+        UUID uuid = null;
+        if (elements.length == 3) {
+          if (com.imnotstable.qualityeconomy.util.UUID.isValidUUID(elements[2])) {
+            uuid = UUID.fromString(elements[2]);
           } else {
-            uuid = StorageManager.getUUID(splitIdentifier[1]);
+            uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();
           }
-        } else {
-          uuid = StorageManager.getUUID(player);
         }
+        else if (elements.length == 2) {
+          uuid = player.getUniqueId();
+        }
+        if (uuid == null)
+          return null;
+        if (!CustomCurrencies.getCustomCurrencies().contains(elements[1]))
+          return null;
+        return String.valueOf(AccountManager.getAccount(uuid).getCustomBalance(elements[1]));
+      }
+      case "isPayable" -> {
+        UUID uuid = null;
+        if (elements.length == 2) {
+          if (com.imnotstable.qualityeconomy.util.UUID.isValidUUID(elements[1])) {
+            uuid = UUID.fromString(elements[1]);
+          } else {
+            uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();
+          }
+        } else if (elements.length == 1) {
+          uuid = player.getUniqueId();
+        }
+        if (uuid == null)
+          return null;
         return String.valueOf(AccountManager.getAccount(uuid).getPayable());
       }
-      
     }
+    
     return null;
   }
   
