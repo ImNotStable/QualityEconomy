@@ -8,9 +8,12 @@ import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.hooks.HookManager;
 import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
+import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,6 +38,10 @@ public final class QualityEconomy extends JavaPlugin {
   
   @Override
   public void onEnable() {
+    if (new File(this.getDataFolder(), "debug_mode").exists()) {
+      TestToolkit.DEBUG_MODE = true;
+      Logger.log(Component.text("Enabled DEBUG_MODE", NamedTextColor.GRAY));
+    }
     TestToolkit.Timer timer = new TestToolkit.Timer("Enabling QualityEconomy...");
     instance = this;
     CommandAPI.onEnable();
@@ -43,8 +50,8 @@ public final class QualityEconomy extends JavaPlugin {
     Configuration.load();
     Messages.load();
     CustomCurrencies.loadCustomCurrencies();
-    MainCommand.loadCommand();
-    CommandManager.loadCommands();
+    MainCommand.register();
+    CommandManager.registerCommands();
     
     HookManager.loadHooks(this);
     

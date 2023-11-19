@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
-public interface StorageFormat {
+public interface StorageType {
   
   boolean initStorageProcesses();
   

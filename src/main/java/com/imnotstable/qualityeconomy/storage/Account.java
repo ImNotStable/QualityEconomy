@@ -10,7 +10,7 @@ public class Account {
   
   private final UUID uuid;
   private String name;
-  private double balance = 0D;
+  private double balance = 0.0;
   private final Map<String, Double> otherBalances = new HashMap<>();
   private boolean payable = true;
   

@@ -1,9 +1,10 @@
 package com.imnotstable.qualityeconomy.storage;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.storage.storageformats.StorageFormat;
+import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -20,14 +21,15 @@ public class AccountManager {
   public static Account createAccount(UUID uuid) {
     synchronized (StorageManager.lock) {
       TestToolkit.Timer timer = new TestToolkit.Timer("Creating account...");
-      if (!Bukkit.getOfflinePlayer(uuid).hasPlayedBefore())
-        return new Account(uuid).setName(uuid.toString()).setBalance(0).setPayable(false);
-      StorageFormat activeStorageFormat = StorageManager.getActiveStorageFormat();
+      OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+      if (!offlinePlayer.hasPlayedBefore() && !offlinePlayer.isOnline())
+        return new Account(uuid).setName(uuid.toString()).setPayable(false);
+      StorageType activeStorageType = StorageManager.getActiveStorageFormat();
       Account account;
       String name = Bukkit.getOfflinePlayer(uuid).getName();
       if (!accountExists(uuid)) {
-        account = new Account(uuid).setBalance(0).setPayable(true);
-        activeStorageFormat.createAccount(account);
+        account = new Account(uuid);
+        activeStorageType.createAccount(account);
       } else
         account = getAccount(uuid);
       accounts.put(uuid, account.setName(name));

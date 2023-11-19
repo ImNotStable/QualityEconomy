@@ -2,9 +2,11 @@ package com.imnotstable.qualityeconomy.storage;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.storage.storageformats.JsonStorageFormat;
-import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageFormat;
-import com.imnotstable.qualityeconomy.storage.storageformats.StorageFormat;
+import com.imnotstable.qualityeconomy.storage.storageformats.H2StorageType;
+import com.imnotstable.qualityeconomy.storage.storageformats.JsonStorageType;
+import com.imnotstable.qualityeconomy.storage.storageformats.MySQLStorageType;
+import com.imnotstable.qualityeconomy.storage.storageformats.SQLiteStorageType;
+import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.util.Error;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
@@ -36,20 +38,21 @@ public class StorageManager implements Listener {
   
   private static final DateTimeFormatter EXPORT_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy.MM.dd HH-mm");
   public static final Object lock = new Object();
-  private static StorageFormat activeStorageFormat;
+  private static StorageType activeStorageType;
   private static int backupSchedulerID = 0;
   
-  public static StorageFormat getActiveStorageFormat() {
-    return activeStorageFormat;
+  public static StorageType getActiveStorageFormat() {
+    return activeStorageType;
   }
   
   public static void initStorageProcesses() {
     synchronized (lock) {
       TestToolkit.Timer timer = new TestToolkit.Timer("Initiating storage processes...");
       switch (Configuration.getStorageType()) {
-        case "sqlite" -> activeStorageFormat = new SQLStorageFormat(1);
-        case "mysql" -> activeStorageFormat = new SQLStorageFormat(2);
-        case "json" -> activeStorageFormat = new JsonStorageFormat();
+        case "sqlite" -> activeStorageType = new SQLiteStorageType();
+        case "mysql" -> activeStorageType = new MySQLStorageType();
+        case "h2" -> activeStorageType = new H2StorageType();
+        case "json" -> activeStorageType = new JsonStorageType();
         default -> {
           new Error("Unexpected Storage Type: " + Configuration.getStorageType()).log();
           timer.interrupt("Failed to initiate storage processes");
@@ -57,7 +60,7 @@ public class StorageManager implements Listener {
           return;
         }
       }
-      if (!activeStorageFormat.initStorageProcesses()) {
+      if (!activeStorageType.initStorageProcesses()) {
         new Error("Failed to initiate storage processes").log();
         timer.interrupt("Failed to initiate storage processes");
         return;
@@ -85,7 +88,7 @@ public class StorageManager implements Listener {
         backupSchedulerID = 0;
       }
       
-      activeStorageFormat.endStorageProcesses();
+      activeStorageType.endStorageProcesses();
       timer.end("Terminated storage processes");
     }
   }
@@ -107,8 +110,8 @@ public class StorageManager implements Listener {
           }
           JSONObject rootJson = new JSONObject();
           rootJson.put("custom-currencies", CustomCurrencies.getCustomCurrencies());
-          StorageFormat storageFormat = StorageManager.getActiveStorageFormat();
-          storageFormat.getAllAccounts().forEach((uuid, account) -> {
+          StorageType storageType = StorageManager.getActiveStorageFormat();
+          storageType.getAllAccounts().forEach((uuid, account) -> {
             JSONObject accountJson = new JSONObject();
             accountJson.put("name", account.getName());
             accountJson.put("balance", account.getBalance());
@@ -137,8 +140,8 @@ public class StorageManager implements Listener {
           TestToolkit.Timer timer = new TestToolkit.Timer("Importing database...");
           String path = String.format("plugins/QualityEconomy/%s", fileName);
           AccountManager.clearAccounts();
-          StorageFormat storageFormat = StorageManager.getActiveStorageFormat();
-          storageFormat.wipeDatabase();
+          StorageType storageType = StorageManager.getActiveStorageFormat();
+          storageType.wipeDatabase();
           for (String currency : CustomCurrencies.getCustomCurrencies())
             CustomCurrencies.deleteCustomCurrency(currency);
           Collection<Account> accounts = new ArrayList<>();
@@ -166,7 +169,7 @@ public class StorageManager implements Listener {
               }
               accounts.add(new Account(uuid).setName(name).setBalance(balance).setPayable(payable).setCustomBalances(balanceMap));
             });
-            storageFormat.createAccounts(accounts);
+            storageType.createAccounts(accounts);
             timer.progress();
           } catch (IOException exception) {
             new Error("Error while importing playerdata", exception).log();

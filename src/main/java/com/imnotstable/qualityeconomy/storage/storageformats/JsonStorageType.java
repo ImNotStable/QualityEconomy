@@ -20,7 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class JsonStorageFormat implements StorageFormat {
+public class JsonStorageType implements StorageType {
   
   private final HashMap<UUID, JSONObject> configurations = new HashMap<>();
   private final String PATH = QualityEconomy.getPluginFolder() + "/playerdata/";
@@ -102,9 +102,8 @@ public class JsonStorageFormat implements StorageFormat {
   
   public Account getAccount(UUID uuid) {
     JSONObject configuration = getConfiguration(uuid);
-    if (!accountExists(uuid)) {
-      return new Account(uuid).setName("null").setBalance(0.0).setPayable(true).setCustomBalances(new HashMap<>());
-    }
+    if (!accountExists(uuid))
+      return new Account(uuid);
     
     Map<String, Double> balanceMap = new HashMap<>();
     for (String currency : CustomCurrencies.getCustomCurrencies()) {

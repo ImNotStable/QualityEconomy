@@ -27,7 +27,7 @@ public class MainCommand {
   
   private static final Pattern IMPORT_FILE_PATTERN = Pattern.compile("^QualityEconomy \\d{4}.\\d{2}.\\d{2} \\d{2}-\\d{2}\\.json$");
   
-  public static void loadCommand() {
+  public static void register() {
     new CommandTree("qualityeconomy")
       .withAliases("qe")
       .withPermission("qualityeconomy.admin")
@@ -86,13 +86,25 @@ public class MainCommand {
         .then(new LiteralArgument("createCustomCurrency")
           .then(new StringArgument("name")
             .executes((sender, args) -> {
-              CustomCurrencies.createCustomCurrency((String) args.get("name"));
+              String currency = (String) args.get("name");
+              if (CustomCurrencies.getCustomCurrencies().contains(currency)) {
+                sender.sendMessage(Component.text("That currency already exists", NamedTextColor.RED));
+                return;
+              }
+              sender.sendMessage(Component.text("Creating custom currency \"" + currency + "\"", NamedTextColor.GRAY));
+              CustomCurrencies.createCustomCurrency(currency);
             })))
         .then(new LiteralArgument("deleteCustomCurrency")
           .then(new StringArgument("name")
             .replaceSuggestions(ArgumentSuggestions.strings(info -> CustomCurrencies.getCustomCurrencies().toArray(new String[0])))
             .executes((sender, args) -> {
-              CustomCurrencies.deleteCustomCurrency((String) args.get("name"));
+              String currency = (String) args.get("name");
+              if (!CustomCurrencies.getCustomCurrencies().contains(currency)) {
+                sender.sendMessage(Component.text("That currency does not exist", NamedTextColor.RED));
+                return;
+              }
+              sender.sendMessage(Component.text("Deleting custom currency \"" + currency + "\"", NamedTextColor.GRAY));
+              CustomCurrencies.deleteCustomCurrency(currency);
             })
           )))
       .register();
@@ -104,8 +116,8 @@ public class MainCommand {
       StorageManager.endStorageProcesses();
       Configuration.load();
       Messages.load();
-      CommandManager.unloadCommands();
-      CommandManager.loadCommands();
+      CommandManager.unregisterCommands();
+      CommandManager.registerCommands();
       StorageManager.initStorageProcesses();
       timer.end("Reloaded QualityEconomy");
     }

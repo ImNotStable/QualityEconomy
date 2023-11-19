@@ -30,11 +30,11 @@ import java.util.List;
 
 public class BankNotes implements Listener {
   
-  public static void loadCommand() {
+  public static void register() {
     new CommandAPICommand("withdraw")
       .withArguments(new DoubleArgument("amount", Number.getMinimumValue()))
       .executesPlayer((sender, args) -> {
-        double amount = Number.round((double) args.get("amount"));
+        double amount = Number.round(args.get("amount"));
         Account account = AccountManager.getAccount(sender.getUniqueId());
         double balance = account.getBalance();
         if (balance < amount) {
@@ -42,15 +42,14 @@ public class BankNotes implements Listener {
           return;
         }
         AccountManager.updateAccount(account.setBalance(account.getBalance() - amount));
-        ItemStack item = BankNotes.getBankNote(amount, sender);
-        sender.getInventory().addItem(item);
+        sender.getInventory().addItem(BankNotes.getBankNote(amount, sender));
         sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.WITHDRAW),
           TagResolver.resolver("amount", Tag.selfClosingInserting(Component.text(Number.formatCommas(amount))))));
       })
       .register();
   }
   
-  public static void unloadCommand() {
+  public static void unregister() {
     CommandAPI.unregister("withdraw", true);
   }
   
