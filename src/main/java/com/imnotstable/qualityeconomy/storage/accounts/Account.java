@@ -1,4 +1,4 @@
-package com.imnotstable.qualityeconomy.storage;
+package com.imnotstable.qualityeconomy.storage.accounts;
 
 import com.imnotstable.qualityeconomy.util.Number;
 

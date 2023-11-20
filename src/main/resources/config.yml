@@ -1,4 +1,4 @@
-# This is the storage type the plugin with use
+# This is the storage type the plugin will use
 # Choose one of the options below
 # h2 - faster than sqlite (still working out possible bugs, it does function though)
 # sqlite - is faster and more efficient
@@ -7,19 +7,25 @@
 storage-type: sqlite
 
 # Amount of decimal places allowed within balances
+# -1 to disable rounding
 decimal-places: 3
 
 # Whether you want players to be able to withdraw
 # they're money to 'checks' or 'banknotes'
 banknotes: false
 
-# Chose whether you want these commands enabled
+# Whether you want these commands enabled
 commands:
   balance: true
   balancetop: true
   economy: true
   pay: true
-custom-economy-commands:
+
+# Whether you want custom currency functionality enabled.
+custom-currencies: false
+
+# Whether you want these commands enabled
+custom-currency-commands:
   custombalance: true
   customeconomy: true
 
@@ -37,6 +43,3 @@ MySQL:
   host: localhost:3306
   user: root
   password: root
-
-# Don't touch this
-version: ${project.version}

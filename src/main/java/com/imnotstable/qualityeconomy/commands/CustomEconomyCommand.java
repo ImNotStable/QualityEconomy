@@ -1,9 +1,9 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
-import com.imnotstable.qualityeconomy.storage.Account;
-import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
@@ -28,7 +28,7 @@ public class CustomEconomyCommand {
   private static boolean isRegistered = false;
   
   public static void register() {
-    if (isRegistered)
+    if (isRegistered || !Configuration.isCustomEconomyCommandEnabled() || CustomCurrencies.getCustomCurrencies().isEmpty())
       return;
     new CommandTree("customeconomy")
       .withAliases("ceconomy", "customeco", "ceco")
@@ -46,6 +46,8 @@ public class CustomEconomyCommand {
   }
   
   public static void unregister() {
+    if (!isRegistered)
+      return;
     CommandAPI.unregister("customeconomy", true);
     isRegistered = false;
   }
@@ -57,11 +59,11 @@ public class CustomEconomyCommand {
       return;
     }
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!AccountManager.accountExists(target.getUniqueId())) {
+    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
-    AccountManager.updateAccount(AccountManager.getAccount(target.getUniqueId()).setCustomBalance(currency, 0));
+    QualityEconomyAPI.setCustomBalance(target.getUniqueId(), currency, 0);
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_RESET),
       TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName()))),
       TagResolver.resolver("", Tag.selfClosingInserting(Component.text("")))));
@@ -74,12 +76,12 @@ public class CustomEconomyCommand {
       return;
     }
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!AccountManager.accountExists(target.getUniqueId())) {
+    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
-    double balance = (double) args.get("amount");
-    AccountManager.updateAccount(AccountManager.getAccount(target.getUniqueId()).setCustomBalance(currency, balance));
+    double balance = Number.roundObj(args.get("amount"));
+    QualityEconomyAPI.setCustomBalance(target.getUniqueId(), currency, balance);
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_SET),
       TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName()))),
       TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(balance))))));
@@ -92,13 +94,12 @@ public class CustomEconomyCommand {
       return;
     }
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!AccountManager.accountExists(target.getUniqueId())) {
+    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
-    Account account = AccountManager.getAccount(target.getUniqueId());
-    double balance = (double) args.get("amount");
-    AccountManager.updateAccount(account.setCustomBalance(currency, account.getCustomBalance(currency) + balance));
+    double balance = Number.roundObj(args.get("amount"));
+    QualityEconomyAPI.addCustomBalance(target.getUniqueId(), currency, balance);
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_ADD),
       TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(balance)))),
       TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName())))));
@@ -111,13 +112,12 @@ public class CustomEconomyCommand {
       return;
     }
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!AccountManager.accountExists(target.getUniqueId())) {
+    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
-    Account account = AccountManager.getAccount(target.getUniqueId());
-    double balance = (double) args.get("amount");
-    AccountManager.updateAccount(account.setCustomBalance(currency, account.getCustomBalance(currency) - balance));
+    double balance = Number.roundObj(args.get("amount"));
+    QualityEconomyAPI.removeCustomBalance(target.getUniqueId(), currency, balance);
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_REMOVE),
       TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(balance)))),
       TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName())))));

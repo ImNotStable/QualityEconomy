@@ -22,11 +22,17 @@ public class Number {
     return COMMA_FORMAT.format(value);
   }
   
-  public static double round(Object obj) {
-    if (!(obj instanceof Double n))
-      return 0.0;
-    double multiplier = Math.pow(10, (Configuration.getDecimalPlaces() + 1));
-    return Math.round(n * multiplier) / multiplier;
+  public static double roundObj(Object obj) {
+    if (obj instanceof Double n)
+      return round(n);
+    return 0.0;
+  }
+  
+  public static double round(double n) {
+    if (Configuration.getDecimalPlaces() == -1)
+      return n;
+    double multiplier = Math.pow(10, Configuration.getDecimalPlaces());
+    return Math.floor(n * multiplier) / multiplier;
   }
   
   public static double getMinimumValue() {

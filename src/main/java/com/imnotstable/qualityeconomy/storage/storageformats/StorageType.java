@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
-import com.imnotstable.qualityeconomy.storage.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.Account;
 
 import java.util.Collection;
 import java.util.Map;

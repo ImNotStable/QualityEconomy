@@ -1,9 +1,9 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
-import com.imnotstable.qualityeconomy.storage.Account;
-import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
@@ -26,7 +26,7 @@ public class PayCommand {
   private static boolean isRegistered = false;
   
   public static void register() {
-    if (isRegistered)
+    if (isRegistered || !Configuration.isPayCommandEnabled())
       return;
     new CommandTree("pay")
       .then(new LiteralArgument("toggle")
@@ -40,14 +40,15 @@ public class PayCommand {
   }
   
   public static void unregister() {
+    if (!isRegistered)
+      return;
     CommandAPI.unregister("pay", true);
     isRegistered = false;
   }
   
   private static void togglePay(Player sender, CommandArguments args) {
-    Account account = AccountManager.getAccount(sender.getUniqueId());
-    boolean toggle = !account.getPayable();
-    AccountManager.updateAccount(account.setPayable(toggle));
+    boolean toggle = !QualityEconomyAPI.isPayable(sender.getUniqueId());
+    QualityEconomyAPI.setPayable(sender.getUniqueId(), toggle);
     if (toggle) {
       sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.PAY_TOGGLE_ON)));
     } else {
@@ -58,30 +59,27 @@ public class PayCommand {
   private static void pay(Player sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     
-    if (!AccountManager.accountExists(target.getUniqueId())) {
+    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
-    if (!AccountManager.getAccount(target.getUniqueId()).getPayable()) {
+    if (!QualityEconomyAPI.isPayable(target.getUniqueId())) {
       sender.sendMessage(Component.text("This player is not accepting payments", NamedTextColor.RED));
       return;
     }
-    double amount = (double) args.get("amount");
-    Account account = AccountManager.getAccount(sender.getUniqueId());
-    if (account.getBalance() < amount) {
+    double amount = Number.roundObj(args.get("amount"));
+    if (!QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount)) {
       sender.sendMessage(Component.text("You do not have enough money", NamedTextColor.RED));
       return;
     }
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.PAY_SEND),
       TagResolver.resolver("amount", Tag.selfClosingInserting(Component.text(Number.formatCommas(amount)))),
       TagResolver.resolver("target", Tag.selfClosingInserting(Component.text(args.getRaw("target"))))));
-    Account receiverAccount = AccountManager.getAccount(target.getUniqueId());
-    AccountManager.updateAccount(account.setBalance(account.getBalance() - amount));
     if (target.isOnline())
       target.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.PAY_RECEIVE),
         TagResolver.resolver("amount", Tag.selfClosingInserting(Component.text(Number.formatCommas(amount)))),
         TagResolver.resolver("sender", Tag.selfClosingInserting(Component.text(sender.getName())))));
-    AccountManager.updateAccount(receiverAccount.setBalance(receiverAccount.getBalance() + amount));
+    QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), amount);
   }
   
 }

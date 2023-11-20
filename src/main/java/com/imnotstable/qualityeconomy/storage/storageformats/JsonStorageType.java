@@ -1,9 +1,10 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.storage.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
-import com.imnotstable.qualityeconomy.util.Error;
+import com.imnotstable.qualityeconomy.util.QualityError;
+import com.imnotstable.qualityeconomy.util.Misc;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -23,10 +24,10 @@ import java.util.stream.StreamSupport;
 public class JsonStorageType implements StorageType {
   
   private final HashMap<UUID, JSONObject> configurations = new HashMap<>();
-  private final String PATH = QualityEconomy.getPluginFolder() + "/playerdata/";
+  private final File DIRECTORY = new File(QualityEconomy.getInstance().getDataFolder() + "/playerdata");
   
   private File getFile(UUID uuid) {
-    return new File(PATH + uuid + ".json");
+    return new File(DIRECTORY, uuid + ".json");
   }
   
   private JSONObject getConfiguration(UUID uuid) {
@@ -35,7 +36,7 @@ public class JsonStorageType implements StorageType {
   
   @Override
   public boolean initStorageProcesses() {
-    new File(PATH).mkdir();
+    DIRECTORY.mkdir();
     return true;
   }
   
@@ -45,17 +46,15 @@ public class JsonStorageType implements StorageType {
   
   @Override
   public void wipeDatabase() {
-    File dir = new File(PATH);
-    
-    if (!dir.isDirectory())
+    if (!DIRECTORY.isDirectory())
       return;
     
-    if (!dir.delete()) {
-      new Error("Failed to wipe playerdata").log();
+    if (!DIRECTORY.delete()) {
+      new QualityError("Failed to wipe playerdata").log();
       return;
     }
     
-    dir.mkdir();
+    DIRECTORY.mkdir();
   }
   
   @Override
@@ -81,11 +80,11 @@ public class JsonStorageType implements StorageType {
       try {
         Files.write(Paths.get(getFile(account.getUUID()).getPath()), configuration.toString().getBytes());
       } catch (IOException exception) {
-        new Error("Failed to save account (" + account.getUUID() + ")", exception).log();
+        new QualityError("Failed to save account (" + account.getUUID() + ")", exception).log();
       }
       return accountExists(uuid);
     } catch (IOException exception) {
-      new Error("Failed to create account (" + uuid.toString() + ")", exception).log();
+      new QualityError("Failed to create account (" + uuid.toString() + ")", exception).log();
     }
     return false;
   }
@@ -142,10 +141,10 @@ public class JsonStorageType implements StorageType {
       try {
         Files.write(Paths.get(getFile(account.getUUID()).getPath()), configurations.get(account.getUUID()).toString().getBytes());
       } catch (IOException exception) {
-        new Error("Failed to save account (" + account.getUUID() + ")", exception).log();
+        new QualityError("Failed to save account (" + account.getUUID() + ")", exception).log();
       }
     } else {
-      new Error("Failed to find account (" + account.getUUID().toString() + ")").log();
+      new QualityError("Failed to find account (" + account.getUUID().toString() + ")").log();
     }
   }
   
@@ -156,17 +155,17 @@ public class JsonStorageType implements StorageType {
   
   @Override
   public Collection<UUID> getAllUUIDs() {
-    Path dirPath = Paths.get(PATH);
+    Path dirPath = Paths.get(DIRECTORY.getPath());
     
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(dirPath, "*.json")) {
       return StreamSupport.stream(stream.spliterator(), false)
         .map(path -> path.getFileName().toString())
         .map(fileName -> fileName.substring(0, fileName.lastIndexOf('.')))
-        .filter(com.imnotstable.qualityeconomy.util.UUID::isValidUUID)
+        .filter(Misc::isValidUUID)
         .map(UUID::fromString)
         .collect(Collectors.toList());
     } catch (IOException exception) {
-      new Error("Failed to collect all uuids.", exception).log();
+      new QualityError("Failed to collect all uuids.", exception).log();
     }
     return Collections.emptyList();
   }

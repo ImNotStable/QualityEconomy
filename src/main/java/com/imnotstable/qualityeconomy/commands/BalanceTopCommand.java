@@ -4,8 +4,8 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
-import com.imnotstable.qualityeconomy.storage.Account;
-import com.imnotstable.qualityeconomy.storage.AccountManager;
+import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
 import dev.jorel.commandapi.CommandAPI;
@@ -35,7 +35,7 @@ public class BalanceTopCommand {
   private static int taskID;
   
   public static void register() {
-    if (isRegistered)
+    if (isRegistered || !Configuration.isBalancetopCommandEnabled())
       return;
     new CommandTree("balancetop")
       .withAliases("baltop")
@@ -51,6 +51,8 @@ public class BalanceTopCommand {
   }
   
   public static void unregister() {
+    if (!isRegistered)
+      return;
     CommandAPI.unregister("balancetop", true);
     Bukkit.getScheduler().cancelTask(taskID);
     isRegistered = false;

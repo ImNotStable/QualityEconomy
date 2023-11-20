@@ -3,7 +3,6 @@ package com.imnotstable.qualityeconomy.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-@SuppressWarnings("all")
 public class TestToolkit {
   
   public static boolean DEBUG_MODE = false;

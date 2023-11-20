@@ -3,7 +3,8 @@ package com.imnotstable.qualityeconomy.storage;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.commands.CustomBalanceCommand;
 import com.imnotstable.qualityeconomy.commands.CustomEconomyCommand;
-import com.imnotstable.qualityeconomy.util.Error;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.util.QualityError;
 import com.imnotstable.qualityeconomy.util.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -16,10 +17,12 @@ import java.util.List;
 
 public class CustomCurrencies {
   
-  private static final File file = new File(QualityEconomy.getPluginFolder(), "customCurrencies.yml");
+  private static final File file = new File(QualityEconomy.getInstance().getDataFolder(), "customCurrencies.yml");
   private static List<String> customCurrencies = new ArrayList<>();
   
   public static void loadCustomCurrencies() {
+    if (!Configuration.areCustomCurrenciesEnabled())
+      return;
     if (!file.exists())
       return;
     customCurrencies = YamlConfiguration.loadConfiguration(file).getStringList("custom-currencies");
@@ -32,10 +35,12 @@ public class CustomCurrencies {
   }
   
   public static void createCustomCurrency(String currencyName) {
+    if (!Configuration.areCustomCurrenciesEnabled())
+      return;
     synchronized (StorageManager.lock) {
       currencyName = currencyName.replaceAll(" ", "_").toLowerCase();
       if (List.of("uuid", "name", "balance", "payable").contains(currencyName)) {
-        new Error("Failed to create currency \"" + currencyName + "\"", "Name cannot be \"uuid\", \"name\", \"balance\", \"payable\"").log();
+        new QualityError("Failed to create currency \"" + currencyName + "\"", "Name cannot be \"uuid\", \"name\", \"balance\", \"payable\"").log();
         return;
       }
       if (!file.exists()) {
@@ -43,7 +48,7 @@ public class CustomCurrencies {
           if (file.createNewFile())
             Logger.log(Component.text("Successfully created customCurrencies.yml", NamedTextColor.GREEN));
         } catch (IOException exception) {
-          new Error("Failed to created customCurrencies.yml", exception).log();
+          new QualityError("Failed to created customCurrencies.yml", exception).log();
         }
       }
       customCurrencies.add(currencyName);
@@ -53,7 +58,7 @@ public class CustomCurrencies {
       try {
         configuration.save(file);
       } catch (IOException exception) {
-        new Error("Failed to save customCurrencies.yml", exception).log();
+        new QualityError("Failed to save customCurrencies.yml", exception).log();
       }
       StorageManager.getActiveStorageFormat().addCurrency(currencyName);
       CustomBalanceCommand.register();
@@ -62,6 +67,8 @@ public class CustomCurrencies {
   }
   
   public static void deleteCustomCurrency(String currencyName) {
+    if (!Configuration.areCustomCurrenciesEnabled())
+      return;
     synchronized (StorageManager.lock) {
       customCurrencies.remove(currencyName);
       if (customCurrencies.isEmpty()) {
@@ -74,7 +81,7 @@ public class CustomCurrencies {
         try {
           configuration.save(file);
         } catch (IOException exception) {
-          new Error("Failed to save customCurrencies.yml", exception).log();
+          new QualityError("Failed to save customCurrencies.yml", exception).log();
         }
       }
       StorageManager.getActiveStorageFormat().removeCurrency(currencyName);

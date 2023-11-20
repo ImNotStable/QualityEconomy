@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy;
 
-import com.imnotstable.qualityeconomy.banknotes.BankNotes;
+import com.imnotstable.qualityeconomy.commands.WithdrawCommand;
 import com.imnotstable.qualityeconomy.commands.CommandManager;
 import com.imnotstable.qualityeconomy.commands.MainCommand;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
@@ -25,10 +25,6 @@ public final class QualityEconomy extends JavaPlugin {
   
   public static QualityEconomy getInstance() {
     return instance;
-  }
-  
-  public static File getPluginFolder() {
-    return getInstance().getDataFolder();
   }
   
   @Override
@@ -56,7 +52,7 @@ public final class QualityEconomy extends JavaPlugin {
     HookManager.loadHooks(this);
     
     Bukkit.getPluginManager().registerEvents(new StorageManager(), this);
-    Bukkit.getPluginManager().registerEvents(new BankNotes(), this);
+    Bukkit.getPluginManager().registerEvents(new WithdrawCommand(), this);
     
     StorageManager.initStorageProcesses();
     

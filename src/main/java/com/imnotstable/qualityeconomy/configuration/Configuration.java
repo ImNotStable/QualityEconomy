@@ -1,7 +1,7 @@
 package com.imnotstable.qualityeconomy.configuration;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.util.Error;
+import com.imnotstable.qualityeconomy.util.QualityError;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class Configuration {
   
-  private static final File file = new File(QualityEconomy.getPluginFolder(), "config.yml");
+  private static final File file = new File(QualityEconomy.getInstance().getDataFolder(), "config.yml");
   private static String storageType;
   private static int decimalPlaces;
   private static boolean banknotes;
@@ -20,15 +20,15 @@ public class Configuration {
   private static boolean balancetopCommand;
   private static boolean economyCommand;
   private static boolean payCommand;
+  private static boolean customCurrencies;
   private static boolean custombalanceCommand;
   private static boolean customeconomyCommand;
   private static long backupInterval;
   private static long balancetopInterval;
   private static List<String> mysqlInfo;
-  private static String version;
   
   public static void load() {
-    File file = new File(QualityEconomy.getPluginFolder(), "config.yml");
+    File file = new File(QualityEconomy.getInstance().getDataFolder(), "config.yml");
     if (!file.exists())
       QualityEconomy.getInstance().saveResource("config.yml", false);
     else
@@ -45,8 +45,9 @@ public class Configuration {
     balancetopCommand = configuration.getBoolean("commands.balancetop", true);
     economyCommand = configuration.getBoolean("commands.economy", true);
     payCommand = configuration.getBoolean("commands.pay", true);
-    custombalanceCommand = configuration.getBoolean("custom-economy-commands.custombalance", true);
-    customeconomyCommand = configuration.getBoolean("custom-economy-commands.customeconomy", true);
+    customCurrencies = configuration.getBoolean("custom-currencies", false);
+    custombalanceCommand = configuration.getBoolean("custom-currency-commands.custombalance", true);
+    customeconomyCommand = configuration.getBoolean("custom-currency-commands.customeconomy", true);
     backupInterval = (long) (configuration.getDouble("backup-interval", 1) * 20 * 60 * 60);
     balancetopInterval = configuration.getInt("balancetop-inverval", 5) * 20L;
     mysqlInfo = List.of(
@@ -55,13 +56,12 @@ public class Configuration {
       configuration.getString("MySQL.user", "root"),
       configuration.getString("MySQL.password", "root")
     );
-    version = configuration.getString("version", QualityEconomy.getInstance().getDescription().getVersion());
   }
   
   public static void update() {
     YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
     Map<String, Object> values = new HashMap<>();
-    configuration.getKeys(true).stream().filter((key) -> !key.equals("version")).forEach(key -> values.putIfAbsent(key, configuration.get(key)));
+    configuration.getKeys(true).forEach(key -> values.putIfAbsent(key, configuration.get(key)));
     QualityEconomy.getInstance().saveResource("config.yml", true);
     YamlConfiguration finalConfiguration = YamlConfiguration.loadConfiguration(file);
     values.forEach((key, value) -> {
@@ -71,7 +71,7 @@ public class Configuration {
     try {
       finalConfiguration.save(file);
     } catch (IOException exception) {
-      new Error("Failed to update config.yml", exception).log();
+      new QualityError("Failed to update config.yml", exception).log();
     }
   }
   
@@ -103,6 +103,8 @@ public class Configuration {
     return payCommand;
   }
   
+  public static boolean areCustomCurrenciesEnabled() {return customCurrencies;}
+  
   public static boolean isCustomBalanceCommandEnabled() {
     return custombalanceCommand;
   }
@@ -123,7 +125,4 @@ public class Configuration {
     return mysqlInfo;
   }
   
-  public static String getVersion() {
-    return version;
-  }
 }

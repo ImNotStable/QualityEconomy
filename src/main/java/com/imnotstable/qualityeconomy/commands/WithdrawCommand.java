@@ -1,15 +1,15 @@
-package com.imnotstable.qualityeconomy.banknotes;
+package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
-import com.imnotstable.qualityeconomy.storage.Account;
-import com.imnotstable.qualityeconomy.storage.AccountManager;
-import com.imnotstable.qualityeconomy.util.Error;
 import com.imnotstable.qualityeconomy.util.Number;
+import com.imnotstable.qualityeconomy.util.QualityError;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.DoubleArgument;
+import dev.jorel.commandapi.executors.CommandArguments;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -28,29 +28,37 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
-public class BankNotes implements Listener {
+public class WithdrawCommand implements Listener {
+  
+  private static boolean isRegistered = false;
   
   public static void register() {
+    if (isRegistered || !Configuration.areBanknotesEnabled())
+      return;
     new CommandAPICommand("withdraw")
       .withArguments(new DoubleArgument("amount", Number.getMinimumValue()))
-      .executesPlayer((sender, args) -> {
-        double amount = Number.round(args.get("amount"));
-        Account account = AccountManager.getAccount(sender.getUniqueId());
-        double balance = account.getBalance();
-        if (balance < amount) {
-          sender.sendMessage(Component.text("You do not have enough money", NamedTextColor.RED));
-          return;
-        }
-        AccountManager.updateAccount(account.setBalance(account.getBalance() - amount));
-        sender.getInventory().addItem(BankNotes.getBankNote(amount, sender));
-        sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.WITHDRAW),
-          TagResolver.resolver("amount", Tag.selfClosingInserting(Component.text(Number.formatCommas(amount))))));
-      })
+      .executesPlayer(WithdrawCommand::withdraw)
       .register();
+    isRegistered = true;
   }
   
   public static void unregister() {
+    if (!isRegistered)
+      return;
     CommandAPI.unregister("withdraw", true);
+    isRegistered = true;
+  }
+  
+  private static void withdraw(Player sender, CommandArguments args) {
+    double amount = Number.roundObj(args.get("amount"));
+    if (!QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount)) {
+      sender.sendMessage(Component.text("You do not have enough money", NamedTextColor.RED));
+      return;
+    }
+    QualityEconomyAPI.removeBalance(sender.getUniqueId(), amount);
+    sender.getInventory().addItem(WithdrawCommand.getBankNote(amount, sender));
+    sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.WITHDRAW),
+      TagResolver.resolver("amount", Tag.selfClosingInserting(Component.text(Number.formatCommas(amount))))));
   }
   
   public static ItemStack getBankNote(double amount, Player player) {
@@ -77,15 +85,14 @@ public class BankNotes implements Listener {
     try {
       amount = Double.parseDouble(LegacyComponentSerializer.legacyAmpersand().serialize(meta.displayName()).substring(3).split("&7 ")[0]);
     } catch (NumberFormatException exception) {
-      new Error("Failed to format number", exception).log();
+      new QualityError("Failed to format number", exception).log();
       return;
     }
     Inventory inventory = event.getPlayer().getInventory();
     int i = inventory.first(event.getItem());
     ItemStack item = inventory.getItem(i);
     item.setAmount(item.getAmount() - 1);
-    Account account = AccountManager.getAccount(event.getPlayer().getUniqueId());
-    AccountManager.updateAccount(account.setBalance(account.getBalance() + amount));
+    QualityEconomyAPI.addBalance(event.getPlayer().getUniqueId(), amount);
   }
   
 }

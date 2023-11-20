@@ -1,12 +1,12 @@
 package com.imnotstable.qualityeconomy.hooks;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
-import com.imnotstable.qualityeconomy.util.Error;
 import com.imnotstable.qualityeconomy.util.Logger;
+import com.imnotstable.qualityeconomy.util.Misc;
+import com.imnotstable.qualityeconomy.util.QualityError;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.Component;
@@ -45,7 +45,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
   
   @Override
   public @NotNull String getVersion() {
-    return Configuration.getVersion();
+    return QualityEconomy.getInstance().getDescription().getVersion();
   }
   
   @Override
@@ -74,14 +74,14 @@ public class PlaceholderHook extends PlaceholderExpansion {
             int place = Integer.parseInt(elements[1].substring(1)) - 1;
             return BalanceTopCommand.orderedPlayerList.get(place).getName();
           } catch (NumberFormatException exception) {
-            new Error("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
+            new QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
           }
         }
       }
       case "balance" -> {
         UUID uuid = null;
         if (elements.length == 2) {
-          if (com.imnotstable.qualityeconomy.util.UUID.isValidUUID(elements[1])) {
+          if (Misc.isValidUUID(elements[1])) {
             uuid = UUID.fromString(elements[1]);
           } else {
             uuid = Bukkit.getOfflinePlayer(elements[1]).getUniqueId();
@@ -92,12 +92,12 @@ public class PlaceholderHook extends PlaceholderExpansion {
         }
         if (uuid == null)
           return null;
-        return String.valueOf(AccountManager.getAccount(uuid).getBalance());
+        return String.valueOf(QualityEconomyAPI.getBalance(uuid));
       }
       case "cbalance" -> {
         UUID uuid = null;
         if (elements.length == 3) {
-          if (com.imnotstable.qualityeconomy.util.UUID.isValidUUID(elements[2])) {
+          if (Misc.isValidUUID(elements[2])) {
             uuid = UUID.fromString(elements[2]);
           } else {
             uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();
@@ -110,12 +110,12 @@ public class PlaceholderHook extends PlaceholderExpansion {
           return null;
         if (!CustomCurrencies.getCustomCurrencies().contains(elements[1]))
           return null;
-        return String.valueOf(AccountManager.getAccount(uuid).getCustomBalance(elements[1]));
+        return String.valueOf(QualityEconomyAPI.getCustomBalance(uuid, elements[1]));
       }
       case "isPayable" -> {
         UUID uuid = null;
         if (elements.length == 2) {
-          if (com.imnotstable.qualityeconomy.util.UUID.isValidUUID(elements[1])) {
+          if (Misc.isValidUUID(elements[1])) {
             uuid = UUID.fromString(elements[1]);
           } else {
             uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();
@@ -125,7 +125,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
         }
         if (uuid == null)
           return null;
-        return String.valueOf(AccountManager.getAccount(uuid).getPayable());
+        return String.valueOf(QualityEconomyAPI.isPayable(uuid));
       }
     }
     

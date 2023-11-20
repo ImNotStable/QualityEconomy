@@ -1,6 +1,7 @@
-package com.imnotstable.qualityeconomy.storage;
+package com.imnotstable.qualityeconomy.storage.accounts;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
 import org.bukkit.Bukkit;

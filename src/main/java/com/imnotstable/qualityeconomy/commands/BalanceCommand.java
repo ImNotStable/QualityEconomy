@@ -1,8 +1,9 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
-import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
@@ -24,7 +25,7 @@ public class BalanceCommand {
   private static boolean isRegistered = false;
   
   public static void register() {
-    if (isRegistered)
+    if (isRegistered || !Configuration.isBalanceCommandEnabled())
       return;
     new CommandTree("balance")
       .withAliases("bal")
@@ -37,24 +38,26 @@ public class BalanceCommand {
   }
   
   public static void unregister() {
+    if (!isRegistered)
+      return;
     CommandAPI.unregister("balance", true);
     isRegistered = false;
   }
   
   private static void viewOtherBalance(CommandSender sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!AccountManager.accountExists(target.getUniqueId())) {
+    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCE_OTHER_BALANCE),
       TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName()))),
-      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(AccountManager.getAccount(target.getUniqueId()).getBalance()))))));
+      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(QualityEconomyAPI.getBalance(target.getUniqueId())))))));
   }
   
   private static void viewOwnBalance(Player sender, CommandArguments args) {
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCE_OWN_BALANCE),
-      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(AccountManager.getAccount(sender.getUniqueId()).getBalance()))))));
+      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(QualityEconomyAPI.getBalance(sender.getUniqueId())))))));
   }
   
 }

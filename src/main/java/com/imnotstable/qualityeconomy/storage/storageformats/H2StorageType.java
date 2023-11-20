@@ -1,8 +1,8 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
-import com.imnotstable.qualityeconomy.storage.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
-import com.imnotstable.qualityeconomy.util.Error;
+import com.imnotstable.qualityeconomy.util.QualityError;
 import com.imnotstable.qualityeconomy.util.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -28,7 +28,7 @@ public class H2StorageType implements StorageType {
     try {
       DriverManager.registerDriver(new org.h2.Driver());
     } catch (SQLException exception) {
-      new Error("Failed to load H2 Driver", exception).log();
+      new QualityError("Failed to load H2 Driver", exception).log();
     }
   }
   
@@ -37,28 +37,28 @@ public class H2StorageType implements StorageType {
   private void connect() {
     try {
       if (connection != null && !connection.isClosed()) {
-        new Error("Attempted to connect to database when already connected").log();
+        new QualityError("Attempted to connect to database when already connected").log();
         return;
       }
       connection = DriverManager.getConnection("jdbc:h2:./plugins/QualityEconomy/playerdata", "sa", "");
     } catch (SQLException exception) {
-      new Error("Failed to connect to database", exception).log();
+      new QualityError("Failed to connect to database", exception).log();
     }
   }
   
   private void closeConnection() {
     try {
       if (connection == null) {
-        new Error("Attempted to close connection with database when connection doesn't exist").log();
+        new QualityError("Attempted to close connection with database when connection doesn't exist").log();
         return;
       }
       if (connection.isClosed()) {
-        new Error("Attempted to close connection with database when connection is already closed").log();
+        new QualityError("Attempted to close connection with database when connection is already closed").log();
         return;
       }
       connection.close();
     } catch (SQLException exception) {
-      new Error("Error while closing database connection", exception).log();
+      new QualityError("Error while closing database connection", exception).log();
     }
   }
   
@@ -67,7 +67,7 @@ public class H2StorageType implements StorageType {
     try (Statement stmt = connection.createStatement()) {
       stmt.execute(sql);
     } catch (SQLException exception) {
-      new Error("Failed to create table", exception).log();
+      new QualityError("Failed to create table", exception).log();
     }
   }
   
@@ -88,7 +88,7 @@ public class H2StorageType implements StorageType {
     try {
       metaData = connection.getMetaData();
     } catch (SQLException exception) {
-      new Error("Failed to get database metadata", exception).log();
+      new QualityError("Failed to get database metadata", exception).log();
       return;
     }
     
@@ -99,7 +99,7 @@ public class H2StorageType implements StorageType {
           addCurrency(currency);
         }
       } catch (SQLException exception) {
-        new Error("Failed to check if currency exists (" + currency + ")", exception).log();
+        new QualityError("Failed to check if currency exists (" + currency + ")", exception).log();
       }
     }
   }
@@ -113,7 +113,7 @@ public class H2StorageType implements StorageType {
     try (Statement stmt = connection.createStatement()) {
       stmt.executeUpdate("DELETE FROM PLAYERDATA");
     } catch (SQLException exception) {
-      new Error("Failed to wipe database", exception).log();
+      new QualityError("Failed to wipe database", exception).log();
     }
   }
   
@@ -143,11 +143,11 @@ public class H2StorageType implements StorageType {
       int affectedRows = pstmt.executeUpdate();
       
       if (affectedRows == 0) {
-        new Error("Failed to create account (" + uuid + ")").log();
+        new QualityError("Failed to create account (" + uuid + ")").log();
       }
       return true;
     } catch (SQLException exception) {
-      new Error("Failed to create account (" + account.getUUID().toString() + ")", exception).log();
+      new QualityError("Failed to create account (" + account.getUUID().toString() + ")", exception).log();
       return false;
     }
   }
@@ -187,21 +187,20 @@ public class H2StorageType implements StorageType {
       connection.commit();
       
     } catch (SQLException exception1) {
-      new Error("Failed to create accounts", exception1).log();
+      new QualityError("Failed to create accounts", exception1).log();
       try {
         connection.rollback();
       } catch (SQLException exception2) {
-        new Error("Failed to rollback transaction", exception2).log();
+        new QualityError("Failed to rollback transaction", exception2).log();
       }
     } finally {
       try {
         connection.setAutoCommit(true);
       } catch (SQLException exception3) {
-        new Error("Failed to restore auto-commit mode", exception3).log();
+        new QualityError("Failed to restore auto-commit mode", exception3).log();
       }
     }
   }
-  
   
   @Override
   public boolean accountExists(UUID uuid) {
@@ -212,11 +211,10 @@ public class H2StorageType implements StorageType {
       
       return count != 0;
     } catch (SQLException exception) {
-      new Error("Failed to check if account exists (" + uuid.toString() + ")", exception).log();
+      new QualityError("Failed to check if account exists (" + uuid.toString() + ")", exception).log();
       return false;
     }
   }
-  
   
   @Override
   public Account getAccount(UUID uuid) {
@@ -233,7 +231,7 @@ public class H2StorageType implements StorageType {
         .setPayable(rs.getBoolean("payable"))
         .setCustomBalances(customCurrencies);
     } catch (SQLException exception) {
-      new Error("Failed to get account (" + uuid.toString() + ")", exception).log();
+      new QualityError("Failed to get account (" + uuid.toString() + ")", exception).log();
       return null;
     }
   }
@@ -264,7 +262,7 @@ public class H2StorageType implements StorageType {
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
-      new Error("Failed to get accounts", exception).log();
+      new QualityError("Failed to get accounts", exception).log();
     }
     
     return accounts;
@@ -290,7 +288,7 @@ public class H2StorageType implements StorageType {
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
-      new Error("Failed to get all accounts", exception);
+      new QualityError("Failed to get all accounts", exception);
     }
     
     return accounts;
@@ -320,10 +318,10 @@ public class H2StorageType implements StorageType {
       int affectedRows = pstmt.executeUpdate();
       
       if (affectedRows == 0) {
-        new Error("Failed to update account (" + account.getUUID().toString() + ")").log();
+        new QualityError("Failed to update account (" + account.getUUID().toString() + ")").log();
       }
     } catch (SQLException exception) {
-      new Error("Failed to update account (" + account.getUUID().toString() + ")", exception).log();
+      new QualityError("Failed to update account (" + account.getUUID().toString() + ")", exception).log();
     }
   }
   
@@ -359,17 +357,17 @@ public class H2StorageType implements StorageType {
       connection.commit();
       
     } catch (SQLException exception1) {
-      new Error("Failed to update accounts", exception1).log();
+      new QualityError("Failed to update accounts", exception1).log();
       try {
         connection.rollback();
       } catch (SQLException exception2) {
-        new Error("Failed to rollback transaction", exception2).log();
+        new QualityError("Failed to rollback transaction", exception2).log();
       }
     } finally {
       try {
         connection.setAutoCommit(true);
       } catch (SQLException exception3) {
-        new Error("Failed to restore auto-commit mode", exception3).log();
+        new QualityError("Failed to restore auto-commit mode", exception3).log();
       }
     }
   }
@@ -382,7 +380,7 @@ public class H2StorageType implements StorageType {
       while (rs.next())
         rawUUIDs.add(rs.getString("uuid"));
     } catch (SQLException exception) {
-      new Error("Failed to get all UUIDs", exception);
+      new QualityError("Failed to get all UUIDs", exception);
     }
     
     return rawUUIDs.stream().map(UUID::fromString).toList();
@@ -394,7 +392,7 @@ public class H2StorageType implements StorageType {
       currencyName = currencyName.toUpperCase();
       stmt.executeUpdate("ALTER TABLE PLAYERDATA ADD COLUMN " + currencyName + " REAL NOT NULL DEFAULT 0.0");
     } catch (SQLException exception) {
-      new Error("Failed to add currency to database (" + currencyName + ")", exception).log();
+      new QualityError("Failed to add currency to database (" + currencyName + ")", exception).log();
     }
   }
   
@@ -404,7 +402,7 @@ public class H2StorageType implements StorageType {
       currencyName = currencyName.toUpperCase();
       stmt.executeUpdate("ALTER TABLE PLAYERDATA DROP COLUMN " + currencyName);
     } catch (SQLException exception) {
-      new Error("Failed to remove currency from database (" + currencyName + ")", exception).log();
+      new QualityError("Failed to remove currency from database (" + currencyName + ")", exception).log();
     }
   }
   

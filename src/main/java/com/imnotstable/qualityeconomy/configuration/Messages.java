@@ -1,7 +1,7 @@
 package com.imnotstable.qualityeconomy.configuration;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.util.Error;
+import com.imnotstable.qualityeconomy.util.QualityError;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -19,7 +19,7 @@ public class Messages {
   }
   
   public static void load() {
-    file = new File(QualityEconomy.getPluginFolder(), "messages.yml");
+    file = new File(QualityEconomy.getInstance().getDataFolder(), "messages.yml");
     if (!file.exists())
       QualityEconomy.getInstance().saveResource("messages.yml", false);
     else
@@ -47,7 +47,7 @@ public class Messages {
     try {
       finalConfiguration.save(file);
     } catch (IOException exception) {
-      new Error("Failed to update messages.yml", exception).log();
+      new QualityError("Failed to update messages.yml", exception).log();
     }
   }
 }

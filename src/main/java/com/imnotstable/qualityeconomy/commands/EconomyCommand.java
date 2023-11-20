@@ -1,9 +1,9 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
-import com.imnotstable.qualityeconomy.storage.Account;
-import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
@@ -26,7 +26,7 @@ public class EconomyCommand {
   private static boolean isRegistered = false;
   
   public static void register() {
-    if (isRegistered)
+    if (isRegistered || !Configuration.isEconomyCommandEnabled())
       return;
     new CommandTree("economy")
       .withPermission("qualityeconomy.economy")
@@ -42,17 +42,19 @@ public class EconomyCommand {
   }
   
   public static void unregister() {
+    if (!isRegistered)
+      return;
     CommandAPI.unregister("economy", true);
     isRegistered = false;
   }
   
   private static void resetBalance(CommandSender sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!AccountManager.accountExists(target.getUniqueId())) {
+    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
-    AccountManager.updateAccount(AccountManager.getAccount(target.getUniqueId()).setBalance(0));
+    QualityEconomyAPI.setBalance(target.getUniqueId(), 0);
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_RESET),
       TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName()))),
       TagResolver.resolver("", Tag.selfClosingInserting(Component.text("")))));
@@ -60,12 +62,12 @@ public class EconomyCommand {
   
   private static void setBalance(CommandSender sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!AccountManager.accountExists(target.getUniqueId())) {
+    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
-    double balance = (double) args.get("amount");
-    AccountManager.updateAccount(AccountManager.getAccount(target.getUniqueId()).setBalance(balance));
+    double balance = Number.roundObj(args.get("amount"));
+    QualityEconomyAPI.setBalance(target.getUniqueId(), balance);
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_SET),
       TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName()))),
       TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(balance))))));
@@ -73,13 +75,12 @@ public class EconomyCommand {
   
   private static void addBalance(CommandSender sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!AccountManager.accountExists(target.getUniqueId())) {
+    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
-    Account account = AccountManager.getAccount(target.getUniqueId());
-    double balance = (double) args.get("amount");
-    AccountManager.updateAccount(account.setBalance(account.getBalance() + balance));
+    double balance = Number.roundObj(args.get("amount"));
+    QualityEconomyAPI.addBalance(target.getUniqueId(), balance);
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_ADD),
       TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(balance)))),
       TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName())))));
@@ -87,13 +88,12 @@ public class EconomyCommand {
   
   private static void removeBalance(CommandSender sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!AccountManager.accountExists(target.getUniqueId())) {
+    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
-    Account account = AccountManager.getAccount(target.getUniqueId());
-    double balance = (double) args.get("amount");
-    AccountManager.updateAccount(account.setBalance(account.getBalance() - balance));
+    double balance = Number.roundObj(args.get("amount"));
+    QualityEconomyAPI.removeBalance(target.getUniqueId(), balance);
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_REMOVE),
       TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(balance)))),
       TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName())))));

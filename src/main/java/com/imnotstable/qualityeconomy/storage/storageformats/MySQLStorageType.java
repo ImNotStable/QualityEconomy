@@ -1,9 +1,9 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
 import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.storage.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
-import com.imnotstable.qualityeconomy.util.Error;
+import com.imnotstable.qualityeconomy.util.QualityError;
 import com.imnotstable.qualityeconomy.util.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -38,28 +38,28 @@ public class MySQLStorageType implements StorageType {
   private void connect() {
     try {
       if (connection != null && !connection.isClosed()) {
-        new Error("Attempted to connect to database when already connected").log();
+        new QualityError("Attempted to connect to database when already connected").log();
         return;
       }
       connection = DriverManager.getConnection(getPath());
     } catch (SQLException exception) {
-      new Error("Failed to connect to database", exception).log();
+      new QualityError("Failed to connect to database", exception).log();
     }
   }
   
   private void closeConnection() {
     try {
       if (connection == null) {
-        new Error("Attempted to close connection with database when connection doesn't exist").log();
+        new QualityError("Attempted to close connection with database when connection doesn't exist").log();
         return;
       }
       if (connection.isClosed()) {
-        new Error("Attempted to close connection with database when connection is already closed").log();
+        new QualityError("Attempted to close connection with database when connection is already closed").log();
         return;
       }
       connection.close();
     } catch (SQLException exception) {
-      new Error("Error while closing database connection", exception).log();
+      new QualityError("Error while closing database connection", exception).log();
     }
   }
   
@@ -69,9 +69,9 @@ public class MySQLStorageType implements StorageType {
       stmt.execute(sql);
       ResultSet tables = connection.getMetaData().getTables(null, null, "playerdata", null);
       if (!tables.next())
-        new Error("Failed to create table", tables.getWarnings()).log();
+        new QualityError("Failed to create table", tables.getWarnings()).log();
     } catch (SQLException exception) {
-      new Error("Failed to create table", exception).log();
+      new QualityError("Failed to create table", exception).log();
     }
   }
   
@@ -80,9 +80,9 @@ public class MySQLStorageType implements StorageType {
     connect();
     try {
       if (connection == null || connection.isClosed())
-        new Error("Failed to open connection").log();
+        new QualityError("Failed to open connection").log();
     } catch (SQLException exception) {
-      new Error("Failed to check if connection was opened", exception).log();
+      new QualityError("Failed to check if connection was opened", exception).log();
     }
     createTable();
     checkCustomCurrencyColumns();
@@ -99,7 +99,7 @@ public class MySQLStorageType implements StorageType {
     try {
       metaData = connection.getMetaData();
     } catch (SQLException exception) {
-      new Error("Failed to get database metadata", exception).log();
+      new QualityError("Failed to get database metadata", exception).log();
       return;
     }
     
@@ -109,7 +109,7 @@ public class MySQLStorageType implements StorageType {
           addCurrency(currency);
         }
       } catch (SQLException exception) {
-        new Error("Failed to check if currency exists (" + currency + ")", exception).log();
+        new QualityError("Failed to check if currency exists (" + currency + ")", exception).log();
       }
     }
   }
@@ -123,7 +123,7 @@ public class MySQLStorageType implements StorageType {
     try (Statement stmt = connection.createStatement()) {
       stmt.executeUpdate("DELETE FROM playerdata");
     } catch (SQLException exception) {
-      new Error("Failed to wipe database", exception).log();
+      new QualityError("Failed to wipe database", exception).log();
     }
   }
   
@@ -153,11 +153,11 @@ public class MySQLStorageType implements StorageType {
       int affectedRows = pstmt.executeUpdate();
       
       if (affectedRows == 0) {
-        new Error("Failed to create account (" + uuid + ")").log();
+        new QualityError("Failed to create account (" + uuid + ")").log();
       }
       return true;
     } catch (SQLException exception) {
-      new Error("Failed to create account (" + account.getUUID().toString() + ")", exception).log();
+      new QualityError("Failed to create account (" + account.getUUID().toString() + ")", exception).log();
       return false;
     }
   }
@@ -197,17 +197,17 @@ public class MySQLStorageType implements StorageType {
       connection.commit();
       
     } catch (SQLException exception1) {
-      new Error("Failed to create accounts", exception1).log();
+      new QualityError("Failed to create accounts", exception1).log();
       try {
         connection.rollback();
       } catch (SQLException exception2) {
-        new Error("Failed to rollback transaction", exception2).log();
+        new QualityError("Failed to rollback transaction", exception2).log();
       }
     } finally {
       try {
         connection.setAutoCommit(true);
       } catch (SQLException exception3) {
-        new Error("Failed to restore auto-commit mode", exception3).log();
+        new QualityError("Failed to restore auto-commit mode", exception3).log();
       }
     }
   }
@@ -222,7 +222,7 @@ public class MySQLStorageType implements StorageType {
       
       return count != 0;
     } catch (SQLException exception) {
-      new Error("Failed to check if account exists (" + uuid.toString() + ")", exception).log();
+      new QualityError("Failed to check if account exists (" + uuid.toString() + ")", exception).log();
       return false;
     }
   }
@@ -243,7 +243,7 @@ public class MySQLStorageType implements StorageType {
         .setPayable(rs.getBoolean("payable"))
         .setCustomBalances(customCurrencies);
     } catch (SQLException exception) {
-      new Error("Failed to get account (" + uuid.toString() + ")", exception).log();
+      new QualityError("Failed to get account (" + uuid.toString() + ")", exception).log();
       return null;
     }
   }
@@ -274,7 +274,7 @@ public class MySQLStorageType implements StorageType {
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
-      new Error("Failed to get accounts", exception).log();
+      new QualityError("Failed to get accounts", exception).log();
     }
     
     return accounts;
@@ -300,7 +300,7 @@ public class MySQLStorageType implements StorageType {
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
-      new Error("Failed to get all accounts", exception);
+      new QualityError("Failed to get all accounts", exception);
     }
     
     return accounts;
@@ -330,10 +330,10 @@ public class MySQLStorageType implements StorageType {
       int affectedRows = pstmt.executeUpdate();
       
       if (affectedRows == 0) {
-        new Error("Failed to update account (" + account.getUUID().toString() + ")").log();
+        new QualityError("Failed to update account (" + account.getUUID().toString() + ")").log();
       }
     } catch (SQLException exception) {
-      new Error("Failed to update account (" + account.getUUID().toString() + ")", exception).log();
+      new QualityError("Failed to update account (" + account.getUUID().toString() + ")", exception).log();
     }
   }
   
@@ -369,17 +369,17 @@ public class MySQLStorageType implements StorageType {
       connection.commit();
       
     } catch (SQLException exception1) {
-      new Error("Failed to update accounts", exception1).log();
+      new QualityError("Failed to update accounts", exception1).log();
       try {
         connection.rollback();
       } catch (SQLException exception2) {
-        new Error("Failed to rollback transaction", exception2).log();
+        new QualityError("Failed to rollback transaction", exception2).log();
       }
     } finally {
       try {
         connection.setAutoCommit(true);
       } catch (SQLException exception3) {
-        new Error("Failed to restore auto-commit mode", exception3).log();
+        new QualityError("Failed to restore auto-commit mode", exception3).log();
       }
     }
   }
@@ -393,7 +393,7 @@ public class MySQLStorageType implements StorageType {
       while (rs.next())
         rawUUIDs.add(rs.getString("uuid"));
     } catch (SQLException exception) {
-      new Error("Failed to get all UUIDs", exception);
+      new QualityError("Failed to get all UUIDs", exception);
     }
     
     return rawUUIDs.stream().map(UUID::fromString).toList();
@@ -403,7 +403,7 @@ public class MySQLStorageType implements StorageType {
     try (Statement stmt = connection.createStatement()) {
       stmt.executeUpdate("ALTER TABLE playerdata ADD COLUMN " + currencyName + " REAL NOT NULL DEFAULT 0.0");
     } catch (SQLException exception) {
-      new Error("Failed to add currency to database (" + currencyName + ")", exception).log();
+      new QualityError("Failed to add currency to database (" + currencyName + ")", exception).log();
     }
   }
   
@@ -412,7 +412,7 @@ public class MySQLStorageType implements StorageType {
     try (Statement stmt = connection.createStatement()) {
       stmt.executeUpdate("ALTER TABLE playerdata DROP COLUMN " + currencyName);
     } catch (SQLException exception) {
-      new Error("Failed to remove currency from database (" + currencyName + ")", exception).log();
+      new QualityError("Failed to remove currency from database (" + currencyName + ")", exception).log();
     }
   }
   

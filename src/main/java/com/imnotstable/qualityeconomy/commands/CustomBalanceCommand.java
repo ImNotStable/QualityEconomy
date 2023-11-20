@@ -1,8 +1,9 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
-import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
@@ -26,7 +27,7 @@ public class CustomBalanceCommand {
   private static boolean isRegistered = false;
   
   public static void register() {
-    if (isRegistered)
+    if (isRegistered || !Configuration.isCustomBalanceCommandEnabled() || CustomCurrencies.getCustomCurrencies().isEmpty())
       return;
     new CommandTree("custombalance")
       .withAliases("cbalance", "custombal", "cbal")
@@ -41,6 +42,8 @@ public class CustomBalanceCommand {
   }
   
   public static void unregister() {
+    if (!isRegistered)
+      return;
     CommandAPI.unregister("custombalance", true);
     isRegistered = false;
   }
@@ -52,13 +55,13 @@ public class CustomBalanceCommand {
       return;
     }
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!AccountManager.accountExists(target.getUniqueId())) {
+    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCE_OTHER_BALANCE),
       TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName()))),
-      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(AccountManager.getAccount(target.getUniqueId()).getCustomBalance(currency)))))));
+      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(QualityEconomyAPI.getCustomBalance(target.getUniqueId(), currency)))))));
   }
   
   private static void viewOwnBalance(Player sender, CommandArguments args) {
@@ -68,7 +71,7 @@ public class CustomBalanceCommand {
       return;
     }
     sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCE_OWN_BALANCE),
-      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(AccountManager.getAccount(sender.getUniqueId()).getCustomBalance(currency)))))));
+      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(QualityEconomyAPI.getCustomBalance(sender.getUniqueId(), currency)))))));
   }
   
 }

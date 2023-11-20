@@ -1,10 +1,10 @@
 package com.imnotstable.qualityeconomy.hooks;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.storage.Account;
-import com.imnotstable.qualityeconomy.storage.AccountManager;
-import com.imnotstable.qualityeconomy.storage.StorageManager;
-import com.imnotstable.qualityeconomy.util.Error;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
+import com.imnotstable.qualityeconomy.util.QualityError;
 import com.imnotstable.qualityeconomy.util.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -29,7 +29,7 @@ public class VaultHook implements Economy {
     Bukkit.getServicesManager().register(Economy.class, new VaultHook(), plugin, ServicePriority.Highest);
     RegisteredServiceProvider<Economy> econRSP = Bukkit.getServicesManager().getRegistration(Economy.class);
     if (econRSP == null) {
-      new Error("Failed to register economy with Vault").log();
+      new QualityError("Failed to register economy with Vault").log();
       return;
     }
     economy = econRSP.getProvider();
@@ -48,7 +48,7 @@ public class VaultHook implements Economy {
   
   @Override
   public int fractionalDigits() {
-    return -1;
+    return Configuration.getDecimalPlaces();
   }
   
   @Override
@@ -68,12 +68,12 @@ public class VaultHook implements Economy {
   
   @Override
   public boolean hasAccount(String player) {
-    return AccountManager.accountExists(StorageManager.getUUID(player));
+    return hasAccount(Bukkit.getOfflinePlayer(player));
   }
   
   @Override
   public boolean hasAccount(OfflinePlayer player) {
-    return AccountManager.accountExists(StorageManager.getUUID(player));
+    return AccountManager.accountExists(player.getUniqueId());
   }
   
   @Override
@@ -88,12 +88,12 @@ public class VaultHook implements Economy {
   
   @Override
   public double getBalance(String player) {
-    return AccountManager.getAccount(StorageManager.getUUID(player)).getBalance();
+    return getBalance(Bukkit.getOfflinePlayer(player));
   }
   
   @Override
   public double getBalance(OfflinePlayer player) {
-    return AccountManager.getAccount(StorageManager.getUUID(player)).getBalance();
+    return AccountManager.getAccount(player.getUniqueId()).getBalance();
   }
   
   @Override
@@ -108,12 +108,12 @@ public class VaultHook implements Economy {
   
   @Override
   public boolean has(String player, double amount) {
-    return AccountManager.getAccount(StorageManager.getUUID(player)).getBalance() >= amount;
+    return has(Bukkit.getOfflinePlayer(player), amount);
   }
   
   @Override
   public boolean has(OfflinePlayer player, double amount) {
-    return AccountManager.getAccount(StorageManager.getUUID(player)).getBalance() >= amount;
+    return AccountManager.getAccount(player.getUniqueId()).getBalance() >= amount;
   }
   
   @Override
@@ -149,7 +149,7 @@ public class VaultHook implements Economy {
     if (!has(player, amount)) {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't have funds.");
     }
-    Account account = AccountManager.getAccount(StorageManager.getUUID(player));
+    Account account = AccountManager.getAccount(player.getUniqueId());
     AccountManager.updateAccount(account.setBalance(account.getBalance() - amount));
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
@@ -181,10 +181,10 @@ public class VaultHook implements Economy {
     if (amount < 0) {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot deposit a negative amount.");
     }
-    if (!AccountManager.accountExists(StorageManager.getUUID(player))) {
+    if (!AccountManager.accountExists(player.getUniqueId())) {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
     }
-    Account account = AccountManager.getAccount(StorageManager.getUUID(player));
+    Account account = AccountManager.getAccount(player.getUniqueId());
     AccountManager.updateAccount(account.setBalance(account.getBalance() + amount));
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
@@ -201,14 +201,14 @@ public class VaultHook implements Economy {
   
   @Override
   public boolean createPlayerAccount(String player) {
-    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player);
-    return createPlayerAccount(offlinePlayer);
+    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayerIfCached(player);
+    return offlinePlayer != null && createPlayerAccount(offlinePlayer);
   }
   
   @Override
   public boolean createPlayerAccount(OfflinePlayer player) {
-    AccountManager.createAccount(StorageManager.getUUID(player));
-    return AccountManager.accountExists(StorageManager.getUUID(player));
+    AccountManager.createAccount(player.getUniqueId());
+    return AccountManager.accountExists(player.getUniqueId());
   }
   
   @Override
