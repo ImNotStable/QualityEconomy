@@ -37,53 +37,53 @@ public class CustomCurrencies {
   public static void createCustomCurrency(String currencyName) {
     if (!Configuration.areCustomCurrenciesEnabled())
       return;
-    synchronized (StorageManager.lock) {
-      currencyName = currencyName.replaceAll(" ", "_").toLowerCase();
-      if (List.of("uuid", "name", "balance", "payable").contains(currencyName)) {
-        new QualityError("Failed to create currency \"" + currencyName + "\"", "Name cannot be \"uuid\", \"name\", \"balance\", \"payable\"").log();
-        return;
-      }
-      if (!file.exists()) {
-        try {
-          if (file.createNewFile())
-            Logger.log(Component.text("Successfully created customCurrencies.yml", NamedTextColor.GREEN));
-        } catch (IOException exception) {
-          new QualityError("Failed to created customCurrencies.yml", exception).log();
-        }
-      }
-      customCurrencies.add(currencyName);
-      YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-      configuration.set("custom-currencies", customCurrencies);
-      configuration.setComments("custom-currencies", List.of("Don't touch this file."));
-      try {
-        configuration.save(file);
-      } catch (IOException exception) {
-        new QualityError("Failed to save customCurrencies.yml", exception).log();
-      }
-      StorageManager.getActiveStorageFormat().addCurrency(currencyName);
-      CustomBalanceCommand.register();
-      CustomEconomyCommand.register();
+    currencyName = currencyName.replaceAll(" ", "_").toLowerCase();
+    if (List.of("uuid", "name", "balance", "payable").contains(currencyName)) {
+      new QualityError("Failed to create currency \"" + currencyName + "\"", "Name cannot be \"uuid\", \"name\", \"balance\", \"payable\"").log();
+      return;
     }
+    if (!file.exists()) {
+      try {
+        if (file.createNewFile())
+          Logger.log(Component.text("Successfully created customCurrencies.yml", NamedTextColor.GREEN));
+      } catch (IOException exception) {
+        new QualityError("Failed to created customCurrencies.yml", exception).log();
+      }
+    }
+    customCurrencies.add(currencyName);
+    YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
+    configuration.set("custom-currencies", customCurrencies);
+    configuration.setComments("custom-currencies", List.of("Don't touch this file."));
+    try {
+      configuration.save(file);
+    } catch (IOException exception) {
+      new QualityError("Failed to save customCurrencies.yml", exception).log();
+    }
+    synchronized (StorageManager.lock) {
+      StorageManager.getActiveStorageFormat().addCurrency(currencyName);
+    }
+    CustomBalanceCommand.register();
+    CustomEconomyCommand.register();
   }
   
   public static void deleteCustomCurrency(String currencyName) {
     if (!Configuration.areCustomCurrenciesEnabled())
       return;
-    synchronized (StorageManager.lock) {
-      customCurrencies.remove(currencyName);
-      if (customCurrencies.isEmpty()) {
-        file.delete();
-        CustomBalanceCommand.unregister();
-        CustomEconomyCommand.unregister();
-      } else {
-        YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-        configuration.set("custom-currencies", customCurrencies);
-        try {
-          configuration.save(file);
-        } catch (IOException exception) {
-          new QualityError("Failed to save customCurrencies.yml", exception).log();
-        }
+    customCurrencies.remove(currencyName);
+    if (customCurrencies.isEmpty()) {
+      file.delete();
+      CustomBalanceCommand.unregister();
+      CustomEconomyCommand.unregister();
+    } else {
+      YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
+      configuration.set("custom-currencies", customCurrencies);
+      try {
+        configuration.save(file);
+      } catch (IOException exception) {
+        new QualityError("Failed to save customCurrencies.yml", exception).log();
       }
+    }
+    synchronized (StorageManager.lock) {
       StorageManager.getActiveStorageFormat().removeCurrency(currencyName);
     }
   }

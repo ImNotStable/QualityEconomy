@@ -1,5 +1,6 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
 import com.imnotstable.qualityeconomy.util.QualityError;
@@ -22,9 +23,41 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class SQLiteStorageType implements StorageType {
+public class SQLStorageType implements StorageType {
+  
+  static {
+    try {
+      DriverManager.registerDriver(new org.h2.Driver());
+    } catch (SQLException exception) {
+      new QualityError("Failed to load H2 Driver", exception).log();
+    }
+  }
   
   private Connection connection;
+  private final int databaseType;
+  
+  public SQLStorageType(int databaseType) {
+    this.databaseType = databaseType;
+  }
+  
+  private Connection getConnection() throws SQLException {
+    switch (databaseType) {
+      case 1 -> {
+        return DriverManager.getConnection("jdbc:h2:./plugins/QualityEconomy/playerdata", "sa", "");
+      }
+      case 2 -> {
+        return DriverManager.getConnection("jdbc:sqlite:plugins/QualityEconomy/playerdata.db");
+      }
+      case 3 -> {
+        String address = Configuration.getConnectionInfo().get(0);
+        String name = Configuration.getConnectionInfo().get(1);
+        String user = Configuration.getConnectionInfo().get(2);
+        String password = Configuration.getConnectionInfo().get(3);
+        return DriverManager.getConnection(String.format("jdbc:mysql://%s/%s", address, name), user, password);
+      }
+      default -> throw new SQLException("Unsupported Database: " + databaseType);
+    }
+  }
   
   private void connect() {
     try {
@@ -32,7 +65,7 @@ public class SQLiteStorageType implements StorageType {
         new QualityError("Attempted to connect to database when already connected").log();
         return;
       }
-      connection = DriverManager.getConnection("jdbc:sqlite:plugins/QualityEconomy/playerdata.db");
+      connection = getConnection();
     } catch (SQLException exception) {
       new QualityError("Failed to connect to database", exception).log();
     }
@@ -55,10 +88,10 @@ public class SQLiteStorageType implements StorageType {
   }
   
   private void createTable() {
-    String sql = "CREATE TABLE IF NOT EXISTS playerdata (uuid CHAR(36) PRIMARY KEY, name CHAR(16), balance REAL NOT NULL, payable BOOLEAN NOT NULL);";
+    String sql = "CREATE TABLE IF NOT EXISTS PLAYERDATA (UUID CHAR(36) PRIMARY KEY, NAME CHAR(16), BALANCE REAL NOT NULL, PAYABLE BOOLEAN NOT NULL);";
     try (Statement stmt = connection.createStatement()) {
       stmt.execute(sql);
-      ResultSet tables = connection.getMetaData().getTables(null, null, "playerdata", null);
+      ResultSet tables = connection.getMetaData().getTables(null, null, "PLAYERDATA", null);
       if (!tables.next())
         new QualityError("Failed to create table", tables.getWarnings()).log();
     } catch (SQLException exception) {
@@ -81,7 +114,6 @@ public class SQLiteStorageType implements StorageType {
     return true;
   }
   
-  
   public void checkCustomCurrencyColumns() {
     if (CustomCurrencies.getCustomCurrencies().isEmpty())
       return;
@@ -95,7 +127,8 @@ public class SQLiteStorageType implements StorageType {
     }
     
     for (String currency : CustomCurrencies.getCustomCurrencies()) {
-      try (ResultSet columns = metaData.getColumns(null, null, "playerdata", currency)) {
+      currency = currency.toUpperCase();
+      try (ResultSet columns = metaData.getColumns(null, null, "PLAYERDATA", currency)) {
         if (!columns.next()) {
           addCurrency(currency);
         }
@@ -112,7 +145,7 @@ public class SQLiteStorageType implements StorageType {
   
   public void wipeDatabase() {
     try (Statement stmt = connection.createStatement()) {
-      stmt.executeUpdate("DELETE FROM playerdata");
+      stmt.executeUpdate("DELETE FROM PLAYERDATA");
     } catch (SQLException exception) {
       new QualityError("Failed to wipe database", exception).log();
     }
@@ -129,7 +162,7 @@ public class SQLiteStorageType implements StorageType {
       placeholders.append(", ?");
     }
     
-    String sql = "INSERT INTO playerdata(" + columns + ") VALUES(" + placeholders + ")";
+    String sql = "INSERT INTO PLAYERDATA(" + columns + ") VALUES(" + placeholders + ")";
     try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
       UUID uuid = account.getUUID();
       pstmt.setString(1, uuid.toString());
@@ -157,7 +190,7 @@ public class SQLiteStorageType implements StorageType {
     if (accounts.isEmpty())
       return;
     
-    StringBuilder columns = new StringBuilder("uuid, name, balance, payable");
+    StringBuilder columns = new StringBuilder("UUID, NAME, BALANCE, PAYABLE");
     StringBuilder placeholders = new StringBuilder("?,?,?,?");
     
     List<String> customCurrencies = CustomCurrencies.getCustomCurrencies();
@@ -166,7 +199,7 @@ public class SQLiteStorageType implements StorageType {
       placeholders.append(",?");
     }
     
-    String sql = "INSERT INTO playerdata(" + columns + ") VALUES(" + placeholders + ")";
+    String sql = "INSERT INTO PLAYERDATA(" + columns + ") VALUES(" + placeholders + ")";
     try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
       connection.setAutoCommit(false);
       
@@ -206,7 +239,7 @@ public class SQLiteStorageType implements StorageType {
   
   @Override
   public boolean accountExists(UUID uuid) {
-    try (PreparedStatement pstmt = connection.prepareStatement("SELECT COUNT(*) FROM playerdata WHERE uuid = ?")) {
+    try (PreparedStatement pstmt = connection.prepareStatement("SELECT COUNT(*) FROM PLAYERDATA WHERE UUID = ?")) {
       pstmt.setString(1, uuid.toString());
       ResultSet rs = pstmt.executeQuery();
       int count = rs.getInt(1);
@@ -221,7 +254,7 @@ public class SQLiteStorageType implements StorageType {
   
   @Override
   public Account getAccount(UUID uuid) {
-    try (PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM playerdata WHERE uuid = ?")) {
+    try (PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM PLAYERDATA WHERE UUID = ?")) {
       pstmt.setString(1, uuid.toString());
       ResultSet rs = pstmt.executeQuery();
       Map<String, Double> customCurrencies = new HashMap<>();
@@ -229,9 +262,9 @@ public class SQLiteStorageType implements StorageType {
         customCurrencies.put(currency, rs.getDouble(currency));
       }
       return new Account(uuid)
-        .setName(rs.getString("name"))
-        .setBalance(rs.getDouble("balance"))
-        .setPayable(rs.getBoolean("payable"))
+        .setName(rs.getString("NAME"))
+        .setBalance(rs.getDouble("BALANCE"))
+        .setPayable(rs.getBoolean("PAYABLE"))
         .setCustomBalances(customCurrencies);
     } catch (SQLException exception) {
       new QualityError("Failed to get account (" + uuid.toString() + ")", exception).log();
@@ -249,7 +282,7 @@ public class SQLiteStorageType implements StorageType {
     
     String uuidList = uuids.stream().map(UUID::toString).collect(Collectors.joining("','", "'", "'"));
     
-    try (PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM playerdata WHERE uuid IN (" + uuidList + ")")) {
+    try (PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM PLAYERDATA WHERE UUID IN (" + uuidList + ")")) {
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
         UUID uuid = UUID.fromString(rs.getString("uuid"));
@@ -258,9 +291,9 @@ public class SQLiteStorageType implements StorageType {
           customCurrencies.put(currency, rs.getDouble(currency));
         }
         Account account = new Account(uuid)
-          .setName(rs.getString("name"))
-          .setBalance(rs.getDouble("balance"))
-          .setPayable(rs.getBoolean("payable"))
+          .setName(rs.getString("NAME"))
+          .setBalance(rs.getDouble("BALANCE"))
+          .setPayable(rs.getBoolean("PAYABLE"))
           .setCustomBalances(customCurrencies);
         accounts.put(uuid, account);
       }
@@ -275,7 +308,7 @@ public class SQLiteStorageType implements StorageType {
   public Map<UUID, Account> getAllAccounts() {
     Map<UUID, Account> accounts = new HashMap<>();
     
-    try (PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM playerdata")) {
+    try (PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM PLAYERDATA")) {
       ResultSet rs = pstmt.executeQuery();
       while (rs.next()) {
         UUID uuid = UUID.fromString(rs.getString("uuid"));
@@ -284,9 +317,9 @@ public class SQLiteStorageType implements StorageType {
           customCurrencies.put(currency, rs.getDouble(currency));
         }
         Account account = new Account(uuid)
-          .setName(rs.getString("name"))
-          .setBalance(rs.getDouble("balance"))
-          .setPayable(rs.getBoolean("payable"))
+          .setName(rs.getString("NAME"))
+          .setBalance(rs.getDouble("BALANCE"))
+          .setPayable(rs.getBoolean("PAYABLE"))
           .setCustomBalances(customCurrencies);
         accounts.put(uuid, account);
       }
@@ -299,13 +332,13 @@ public class SQLiteStorageType implements StorageType {
   
   @Override
   public void updateAccount(Account account) {
-    StringBuilder sql = new StringBuilder("UPDATE playerdata SET name = ?, balance = ?, payable = ?");
+    StringBuilder sql = new StringBuilder("UPDATE PLAYERDATA SET NAME = ?, BALANCE = ?, PAYABLE = ?");
     
     List<String> customCurrencies = CustomCurrencies.getCustomCurrencies();
     for (String currency : customCurrencies) {
       sql.append(", ").append(currency).append(" = ?");
     }
-    sql.append(" WHERE uuid = ?");
+    sql.append(" WHERE UUID = ?");
     
     try (PreparedStatement pstmt = connection.prepareStatement(sql.toString())) {
       pstmt.setString(1, account.getName());
@@ -332,13 +365,13 @@ public class SQLiteStorageType implements StorageType {
     if (accounts.isEmpty())
       return;
     
-    StringBuilder sql = new StringBuilder("UPDATE playerdata SET name = ?, balance = ?, payable = ?");
+    StringBuilder sql = new StringBuilder("UPDATE PLAYERDATA SET NAME = ?, BALANCE = ?, PAYABLE = ?");
     
     List<String> customCurrencies = CustomCurrencies.getCustomCurrencies();
     for (String currency : customCurrencies) {
       sql.append(", ").append(currency).append(" = ?");
     }
-    sql.append(" WHERE uuid = ?");
+    sql.append(" WHERE UUID = ?");
     
     try (PreparedStatement pstmt = connection.prepareStatement(sql.toString())) {
       connection.setAutoCommit(false);
@@ -379,7 +412,7 @@ public class SQLiteStorageType implements StorageType {
   @Override
   public Collection<UUID> getAllUUIDs() {
     Collection<String> rawUUIDs = new ArrayList<>();
-    try (PreparedStatement pstmt = connection.prepareStatement("SELECT uuid FROM playerdata")) {
+    try (PreparedStatement pstmt = connection.prepareStatement("SELECT UUID FROM PLAYERDATA")) {
       ResultSet rs = pstmt.executeQuery();
       while (rs.next())
         rawUUIDs.add(rs.getString("uuid"));
@@ -391,8 +424,9 @@ public class SQLiteStorageType implements StorageType {
   }
   
   public void addCurrency(String currencyName) {
+    currencyName = currencyName.toUpperCase();
     try (Statement stmt = connection.createStatement()) {
-      stmt.executeUpdate("ALTER TABLE playerdata ADD COLUMN " + currencyName + " REAL NOT NULL DEFAULT 0.0");
+      stmt.executeUpdate("ALTER TABLE PLAYERDATA ADD COLUMN " + currencyName + " REAL NOT NULL DEFAULT 0.0");
     } catch (SQLException exception) {
       new QualityError("Failed to add currency to database (" + currencyName + ")", exception).log();
     }
@@ -400,8 +434,9 @@ public class SQLiteStorageType implements StorageType {
   
   
   public void removeCurrency(String currencyName) {
+    currencyName = currencyName.toUpperCase();
     try (Statement stmt = connection.createStatement()) {
-      stmt.executeUpdate("ALTER TABLE playerdata DROP COLUMN " + currencyName);
+      stmt.executeUpdate("ALTER TABLE PLAYERDATA DROP COLUMN " + currencyName);
     } catch (SQLException exception) {
       new QualityError("Failed to remove currency from database (" + currencyName + ")", exception).log();
     }

@@ -27,13 +27,12 @@ public class AccountManager {
         return new Account(uuid).setName(uuid.toString()).setPayable(false);
       StorageType activeStorageType = StorageManager.getActiveStorageFormat();
       Account account;
-      String name = Bukkit.getOfflinePlayer(uuid).getName();
       if (!accountExists(uuid)) {
         account = new Account(uuid);
         activeStorageType.createAccount(account);
       } else
         account = getAccount(uuid);
-      accounts.put(uuid, account.setName(name));
+      accounts.put(uuid, account.setName(offlinePlayer.getName()));
       timer.end("Created account");
       return account;
     }

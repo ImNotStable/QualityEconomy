@@ -17,31 +17,28 @@ import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.Tag;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 public class CustomEconomyCommand {
   
   private static boolean isRegistered = false;
+  private static final CommandTree command = new CommandTree("customeconomy")
+    .withAliases("ceconomy", "customeco", "ceco")
+    .withPermission("qualityeconomy.customeconomy")
+    .then(new StringArgument("currency")
+      .replaceSuggestions(ArgumentSuggestions.strings(info -> CustomCurrencies.getCustomCurrencies().toArray(new String[0])))
+      .then(new OfflinePlayerArgument("target")
+        .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
+        .then(new LiteralArgument("reset").executes(CustomEconomyCommand::resetBalance))
+        .then(new LiteralArgument("set").then(new DoubleArgument("amount").executes(CustomEconomyCommand::setBalance)))
+        .then(new LiteralArgument("add").then(new DoubleArgument("amount").executes(CustomEconomyCommand::addBalance)))
+        .then(new LiteralArgument("remove").then(new DoubleArgument("amount").executes(CustomEconomyCommand::removeBalance)))));
   
   public static void register() {
     if (isRegistered || !Configuration.isCustomEconomyCommandEnabled() || CustomCurrencies.getCustomCurrencies().isEmpty())
       return;
-    new CommandTree("customeconomy")
-      .withAliases("ceconomy", "customeco", "ceco")
-      .withPermission("qualityeconomy.customeconomy")
-      .then(new StringArgument("currency")
-        .replaceSuggestions(ArgumentSuggestions.strings(info -> CustomCurrencies.getCustomCurrencies().toArray(new String[0])))
-        .then(new OfflinePlayerArgument("target")
-          .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
-          .then(new LiteralArgument("reset").executes(CustomEconomyCommand::resetBalance))
-          .then(new LiteralArgument("set").then(new DoubleArgument("amount").executes(CustomEconomyCommand::setBalance)))
-          .then(new LiteralArgument("add").then(new DoubleArgument("amount").executes(CustomEconomyCommand::addBalance)))
-          .then(new LiteralArgument("remove").then(new DoubleArgument("amount").executes(CustomEconomyCommand::removeBalance)))))
-      .register();
+    command.register();
     isRegistered = true;
   }
   
@@ -64,9 +61,9 @@ public class CustomEconomyCommand {
       return;
     }
     QualityEconomyAPI.setCustomBalance(target.getUniqueId(), currency, 0);
-    sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_RESET),
-      TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName()))),
-      TagResolver.resolver("", Tag.selfClosingInserting(Component.text("")))));
+    Messages.sendParsedMessage(MessageType.ECONOMY_RESET, new String[]{
+      target.getName()
+    }, sender);
   }
   
   private static void setBalance(CommandSender sender, CommandArguments args) {
@@ -82,9 +79,10 @@ public class CustomEconomyCommand {
     }
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.setCustomBalance(target.getUniqueId(), currency, balance);
-    sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_SET),
-      TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName()))),
-      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(balance))))));
+    Messages.sendParsedMessage(MessageType.ECONOMY_SET, new String[]{
+      Number.formatCommas(balance),
+      target.getName()
+    }, sender);
   }
   
   private static void addBalance(CommandSender sender, CommandArguments args) {
@@ -100,9 +98,10 @@ public class CustomEconomyCommand {
     }
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.addCustomBalance(target.getUniqueId(), currency, balance);
-    sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_ADD),
-      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(balance)))),
-      TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName())))));
+    Messages.sendParsedMessage(MessageType.ECONOMY_ADD, new String[]{
+      Number.formatCommas(balance),
+      target.getName()
+    }, sender);
   }
   
   private static void removeBalance(CommandSender sender, CommandArguments args) {
@@ -118,9 +117,10 @@ public class CustomEconomyCommand {
     }
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.removeCustomBalance(target.getUniqueId(), currency, balance);
-    sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.ECONOMY_REMOVE),
-      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(balance)))),
-      TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName())))));
+    Messages.sendParsedMessage(MessageType.ECONOMY_REMOVE, new String[]{
+      Number.formatCommas(balance),
+      target.getName()
+    }, sender);
   }
   
 }

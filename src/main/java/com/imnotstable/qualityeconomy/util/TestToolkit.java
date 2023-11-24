@@ -9,8 +9,8 @@ public class TestToolkit {
   
   public static class Timer {
     
-    private static long incrementer = 0;
-    private long id;
+    private static int incrementer = 0;
+    private int id;
     private long start;
     private String message;
     
@@ -19,7 +19,7 @@ public class TestToolkit {
         return;
       incrementer++;
       id = incrementer;
-      start = System.currentTimeMillis();
+      start = System.nanoTime();
       this.message = message;
       Logger.log(Component.text()
         .append(Component.text(String.format("[#%d] ", id), NamedTextColor.DARK_GRAY))
@@ -31,21 +31,20 @@ public class TestToolkit {
     public void interrupt(String message) {
       if (!DEBUG_MODE)
         return;
-      long now = System.currentTimeMillis();
-      Logger.log(Component.text()
-        .append(Component.text(String.format("[#%d] ", id), NamedTextColor.DARK_RED))
-        .append(Component.text(String.format("%s (%dms)", message, (now - start)), NamedTextColor.RED))
-        .build()
-      );
+      long now = System.nanoTime();
+      Logger.log(Component.text().append(
+        Component.text(String.format("[#%d] ", id), NamedTextColor.DARK_RED),
+        Component.text(String.format("%s (%fms)", message, (now - start)/1000000.0), NamedTextColor.RED)
+      ).build());
     }
     
     public void progress() {
       if (!DEBUG_MODE)
         return;
-      long now = System.currentTimeMillis();
+      long now = System.nanoTime();
       Logger.log(Component.text()
         .append(Component.text(String.format("[#%d] ", id), NamedTextColor.GOLD))
-        .append(Component.text(String.format("%s (%dms)", message, (now - start)), NamedTextColor.YELLOW))
+        .append(Component.text(String.format("%s (%fms)", message, (now - start)/1000000.0), NamedTextColor.YELLOW))
         .build()
       );
     }
@@ -53,10 +52,10 @@ public class TestToolkit {
     public void end(String message) {
       if (!DEBUG_MODE)
         return;
-      long now = System.currentTimeMillis();
+      long now = System.nanoTime();
       Logger.log(Component.text()
         .append(Component.text(String.format("[#%d] ", id), NamedTextColor.DARK_GREEN))
-        .append(Component.text(String.format("%s (%dms)", message, (now - start)), NamedTextColor.GREEN))
+        .append(Component.text(String.format("%s (%fms)", message, (now - start)/1000000.0), NamedTextColor.GREEN))
         .build()
       );
     }

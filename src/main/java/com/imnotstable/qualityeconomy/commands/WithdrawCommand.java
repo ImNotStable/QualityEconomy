@@ -13,9 +13,6 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.Tag;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -31,14 +28,14 @@ import java.util.List;
 public class WithdrawCommand implements Listener {
   
   private static boolean isRegistered = false;
+  private static final CommandAPICommand command = new CommandAPICommand("withdraw")
+    .withArguments(new DoubleArgument("amount", Number.getMinimumValue()))
+    .executesPlayer(WithdrawCommand::withdraw);
   
   public static void register() {
     if (isRegistered || !Configuration.areBanknotesEnabled())
       return;
-    new CommandAPICommand("withdraw")
-      .withArguments(new DoubleArgument("amount", Number.getMinimumValue()))
-      .executesPlayer(WithdrawCommand::withdraw)
-      .register();
+    command.register();
     isRegistered = true;
   }
   
@@ -57,8 +54,9 @@ public class WithdrawCommand implements Listener {
     }
     QualityEconomyAPI.removeBalance(sender.getUniqueId(), amount);
     sender.getInventory().addItem(WithdrawCommand.getBankNote(amount, sender));
-    sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.WITHDRAW),
-      TagResolver.resolver("amount", Tag.selfClosingInserting(Component.text(Number.formatCommas(amount))))));
+    Messages.sendParsedMessage(MessageType.WITHDRAW, new String[]{
+      Number.formatCommas(amount)
+    }, sender);
   }
   
   public static ItemStack getBankNote(double amount, Player player) {

@@ -15,27 +15,24 @@ import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.Tag;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public class PayCommand {
   
   private static boolean isRegistered = false;
+  private static final CommandTree command = new CommandTree("pay")
+    .then(new LiteralArgument("toggle")
+      .executesPlayer(PayCommand::togglePay))
+    .then(new OfflinePlayerArgument("target")
+      .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
+      .then(new DoubleArgument("amount", Number.getMinimumValue())
+        .executesPlayer(PayCommand::pay)));
   
   public static void register() {
     if (isRegistered || !Configuration.isPayCommandEnabled())
       return;
-    new CommandTree("pay")
-      .then(new LiteralArgument("toggle")
-        .executesPlayer(PayCommand::togglePay))
-      .then(new OfflinePlayerArgument("target")
-        .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
-        .then(new DoubleArgument("amount", Number.getMinimumValue())
-          .executesPlayer(PayCommand::pay)))
-      .register();
+    command.register();
     isRegistered = true;
   }
   
@@ -50,9 +47,9 @@ public class PayCommand {
     boolean toggle = !QualityEconomyAPI.isPayable(sender.getUniqueId());
     QualityEconomyAPI.setPayable(sender.getUniqueId(), toggle);
     if (toggle) {
-      sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.PAY_TOGGLE_ON)));
+      sender.sendMessage(Messages.getMessage(MessageType.PAY_TOGGLE_ON));
     } else {
-      sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.PAY_TOGGLE_OFF)));
+      sender.sendMessage(Messages.getMessage(MessageType.PAY_TOGGLE_OFF));
     }
   }
   
@@ -72,13 +69,15 @@ public class PayCommand {
       sender.sendMessage(Component.text("You do not have enough money", NamedTextColor.RED));
       return;
     }
-    sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.PAY_SEND),
-      TagResolver.resolver("amount", Tag.selfClosingInserting(Component.text(Number.formatCommas(amount)))),
-      TagResolver.resolver("target", Tag.selfClosingInserting(Component.text(args.getRaw("target"))))));
+    Messages.sendParsedMessage(MessageType.PAY_SEND, new String[]{
+      Number.formatCommas(amount),
+      target.getName()
+    }, sender);
     if (target.isOnline())
-      target.getPlayer().sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.PAY_RECEIVE),
-        TagResolver.resolver("amount", Tag.selfClosingInserting(Component.text(Number.formatCommas(amount)))),
-        TagResolver.resolver("sender", Tag.selfClosingInserting(Component.text(sender.getName())))));
+      Messages.sendParsedMessage(MessageType.PAY_RECEIVE, new String[]{
+        Number.formatCommas(amount),
+        sender.getName()
+      }, sender);
     QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), amount);
   }
   

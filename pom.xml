@@ -6,7 +6,7 @@
 
     <groupId>com.imnotstable</groupId>
     <artifactId>QualityEconomy</artifactId>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
     <packaging>jar</packaging>
 
     <name>QualityEconomy</name>
@@ -60,6 +60,10 @@
                         </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>
+                            <shadedPattern>com.imnotstable.qualityeconomy</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>fr.mrmicky.fastinv</pattern>
                             <shadedPattern>com.imnotstable.qualityeconomy</shadedPattern>
                         </relocation>
                     </relocations>
@@ -126,12 +130,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20231013</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>dev.jorel</groupId>
             <artifactId>commandapi-bukkit-shade</artifactId>
             <version>9.2.0</version>
@@ -141,6 +139,12 @@
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
             <version>3.0.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.mrmicky</groupId>
+            <artifactId>FastInv</artifactId>
+            <version>3.0.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

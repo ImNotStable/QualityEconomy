@@ -1,12 +1,10 @@
 package com.imnotstable.qualityeconomy.storage;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.storage.storageformats.H2StorageType;
+import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.storage.storageformats.JsonStorageType;
-import com.imnotstable.qualityeconomy.storage.storageformats.MySQLStorageType;
-import com.imnotstable.qualityeconomy.storage.storageformats.SQLiteStorageType;
+import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.util.QualityError;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
@@ -30,9 +28,10 @@ public class StorageManager implements Listener {
     synchronized (lock) {
       TestToolkit.Timer timer = new TestToolkit.Timer("Initiating storage processes...");
       switch (Configuration.getStorageType()) {
-        case "h2" -> activeStorageType = new H2StorageType();
-        case "sqlite" -> activeStorageType = new SQLiteStorageType();
-        case "mysql" -> activeStorageType = new MySQLStorageType();
+        case "h2" -> activeStorageType = new SQLStorageType(1);
+        case "sqlite" -> activeStorageType = new SQLStorageType(2);
+        case "mysql" -> activeStorageType = new SQLStorageType(3);
+        case "mariadb" -> activeStorageType = new SQLStorageType(4);
         case "json" -> activeStorageType = new JsonStorageType();
         default -> {
           new QualityError("Unexpected Storage Type: " + Configuration.getStorageType()).log();

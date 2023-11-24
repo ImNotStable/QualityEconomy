@@ -15,9 +15,6 @@ import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.Tag;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,19 +22,19 @@ import org.bukkit.entity.Player;
 public class CustomBalanceCommand {
   
   private static boolean isRegistered = false;
+  private static final CommandTree command = new CommandTree("custombalance")
+    .withAliases("cbalance", "custombal", "cbal")
+    .then(new StringArgument("currency")
+      .replaceSuggestions(ArgumentSuggestions.strings(info -> CustomCurrencies.getCustomCurrencies().toArray(new String[0])))
+      .then(new OfflinePlayerArgument("target")
+        .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
+        .executes(CustomBalanceCommand::viewOtherBalance))
+      .executesPlayer(CustomBalanceCommand::viewOwnBalance));
   
   public static void register() {
     if (isRegistered || !Configuration.isCustomBalanceCommandEnabled() || CustomCurrencies.getCustomCurrencies().isEmpty())
       return;
-    new CommandTree("custombalance")
-      .withAliases("cbalance", "custombal", "cbal")
-      .then(new StringArgument("currency")
-        .replaceSuggestions(ArgumentSuggestions.strings(info -> CustomCurrencies.getCustomCurrencies().toArray(new String[0])))
-        .then(new OfflinePlayerArgument("target")
-          .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
-          .executes(CustomBalanceCommand::viewOtherBalance))
-        .executesPlayer(CustomBalanceCommand::viewOwnBalance))
-      .register();
+    command.register();
     isRegistered = true;
   }
   
@@ -59,9 +56,10 @@ public class CustomBalanceCommand {
       sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
       return;
     }
-    sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCE_OTHER_BALANCE),
-      TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(target.getName()))),
-      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(QualityEconomyAPI.getCustomBalance(target.getUniqueId(), currency)))))));
+    Messages.sendParsedMessage(MessageType.BALANCE_OTHER_BALANCE, new String[]{
+        Number.formatCommas(QualityEconomyAPI.getCustomBalance(target.getUniqueId(), currency)),
+      target.getName()
+    }, sender);
   }
   
   private static void viewOwnBalance(Player sender, CommandArguments args) {
@@ -70,8 +68,9 @@ public class CustomBalanceCommand {
       sender.sendMessage(Component.text("That currency does not exist", NamedTextColor.RED));
       return;
     }
-    sender.sendMessage(MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCE_OWN_BALANCE),
-      TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(QualityEconomyAPI.getCustomBalance(sender.getUniqueId(), currency)))))));
+    Messages.sendParsedMessage(MessageType.BALANCE_OWN_BALANCE, new String[]{
+      Number.formatCommas(QualityEconomyAPI.getCustomBalance(sender.getUniqueId(), currency))
+    }, sender);
   }
   
 }

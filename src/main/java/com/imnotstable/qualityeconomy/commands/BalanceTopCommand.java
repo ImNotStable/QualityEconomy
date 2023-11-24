@@ -13,10 +13,6 @@ import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.Tag;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
@@ -28,6 +24,14 @@ import java.util.List;
 public class BalanceTopCommand {
   
   private static boolean isRegistered = false;
+  private static final CommandTree command = new CommandTree("balancetop")
+    .withAliases("baltop")
+    .then(new LiteralArgument("update")
+      .withPermission("qualityeconomy.balancetop.update")
+      .executes((sender, args) -> {updateBalanceTop();}))
+    .then(new IntegerArgument("page", 1)
+      .setOptional(true)
+      .executes(BalanceTopCommand::viewBalanceTop));
   
   public static List<Account> orderedPlayerList = new ArrayList<>();
   private static double serverTotal = 0;
@@ -37,15 +41,7 @@ public class BalanceTopCommand {
   public static void register() {
     if (isRegistered || !Configuration.isBalancetopCommandEnabled())
       return;
-    new CommandTree("balancetop")
-      .withAliases("baltop")
-      .then(new LiteralArgument("update")
-        .withPermission("qualityeconomy.balancetop.update")
-        .executes((sender, args) -> {updateBalanceTop();}))
-      .then(new IntegerArgument("page", 1)
-        .setOptional(true)
-        .executes(BalanceTopCommand::viewBalanceTop))
-      .register();
+    command.register();
     taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), BalanceTopCommand::updateBalanceTop, 0L, Configuration.getBalancetopInterval());
     isRegistered = true;
   }
@@ -63,27 +59,26 @@ public class BalanceTopCommand {
     int startIndex = (page - 1) * 10;
     int endIndex = Math.min(startIndex + 10, orderedPlayerList.size());
     
-    Component titleMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCETOP_TITLE),
-      TagResolver.resolver("page", Tag.selfClosingInserting(Component.text(page))),
-      TagResolver.resolver("maxpage", Tag.selfClosingInserting(Component.text(maxPage))));
-    Component serverTotalMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCETOP_SERVER_TOTAL),
-      TagResolver.resolver("servertotal", Tag.selfClosingInserting(Component.text(Number.formatCommas(serverTotal)))));
-    Component nextPageMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCETOP_NEXT_PAGE),
-      TagResolver.resolver("command", Tag.selfClosingInserting(Component.text("balancetop"))),
-      TagResolver.resolver("nextpage", Tag.selfClosingInserting(Component.text((page + 1)))));
-    
-    sender.sendMessage(titleMessage);
-    sender.sendMessage(serverTotalMessage);
+    Messages.sendParsedMessage(MessageType.BALANCETOP_TITLE, new String[]{
+      String.valueOf(maxPage),
+      String.valueOf(page)
+    }, sender);
+    Messages.sendParsedMessage(MessageType.BALANCETOP_SERVER_TOTAL, new String[]{
+      String.valueOf(serverTotal)
+    }, sender);
     
     for (int i = startIndex; i < endIndex; i++) {
       Account account = orderedPlayerList.get(i);
-      Component balanceMessage = MiniMessage.miniMessage().deserialize(Messages.getMessage(MessageType.BALANCETOP_BALANCE_VIEW),
-        TagResolver.resolver("place", Tag.selfClosingInserting(Component.text(i + 1))),
-        TagResolver.resolver("player", Tag.selfClosingInserting(Component.text(account.getName()))),
-        TagResolver.resolver("balance", Tag.selfClosingInserting(Component.text(Number.formatCommas(account.getBalance())))));
-      sender.sendMessage(balanceMessage);
+      Messages.sendParsedMessage(MessageType.BALANCETOP_BALANCE_VIEW, new String[]{
+        Number.formatCommas(account.getBalance()),
+        String.valueOf(i + 1),
+        account.getName()
+      }, sender);
     }
-    sender.sendMessage(nextPageMessage);
+    Messages.sendParsedMessage(MessageType.BALANCETOP_NEXT_PAGE, new String[]{
+      args.fullInput().split(" ")[0].substring(1),
+      String.valueOf(page + 1)
+    }, sender);
   }
   
   public static void updateBalanceTop() {

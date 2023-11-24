@@ -12,7 +12,7 @@ public class Account {
   private String name;
   private double balance = 0.0;
   private final Map<String, Double> otherBalances = new HashMap<>();
-  private boolean payable = true;
+  private boolean isPayable = true;
   
   public Account(UUID uuid) {
     this.uuid = uuid;
@@ -44,6 +44,10 @@ public class Account {
     return otherBalances.getOrDefault(currency, 0.0);
   }
   
+  public Map<String, Double> getCustomBalances() {
+    return otherBalances;
+  }
+  
   public Account setCustomBalance(String currency, double balance) {
     otherBalances.put(currency, Number.round(balance));
     return this;
@@ -56,11 +60,11 @@ public class Account {
   }
   
   public boolean getPayable() {
-    return payable;
+    return isPayable;
   }
   
   public Account setPayable(boolean payable) {
-    this.payable = payable;
+    this.isPayable = payable;
     return this;
   }
   

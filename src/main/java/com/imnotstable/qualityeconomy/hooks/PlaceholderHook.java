@@ -7,7 +7,6 @@ import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.QualityError;
-import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -21,8 +20,7 @@ import java.util.UUID;
 public class PlaceholderHook extends PlaceholderExpansion {
   
   public static void initPlaceholderHook() {
-    new PlaceholderHook().register();
-    if (PlaceholderAPI.isRegistered(QualityEconomy.getInstance().getName()))
+    if (new PlaceholderHook().register())
       Logger.log(Component.text("Successfully registered expansion with PlaceholderAPI", NamedTextColor.GREEN));
     else
       Logger.log(Component.text("Failed to register expansion with PlaceholderAPI", NamedTextColor.RED));

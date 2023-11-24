@@ -1,9 +1,9 @@
 # This is the storage type the plugin will use
 # Choose one of the options below
-# h2 - faster than sqlite (still working out possible bugs, it does function though)
-# sqlite - is faster and more efficient
-# mysql - if you're using this, you know what it does...
-# json - allows for editing accounts via files
+# h2
+# sqlite
+# mysql
+# json
 storage-type: sqlite
 
 # Amount of decimal places allowed within balances
@@ -20,14 +20,11 @@ commands:
   balancetop: true
   economy: true
   pay: true
+  custombalance: false
+  customeconomy: false
 
 # Whether you want custom currency functionality enabled.
 custom-currencies: false
-
-# Whether you want these commands enabled
-custom-currency-commands:
-  custombalance: true
-  customeconomy: true
 
 # Number in hours (decimals allowed)
 # 0 to disable
@@ -37,7 +34,7 @@ backup-interval: 1
 # 0 to disable
 balancetop-interval: 5
 
-MySQL:
+database:
   name: qualityeconomy
   # host:port
   host: localhost:3306

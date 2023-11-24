@@ -1,16 +1,20 @@
 package com.imnotstable.qualityeconomy.storage;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
-import com.imnotstable.qualityeconomy.util.QualityError;
 import com.imnotstable.qualityeconomy.util.Logger;
+import com.imnotstable.qualityeconomy.util.QualityError;
 import com.imnotstable.qualityeconomy.util.TestToolkit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -35,31 +39,27 @@ public class DBTransferUtils {
       new BukkitRunnable() {
         @Override
         public void run() {
-          AccountManager.saveAllAccounts();
           TestToolkit.Timer timer = new TestToolkit.Timer("Exporting database...");
-          File dir = new File(path);
-          if (!dir.exists() || !dir.isDirectory()) {
-            Logger.log(Component.text("Specified directory not found...", NamedTextColor.RED));
-            Logger.log(Component.text("Creating directory...", NamedTextColor.GRAY));
-            Logger.log(dir.mkdir() ?
-              Component.text("Successfully created directory", NamedTextColor.GREEN) :
-              Component.text("Failed to create directory", NamedTextColor.RED));
+          AccountManager.saveAllAccounts();
+          File directory = new File(path);
+          if (!directory.exists() || !directory.isDirectory()) {
+            if (!directory.mkdir())
+              Logger.log(Component.text("Failed to create directory for database export", NamedTextColor.RED));
           }
-          JSONObject rootJson = new JSONObject();
-          rootJson.put("custom-currencies", CustomCurrencies.getCustomCurrencies());
-          StorageType storageType = StorageManager.getActiveStorageFormat();
-          storageType.getAllAccounts().forEach((uuid, account) -> {
-            JSONObject accountJson = new JSONObject();
-            accountJson.put("name", account.getName())
-              .put("balance", account.getBalance())
-              .put("payable", account.getPayable());
-            for (String currency : CustomCurrencies.getCustomCurrencies())
-              accountJson.put(currency, account.getCustomBalance(currency));
-            rootJson.put(uuid.toString(), accountJson);
+          Gson gson = new Gson();
+          JsonObject rootJson = new JsonObject();
+          rootJson.add("custom-currencies", gson.toJsonTree(CustomCurrencies.getCustomCurrencies()));
+          StorageManager.getActiveStorageFormat().getAllAccounts().forEach((uuid, account) -> {
+            JsonObject accountJson = new JsonObject();
+            accountJson.addProperty("name", account.getName());
+            accountJson.addProperty("balance", account.getBalance());
+            accountJson.addProperty("payable", account.getPayable());
+            account.getCustomBalances().forEach(accountJson::addProperty);
+            rootJson.add(uuid.toString(), accountJson);
           });
           String fileName = String.format("%sQualityEconomy %s.json", path, LocalDateTime.now().format(EXPORT_DATE_FORMAT));
           try (FileWriter file = new FileWriter(fileName)) {
-            file.write(rootJson.toString());
+            file.write(gson.toJson(rootJson));
           } catch (IOException exception) {
             new QualityError("Error while exporting playerdata", exception).log();
           }
@@ -68,6 +68,7 @@ public class DBTransferUtils {
       }.runTaskAsynchronously(QualityEconomy.getInstance());
     }
   }
+  
   
   public static void importDatabase(final String fileName) {
     synchronized (StorageManager.lock) {
@@ -84,28 +85,32 @@ public class DBTransferUtils {
           Collection<Account> accounts = new ArrayList<>();
           try {
             String content = new String(Files.readAllBytes(Paths.get(path)));
-            JSONObject rootJson = new JSONObject(content);
+            JsonObject rootJson = JsonParser.parseString(content).getAsJsonObject();
             
             List<String> customCurrencies = new ArrayList<>();
-            if (!rootJson.isNull("custom-currencies"))
-              for (int i = 0; i < rootJson.getJSONArray("custom-currencies").length(); i++) {
-                String currency = rootJson.getJSONArray("custom-currencies").getString(i);
+            if (rootJson.get("custom-currencies") != null) {
+              JsonArray currenciesArray = rootJson.getAsJsonArray("custom-currencies");
+              for (JsonElement currencyElement : currenciesArray) {
+                String currency = currencyElement.getAsString();
                 customCurrencies.add(currency);
                 CustomCurrencies.createCustomCurrency(currency);
               }
+            }
             
-            rootJson.keySet().stream().filter(key -> !key.equalsIgnoreCase("custom-currencies")).forEach(key -> {
-              UUID uuid = UUID.fromString(key);
-              JSONObject accountJson = rootJson.getJSONObject(key);
-              String name = accountJson.getString("name");
-              double balance = accountJson.getDouble("balance");
-              boolean payable = accountJson.getBoolean("payable");
-              Map<String, Double> balanceMap = new HashMap<>();
-              for (String currency : customCurrencies) {
-                balanceMap.put(currency, accountJson.getDouble(currency));
-              }
-              accounts.add(new Account(uuid).setName(name).setBalance(balance).setPayable(payable).setCustomBalances(balanceMap));
-            });
+            rootJson.entrySet().stream()
+              .filter(entry -> !entry.getKey().equalsIgnoreCase("custom-currencies"))
+              .forEach(entry -> {
+                UUID uuid = UUID.fromString(entry.getKey());
+                JsonObject accountJson = entry.getValue().getAsJsonObject();
+                String name = accountJson.get("name").getAsString();
+                double balance = accountJson.get("balance").getAsDouble();
+                boolean payable = accountJson.get("payable").getAsBoolean();
+                Map<String, Double> balanceMap = new HashMap<>();
+                for (String currency : customCurrencies) {
+                  balanceMap.put(currency, accountJson.get(currency).getAsDouble());
+                }
+                accounts.add(new Account(uuid).setName(name).setBalance(balance).setPayable(payable).setCustomBalances(balanceMap));
+              });
             storageType.createAccounts(accounts);
             timer.progress();
           } catch (IOException exception) {
@@ -117,5 +122,6 @@ public class DBTransferUtils {
       }.runTaskAsynchronously(QualityEconomy.getInstance());
     }
   }
+  
   
 }

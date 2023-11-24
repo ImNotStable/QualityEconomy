@@ -6,6 +6,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,16 +17,11 @@ public class Configuration {
   private static String storageType;
   private static int decimalPlaces;
   private static boolean banknotes;
-  private static boolean balanceCommand;
-  private static boolean balancetopCommand;
-  private static boolean economyCommand;
-  private static boolean payCommand;
+  private static final List<String> enabledCommands = new ArrayList<>();
   private static boolean customCurrencies;
-  private static boolean custombalanceCommand;
-  private static boolean customeconomyCommand;
   private static long backupInterval;
   private static long balancetopInterval;
-  private static List<String> mysqlInfo;
+  private static List<String> connectionInfo;
   
   public static void load() {
     File file = new File(QualityEconomy.getInstance().getDataFolder(), "config.yml");
@@ -41,20 +37,19 @@ public class Configuration {
     storageType = configuration.getString("storage-type", "sqlite").toLowerCase();
     decimalPlaces = Math.max(configuration.getInt("decimal-places", 4), 0);
     banknotes = configuration.getBoolean("banknotes", false);
-    balanceCommand = configuration.getBoolean("commands.balance", true);
-    balancetopCommand = configuration.getBoolean("commands.balancetop", true);
-    economyCommand = configuration.getBoolean("commands.economy", true);
-    payCommand = configuration.getBoolean("commands.pay", true);
+    enabledCommands.clear();
+    List.of("balance", "balancetop", "economy", "pay", "custombalance", "customeconomy").forEach(command -> {
+      if (configuration.getBoolean("commands." + command, false))
+        enabledCommands.add(command);
+    });
     customCurrencies = configuration.getBoolean("custom-currencies", false);
-    custombalanceCommand = configuration.getBoolean("custom-currency-commands.custombalance", true);
-    customeconomyCommand = configuration.getBoolean("custom-currency-commands.customeconomy", true);
     backupInterval = (long) (configuration.getDouble("backup-interval", 1) * 20 * 60 * 60);
     balancetopInterval = configuration.getInt("balancetop-inverval", 5) * 20L;
-    mysqlInfo = List.of(
-      configuration.getString("MySQL.address", "localhost:3306"),
-      configuration.getString("MySQL.name", "qualityeconomy"),
-      configuration.getString("MySQL.user", "root"),
-      configuration.getString("MySQL.password", "root")
+    connectionInfo = List.of(
+      configuration.getString("database.address", "localhost:3306"),
+      configuration.getString("database.name", "qualityeconomy"),
+      configuration.getString("database.user", "root"),
+      configuration.getString("database.password", "root")
     );
   }
   
@@ -87,31 +82,35 @@ public class Configuration {
     return banknotes;
   }
   
+  public static boolean isCommandEnabled(String command) {
+    return enabledCommands.contains(command);
+  }
+  
   public static boolean isBalanceCommandEnabled() {
-    return balanceCommand;
+    return enabledCommands.contains("balance");
   }
   
   public static boolean isBalancetopCommandEnabled() {
-    return balancetopCommand;
+    return enabledCommands.contains("balancetop");
   }
   
   public static boolean isEconomyCommandEnabled() {
-    return economyCommand;
+    return enabledCommands.contains("economy");
   }
   
   public static boolean isPayCommandEnabled() {
-    return payCommand;
+    return enabledCommands.contains("pay");
   }
   
-  public static boolean areCustomCurrenciesEnabled() {return customCurrencies;}
-  
   public static boolean isCustomBalanceCommandEnabled() {
-    return custombalanceCommand;
+    return enabledCommands.contains("custombalance");
   }
   
   public static boolean isCustomEconomyCommandEnabled() {
-    return customeconomyCommand;
+    return enabledCommands.contains("customeconomy");
   }
+  
+  public static boolean areCustomCurrenciesEnabled() {return customCurrencies;}
   
   public static long getBackupInterval() {
     return backupInterval;
@@ -121,8 +120,8 @@ public class Configuration {
     return balancetopInterval;
   }
   
-  public static List<String> getMySQLInfo() {
-    return mysqlInfo;
+  public static List<String> getConnectionInfo() {
+    return connectionInfo;
   }
   
 }
