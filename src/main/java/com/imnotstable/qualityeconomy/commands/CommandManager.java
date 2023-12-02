@@ -1,27 +1,33 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Map;
+
 public class CommandManager {
   
+  private static Map<String, AbstractCommand> commands = Map.of(
+    "balance", new BalanceCommand(),
+    "balancetop", new BalanceTopCommand(),
+    "custombalance", new CustomBalanceCommand(),
+    "customeconomy", new CustomEconomyCommand(),
+    "economy", new EconomyCommand(),
+    "qualityeconomy", new MainCommand(),
+    "pay", new PayCommand(),
+    "request", new RequestCommand(),
+    "withdraw", new WithdrawCommand()
+  );
+  
   public static void registerCommands() {
-    BalanceCommand.register();
-    BalanceTopCommand.register();
-    CustomBalanceCommand.register();
-    CustomEconomyCommand.register();
-    EconomyCommand.register();
-    MainCommand.register();
-    PayCommand.register();
-    WithdrawCommand.register();
+    commands.values().forEach(AbstractCommand::register);
   }
   
   public static void unregisterCommands() {
-    BalanceCommand.unregister();
-    BalanceTopCommand.unregister();
-    CustomEconomyCommand.unregister();
-    CustomBalanceCommand.unregister();
-    EconomyCommand.unregister();
-    MainCommand.unregister();
-    PayCommand.unregister();
-    WithdrawCommand.unregister();
+    commands.values().forEach(AbstractCommand::unregister);
+  }
+  
+  public static @Nullable AbstractCommand getCommand(String commandName) {
+    return commands.get(commandName);
   }
   
 }

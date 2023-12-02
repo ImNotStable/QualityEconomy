@@ -2,6 +2,8 @@ package com.imnotstable.qualityeconomy.configuration;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.util.QualityError;
+import com.imnotstable.qualityeconomy.util.TestToolkit;
+import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -14,17 +16,23 @@ import java.util.Map;
 public class Configuration {
   
   private static final File file = new File(QualityEconomy.getInstance().getDataFolder(), "config.yml");
+  private static final List<String> enabledCommands = new ArrayList<>();
+  @Getter
   private static String storageType;
+  @Getter
   private static int decimalPlaces;
   private static boolean banknotes;
-  private static final List<String> enabledCommands = new ArrayList<>();
   private static boolean customCurrencies;
+  @Getter
   private static long backupInterval;
+  @Getter
   private static long balancetopInterval;
-  private static List<String> connectionInfo;
+  @Getter
+  private static long autoSaveAccountsInterval;
+  @Getter
+  private static List<String> MySQL;
   
   public static void load() {
-    File file = new File(QualityEconomy.getInstance().getDataFolder(), "config.yml");
     if (!file.exists())
       QualityEconomy.getInstance().saveResource("config.yml", false);
     else
@@ -38,18 +46,19 @@ public class Configuration {
     decimalPlaces = Math.max(configuration.getInt("decimal-places", 4), 0);
     banknotes = configuration.getBoolean("banknotes", false);
     enabledCommands.clear();
-    List.of("balance", "balancetop", "economy", "pay", "custombalance", "customeconomy").forEach(command -> {
-      if (configuration.getBoolean("commands." + command, false))
+    List.of("balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy").forEach(command -> {
+      if (configuration.getBoolean("commands." + command, TestToolkit.DEBUG_MODE))
         enabledCommands.add(command);
     });
     customCurrencies = configuration.getBoolean("custom-currencies", false);
-    backupInterval = (long) (configuration.getDouble("backup-interval", 1) * 20 * 60 * 60);
+    backupInterval = (long) (configuration.getDouble("backup-interval", 1) * 72000);
     balancetopInterval = configuration.getInt("balancetop-inverval", 5) * 20L;
-    connectionInfo = List.of(
-      configuration.getString("database.address", "localhost:3306"),
-      configuration.getString("database.name", "qualityeconomy"),
-      configuration.getString("database.user", "root"),
-      configuration.getString("database.password", "root")
+    autoSaveAccountsInterval = configuration.getInt("autosave-accounts-interval", 60) * 20L;
+    MySQL = List.of(
+      configuration.getString("MySQL.address", "localhost:3306"),
+      configuration.getString("MySQL.name", "qualityeconomy"),
+      configuration.getString("MySQL.user", "root"),
+      configuration.getString("MySQL.password", "root")
     );
   }
   
@@ -68,14 +77,6 @@ public class Configuration {
     } catch (IOException exception) {
       new QualityError("Failed to update config.yml", exception).log();
     }
-  }
-  
-  public static String getStorageType() {
-    return storageType;
-  }
-  
-  public static int getDecimalPlaces() {
-    return decimalPlaces;
   }
   
   public static boolean areBanknotesEnabled() {
@@ -102,6 +103,10 @@ public class Configuration {
     return enabledCommands.contains("pay");
   }
   
+  public static boolean isRequestCommandEnabled() {
+    return enabledCommands.contains("request");
+  }
+  
   public static boolean isCustomBalanceCommandEnabled() {
     return enabledCommands.contains("custombalance");
   }
@@ -110,18 +115,8 @@ public class Configuration {
     return enabledCommands.contains("customeconomy");
   }
   
-  public static boolean areCustomCurrenciesEnabled() {return customCurrencies;}
-  
-  public static long getBackupInterval() {
-    return backupInterval;
-  }
-  
-  public static long getBalancetopInterval() {
-    return balancetopInterval;
-  }
-  
-  public static List<String> getConnectionInfo() {
-    return connectionInfo;
+  public static boolean areCustomCurrenciesEnabled() {
+    return customCurrencies;
   }
   
 }

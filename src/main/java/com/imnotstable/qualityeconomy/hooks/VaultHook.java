@@ -1,11 +1,11 @@
 package com.imnotstable.qualityeconomy.hooks;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.storage.accounts.Account;
-import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
-import com.imnotstable.qualityeconomy.util.QualityError;
 import com.imnotstable.qualityeconomy.util.Logger;
+import com.imnotstable.qualityeconomy.util.QualityError;
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
@@ -19,11 +19,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class VaultHook implements Economy {
+  @Getter
   private static Economy economy;
-  
-  public static Economy getEconomy() {
-    return economy;
-  }
   
   public static void initVaultHook(QualityEconomy plugin) {
     Bukkit.getServicesManager().register(Economy.class, new VaultHook(), plugin, ServicePriority.Highest);
@@ -73,7 +70,7 @@ public class VaultHook implements Economy {
   
   @Override
   public boolean hasAccount(OfflinePlayer player) {
-    return AccountManager.accountExists(player.getUniqueId());
+    return QualityEconomyAPI.hasAccount(player.getUniqueId());
   }
   
   @Override
@@ -93,7 +90,7 @@ public class VaultHook implements Economy {
   
   @Override
   public double getBalance(OfflinePlayer player) {
-    return AccountManager.getAccount(player.getUniqueId()).getBalance();
+    return QualityEconomyAPI.getBalance(player.getUniqueId());
   }
   
   @Override
@@ -113,7 +110,7 @@ public class VaultHook implements Economy {
   
   @Override
   public boolean has(OfflinePlayer player, double amount) {
-    return AccountManager.getAccount(player.getUniqueId()).getBalance() >= amount;
+    return getBalance(player) >= amount;
   }
   
   @Override
@@ -149,8 +146,7 @@ public class VaultHook implements Economy {
     if (!has(player, amount)) {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't have funds.");
     }
-    Account account = AccountManager.getAccount(player.getUniqueId());
-    AccountManager.updateAccount(account.setBalance(account.getBalance() - amount));
+    QualityEconomyAPI.removeBalance(player.getUniqueId(), amount);
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
   
@@ -181,11 +177,10 @@ public class VaultHook implements Economy {
     if (amount < 0) {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot deposit a negative amount.");
     }
-    if (!AccountManager.accountExists(player.getUniqueId())) {
+    if (!hasAccount(player)) {
       return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
     }
-    Account account = AccountManager.getAccount(player.getUniqueId());
-    AccountManager.updateAccount(account.setBalance(account.getBalance() + amount));
+    QualityEconomyAPI.addBalance(player.getUniqueId(), amount);
     return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
   }
   
@@ -207,8 +202,8 @@ public class VaultHook implements Economy {
   
   @Override
   public boolean createPlayerAccount(OfflinePlayer player) {
-    AccountManager.createAccount(player.getUniqueId());
-    return AccountManager.accountExists(player.getUniqueId());
+    QualityEconomyAPI.createAccount(player.getUniqueId());
+    return QualityEconomyAPI.hasAccount(player.getUniqueId());
   }
   
   @Override

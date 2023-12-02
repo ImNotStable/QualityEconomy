@@ -5,6 +5,11 @@ import org.bukkit.Bukkit;
 
 public class Logger {
   
+  public static void log(Component[] messages) {
+    for (Component message : messages)
+      log(message);
+  }
+  
   public static void log(Component message) {
     Bukkit.getConsoleSender().sendMessage(Component.text("[QualityEconomy] ").append(message));
   }

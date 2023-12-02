@@ -5,6 +5,7 @@ import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
+import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
@@ -15,68 +16,65 @@ import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
-public class CustomEconomyCommand {
+public class CustomEconomyCommand extends AbstractCommand {
   
-  private static boolean isRegistered = false;
-  private static final CommandTree command = new CommandTree("customeconomy")
+  private final @Getter String name = "customeconomy";
+  
+  private final CommandTree command = new CommandTree(name)
     .withAliases("ceconomy", "customeco", "ceco")
     .withPermission("qualityeconomy.customeconomy")
     .then(new StringArgument("currency")
       .replaceSuggestions(ArgumentSuggestions.strings(info -> CustomCurrencies.getCustomCurrencies().toArray(new String[0])))
       .then(new OfflinePlayerArgument("target")
         .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
-        .then(new LiteralArgument("reset").executes(CustomEconomyCommand::resetBalance))
-        .then(new LiteralArgument("set").then(new DoubleArgument("amount").executes(CustomEconomyCommand::setBalance)))
-        .then(new LiteralArgument("add").then(new DoubleArgument("amount").executes(CustomEconomyCommand::addBalance)))
-        .then(new LiteralArgument("remove").then(new DoubleArgument("amount").executes(CustomEconomyCommand::removeBalance)))));
+        .then(new LiteralArgument("reset").executes(this::resetBalance))
+        .then(new LiteralArgument("set").then(new DoubleArgument("amount").executes(this::setBalance)))
+        .then(new LiteralArgument("add").then(new DoubleArgument("amount").executes(this::addBalance)))
+        .then(new LiteralArgument("remove").then(new DoubleArgument("amount").executes(this::removeBalance)))));
+  private boolean isRegistered = false;
   
-  public static void register() {
+  public void register() {
     if (isRegistered || !Configuration.isCustomEconomyCommandEnabled() || CustomCurrencies.getCustomCurrencies().isEmpty())
       return;
     command.register();
     isRegistered = true;
   }
   
-  public static void unregister() {
+  public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister("customeconomy", true);
+    CommandAPI.unregister(name, true);
     isRegistered = false;
   }
   
-  private static void resetBalance(CommandSender sender, CommandArguments args) {
+  private void resetBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
     if (!CustomCurrencies.getCustomCurrencies().contains(currency)) {
-      sender.sendMessage(Component.text("That currency does not exist", NamedTextColor.RED));
+      Messages.sendParsedMessage(MessageType.CURRENCY_NOT_FOUND, sender);
       return;
     }
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
-      sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
+    if (CommandUtils.playerDoesNotExist(target.getUniqueId(), sender))
       return;
-    }
     QualityEconomyAPI.setCustomBalance(target.getUniqueId(), currency, 0);
     Messages.sendParsedMessage(MessageType.ECONOMY_RESET, new String[]{
       target.getName()
     }, sender);
   }
   
-  private static void setBalance(CommandSender sender, CommandArguments args) {
+  private void setBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
     if (!CustomCurrencies.getCustomCurrencies().contains(currency)) {
-      sender.sendMessage(Component.text("That currency does not exist", NamedTextColor.RED));
+      Messages.sendParsedMessage(MessageType.CURRENCY_NOT_FOUND, sender);
       return;
     }
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
-      sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
+    if (CommandUtils.playerDoesNotExist(target.getUniqueId(), sender))
       return;
-    }
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.setCustomBalance(target.getUniqueId(), currency, balance);
     Messages.sendParsedMessage(MessageType.ECONOMY_SET, new String[]{
@@ -85,17 +83,15 @@ public class CustomEconomyCommand {
     }, sender);
   }
   
-  private static void addBalance(CommandSender sender, CommandArguments args) {
+  private void addBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
     if (!CustomCurrencies.getCustomCurrencies().contains(currency)) {
-      sender.sendMessage(Component.text("That currency does not exist", NamedTextColor.RED));
+      Messages.sendParsedMessage(MessageType.CURRENCY_NOT_FOUND, sender);
       return;
     }
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
-      sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
+    if (CommandUtils.playerDoesNotExist(target.getUniqueId(), sender))
       return;
-    }
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.addCustomBalance(target.getUniqueId(), currency, balance);
     Messages.sendParsedMessage(MessageType.ECONOMY_ADD, new String[]{
@@ -104,17 +100,13 @@ public class CustomEconomyCommand {
     }, sender);
   }
   
-  private static void removeBalance(CommandSender sender, CommandArguments args) {
+  private void removeBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
-    if (!CustomCurrencies.getCustomCurrencies().contains(currency)) {
-      sender.sendMessage(Component.text("That currency does not exist", NamedTextColor.RED));
+    if (CommandUtils.currencyDoesNotExist(currency, sender))
       return;
-    }
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
-      sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
+    if (CommandUtils.playerDoesNotExist(target.getUniqueId(), sender))
       return;
-    }
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.removeCustomBalance(target.getUniqueId(), currency, balance);
     Messages.sendParsedMessage(MessageType.ECONOMY_REMOVE, new String[]{

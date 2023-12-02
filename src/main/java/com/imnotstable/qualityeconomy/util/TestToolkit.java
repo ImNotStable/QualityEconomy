@@ -34,7 +34,7 @@ public class TestToolkit {
       long now = System.nanoTime();
       Logger.log(Component.text().append(
         Component.text(String.format("[#%d] ", id), NamedTextColor.DARK_RED),
-        Component.text(String.format("%s (%fms)", message, (now - start)/1000000.0), NamedTextColor.RED)
+        Component.text(String.format("%s (%fms)", message, (now - start) / 1000000.0), NamedTextColor.RED)
       ).build());
     }
     
@@ -44,7 +44,7 @@ public class TestToolkit {
       long now = System.nanoTime();
       Logger.log(Component.text()
         .append(Component.text(String.format("[#%d] ", id), NamedTextColor.GOLD))
-        .append(Component.text(String.format("%s (%fms)", message, (now - start)/1000000.0), NamedTextColor.YELLOW))
+        .append(Component.text(String.format("%s (%fms)", message, (now - start) / 1000000.0), NamedTextColor.YELLOW))
         .build()
       );
     }
@@ -55,7 +55,7 @@ public class TestToolkit {
       long now = System.nanoTime();
       Logger.log(Component.text()
         .append(Component.text(String.format("[#%d] ", id), NamedTextColor.DARK_GREEN))
-        .append(Component.text(String.format("%s (%fms)", message, (now - start)/1000000.0), NamedTextColor.GREEN))
+        .append(Component.text(String.format("%s (%fms)", message, (now - start) / 1000000.0), NamedTextColor.GREEN))
         .build()
       );
     }

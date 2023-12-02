@@ -31,6 +31,7 @@ public class QualityError {
     Logger.nl();
     if (exception != null) {
       Logger.log(Component.text("Exception: " + exception.getMessage(), NamedTextColor.RED));
+      exception.printStackTrace();
       Logger.nl();
     } else if (extraInformation != null) {
       Logger.log(Component.text("Extra Information: " + extraInformation, NamedTextColor.RED));

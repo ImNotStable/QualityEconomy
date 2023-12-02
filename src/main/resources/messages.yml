@@ -18,3 +18,21 @@ pay:
   receive: "<gray>Received <yellow>$<amount> <gray>from <yellow><sender>"
 withdraw:
   withdraw: "<gray>You withdrew <yellow>$<amount>"
+request:
+  toggle-on: "<gray>Requests are now <green>enabled <gray>from other players"
+  toggle-off: "<gray>Requests are now <red>disabled <gray>from other players"
+  send: "<gray>Requested <yellow>$<amount> <gray>from <yellow><requestee>"
+  receive: "<gray>Request from <yellow><requester> <gray>for <yellow>$<amount>"
+  accept-send: "<gray>Request for <yellow>$<amount> <gray>was accepted by <yellow><requestee>"
+  accept-receive: "<gray>Accepted request for <yellow>$<amount> <gray>from <yellow><requester>"
+  deny-send: "<gray>Request for <yellow>$<amount> <gray>was denied by <yellow><requestee>"
+  deny-receive: "<gray>Denied request for <yellow>$<amount> <gray>from <yellow><requester>"
+errors:
+  player-not-found: "<red>That player does not exist"
+  player-not-online: "<red>That player is not online"
+  currency-not-found: "<red>That currency does not exist"
+  not-enough-money:
+    self: "<red>You do not have enough money"
+    other: "<red>They do not have enough money"
+  not-accepting-payments: "<red>This player is not accepting payments"
+  not-accepting-requests: "<red>This player is not accepting requests"

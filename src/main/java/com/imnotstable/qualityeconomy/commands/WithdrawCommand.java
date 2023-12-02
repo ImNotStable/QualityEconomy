@@ -4,12 +4,14 @@ import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.QualityError;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -25,41 +27,41 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
-public class WithdrawCommand implements Listener {
+public class WithdrawCommand extends AbstractCommand implements Listener {
   
-  private static boolean isRegistered = false;
-  private static final CommandAPICommand command = new CommandAPICommand("withdraw")
+  private final @Getter String name = "withdraw";
+  
+  private final CommandAPICommand command = new CommandAPICommand(name)
     .withArguments(new DoubleArgument("amount", Number.getMinimumValue()))
-    .executesPlayer(WithdrawCommand::withdraw);
+    .executesPlayer(this::withdraw);
+  private boolean isRegistered = false;
   
-  public static void register() {
+  public void register() {
     if (isRegistered || !Configuration.areBanknotesEnabled())
       return;
     command.register();
     isRegistered = true;
   }
   
-  public static void unregister() {
+  public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister("withdraw", true);
+    CommandAPI.unregister(name, true);
     isRegistered = true;
   }
   
-  private static void withdraw(Player sender, CommandArguments args) {
+  private void withdraw(Player sender, CommandArguments args) {
     double amount = Number.roundObj(args.get("amount"));
-    if (!QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount)) {
-      sender.sendMessage(Component.text("You do not have enough money", NamedTextColor.RED));
+    if (CommandUtils.playerDoesNotHaveEnoughMoney(sender.getUniqueId(), amount, sender))
       return;
-    }
     QualityEconomyAPI.removeBalance(sender.getUniqueId(), amount);
-    sender.getInventory().addItem(WithdrawCommand.getBankNote(amount, sender));
+    sender.getInventory().addItem(getBankNote(amount, sender));
     Messages.sendParsedMessage(MessageType.WITHDRAW, new String[]{
       Number.formatCommas(amount)
     }, sender);
   }
   
-  public static ItemStack getBankNote(double amount, Player player) {
+  public ItemStack getBankNote(double amount, Player player) {
     ItemStack item = new ItemStack(Material.PAPER);
     ItemMeta meta = item.getItemMeta();
     meta.displayName(

@@ -18,4 +18,5 @@ public class Misc {
   public static boolean isValidUUID(String uuid) {
     return UUID_PATTERN.matcher(uuid).matches();
   }
+  
 }

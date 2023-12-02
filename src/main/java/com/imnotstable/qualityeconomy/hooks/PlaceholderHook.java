@@ -84,8 +84,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
           } else {
             uuid = Bukkit.getOfflinePlayer(elements[1]).getUniqueId();
           }
-        }
-        else if (elements.length == 1) {
+        } else if (elements.length == 1) {
           uuid = player.getUniqueId();
         }
         if (uuid == null)
@@ -100,8 +99,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
           } else {
             uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();
           }
-        }
-        else if (elements.length == 2) {
+        } else if (elements.length == 2) {
           uuid = player.getUniqueId();
         }
         if (uuid == null)

@@ -15,11 +15,13 @@ decimal-places: 3
 banknotes: false
 
 # Whether you want these commands enabled
+# WARNING - Changing pay & request from true to false irreversibly erases the toggle settings
 commands:
   balance: true
   balancetop: true
   economy: true
   pay: true
+  request: false
   custombalance: false
   customeconomy: false
 
@@ -33,10 +35,10 @@ backup-interval: 1
 # Number in seconds
 # 0 to disable
 balancetop-interval: 5
+autosave-accounts-interval: 60
 
-database:
+MySQL:
   name: qualityeconomy
-  # host:port
   host: localhost:3306
   user: root
   password: root

@@ -1,7 +1,6 @@
 package com.imnotstable.qualityeconomy;
 
 import com.imnotstable.qualityeconomy.commands.CommandManager;
-import com.imnotstable.qualityeconomy.commands.MainCommand;
 import com.imnotstable.qualityeconomy.commands.WithdrawCommand;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.Messages;
@@ -14,6 +13,7 @@ import com.imnotstable.qualityeconomy.util.TestToolkit;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import fr.mrmicky.fastinv.FastInvManager;
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
@@ -24,15 +24,12 @@ import java.io.File;
 
 public final class QualityEconomy extends JavaPlugin {
   
+  @Getter
   private static QualityEconomy instance;
-  
-  public static QualityEconomy getInstance() {
-    return instance;
-  }
   
   @Override
   public void onLoad() {
-    CommandAPI.onLoad(new CommandAPIBukkitConfig(this));
+    CommandAPI.onLoad(new CommandAPIBukkitConfig(this).silentLogs(true));
   }
   
   @Override
@@ -42,7 +39,7 @@ public final class QualityEconomy extends JavaPlugin {
       Logger.log(Component.text("Enabled DEBUG_MODE", NamedTextColor.GRAY));
     }
     TestToolkit.Timer timer = new TestToolkit.Timer("Enabling QualityEconomy...");
-    new QualityLogger("This is a warning\nPlease export your database before updating to any version.\nOnce this message no longer exists, then that will no longer be required.").log();
+    new QualityLogger("This is a warning", "Please export your database before updating to any version", "Once this message no longer exists, then that will no longer be required.").log();
     instance = this;
     CommandAPI.onEnable();
     FastInvManager.register(this);
@@ -51,7 +48,6 @@ public final class QualityEconomy extends JavaPlugin {
     Configuration.load();
     Messages.load();
     CustomCurrencies.loadCustomCurrencies();
-    MainCommand.register();
     CommandManager.registerCommands();
     
     HookManager.loadHooks(this);
@@ -68,6 +64,7 @@ public final class QualityEconomy extends JavaPlugin {
   public void onDisable() {
     TestToolkit.Timer timer = new TestToolkit.Timer("Disabling QualityEconomy...");
     StorageManager.endStorageProcesses();
+    CommandAPI.onDisable();
     timer.end("Disabled QualityEconomy");
   }
 }

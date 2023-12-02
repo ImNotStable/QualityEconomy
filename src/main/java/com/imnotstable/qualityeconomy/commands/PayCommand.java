@@ -4,6 +4,7 @@ import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
@@ -13,62 +14,58 @@ import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-public class PayCommand {
+public class PayCommand extends AbstractCommand {
   
-  private static boolean isRegistered = false;
-  private static final CommandTree command = new CommandTree("pay")
+  private final @Getter String name = "pay";
+  
+  private final CommandTree command = new CommandTree(name)
     .then(new LiteralArgument("toggle")
-      .executesPlayer(PayCommand::togglePay))
+      .executesPlayer(this::togglePay))
     .then(new OfflinePlayerArgument("target")
       .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
       .then(new DoubleArgument("amount", Number.getMinimumValue())
-        .executesPlayer(PayCommand::pay)));
+        .executesPlayer(this::pay)));
+  private boolean isRegistered = false;
   
-  public static void register() {
+  public void register() {
     if (isRegistered || !Configuration.isPayCommandEnabled())
       return;
     command.register();
     isRegistered = true;
   }
   
-  public static void unregister() {
+  public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister("pay", true);
+    CommandAPI.unregister(name, true);
     isRegistered = false;
   }
   
-  private static void togglePay(Player sender, CommandArguments args) {
+  private void togglePay(Player sender, CommandArguments args) {
     boolean toggle = !QualityEconomyAPI.isPayable(sender.getUniqueId());
     QualityEconomyAPI.setPayable(sender.getUniqueId(), toggle);
     if (toggle) {
-      sender.sendMessage(Messages.getMessage(MessageType.PAY_TOGGLE_ON));
+      Messages.sendParsedMessage(MessageType.PAY_TOGGLE_ON, sender);
     } else {
-      sender.sendMessage(Messages.getMessage(MessageType.PAY_TOGGLE_OFF));
+      Messages.sendParsedMessage(MessageType.PAY_TOGGLE_OFF, sender);
     }
   }
   
-  private static void pay(Player sender, CommandArguments args) {
+  private void pay(Player sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    
-    if (!QualityEconomyAPI.hasAccount(target.getUniqueId())) {
-      sender.sendMessage(Component.text("That player does not exist", NamedTextColor.RED));
+    if (CommandUtils.playerDoesNotExist(target.getUniqueId(), sender))
       return;
-    }
     if (!QualityEconomyAPI.isPayable(target.getUniqueId())) {
-      sender.sendMessage(Component.text("This player is not accepting payments", NamedTextColor.RED));
+      Messages.sendParsedMessage(MessageType.NOT_ACCEPTING_PAYMENTS, sender);
       return;
     }
     double amount = Number.roundObj(args.get("amount"));
-    if (!QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount)) {
-      sender.sendMessage(Component.text("You do not have enough money", NamedTextColor.RED));
+    if (CommandUtils.playerDoesNotHaveEnoughMoney(sender.getUniqueId(), amount, sender))
       return;
-    }
     Messages.sendParsedMessage(MessageType.PAY_SEND, new String[]{
       Number.formatCommas(amount),
       target.getName()
@@ -77,7 +74,7 @@ public class PayCommand {
       Messages.sendParsedMessage(MessageType.PAY_RECEIVE, new String[]{
         Number.formatCommas(amount),
         sender.getName()
-      }, sender);
+      }, target.getPlayer());
     QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), amount);
   }
   

@@ -2,6 +2,6 @@ name: QualityEconomy
 author: "ImNotStable"
 main: com.imnotstable.qualityeconomy.QualityEconomy
 version: '${project.version}'
-api-version: 1.19
+api-version: 1.18
 load: STARTUP
 loadbefore: [PlaceholderAPI, Vault]

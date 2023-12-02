@@ -13,6 +13,7 @@ import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
@@ -21,41 +22,48 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-public class BalanceTopCommand {
+public class BalanceTopCommand extends AbstractCommand {
   
-  private static boolean isRegistered = false;
-  private static final CommandTree command = new CommandTree("balancetop")
+  private final @Getter String name = "balancetop";
+  
+  public static List<Account> orderedPlayerList = new ArrayList<>();
+  private boolean isRegistered = false;
+  private double serverTotal = 0;
+  private int maxPage;
+  private final CommandTree command = new CommandTree(name)
     .withAliases("baltop")
     .then(new LiteralArgument("update")
       .withPermission("qualityeconomy.balancetop.update")
-      .executes((sender, args) -> {updateBalanceTop();}))
+      .executes((sender, args) -> {
+        updateBalanceTop();
+      }))
     .then(new IntegerArgument("page", 1)
       .setOptional(true)
-      .executes(BalanceTopCommand::viewBalanceTop));
+      .executes(this::viewBalanceTop));
+  private Integer taskID = null;
   
-  public static List<Account> orderedPlayerList = new ArrayList<>();
-  private static double serverTotal = 0;
-  private static int maxPage;
-  private static int taskID;
-  
-  public static void register() {
+  public void register() {
     if (isRegistered || !Configuration.isBalancetopCommandEnabled())
       return;
     command.register();
-    taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(QualityEconomy.getInstance(), BalanceTopCommand::updateBalanceTop, 0L, Configuration.getBalancetopInterval());
+    if (Configuration.getBalancetopInterval() != 0)
+      taskID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(), this::updateBalanceTop, 0L, Configuration.getBalancetopInterval()).getTaskId();
     isRegistered = true;
   }
   
-  public static void unregister() {
+  public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister("balancetop", true);
-    Bukkit.getScheduler().cancelTask(taskID);
+    CommandAPI.unregister(name, true);
+    if (taskID != null) {
+      Bukkit.getScheduler().cancelTask(taskID);
+      taskID = null;
+    }
     isRegistered = false;
   }
   
-  private static void viewBalanceTop(CommandSender sender, CommandArguments args) {
-    int page = (int)  args.getOrDefault("page", 1);
+  private void viewBalanceTop(CommandSender sender, CommandArguments args) {
+    int page = (int) args.getOrDefault("page", 1);
     int startIndex = (page - 1) * 10;
     int endIndex = Math.min(startIndex + 10, orderedPlayerList.size());
     
@@ -81,7 +89,7 @@ public class BalanceTopCommand {
     }, sender);
   }
   
-  public static void updateBalanceTop() {
+  public void updateBalanceTop() {
     TestToolkit.Timer timer = new TestToolkit.Timer("Reloading balancetop...");
     
     Collection<Account> accounts = AccountManager.getAllAccounts();

@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class JsonStorageType implements StorageType {
@@ -71,7 +70,7 @@ public class JsonStorageType implements StorageType {
         configuration = new JsonObject();
         configuration.addProperty("name", account.getName());
         configuration.addProperty("balance", account.getBalance());
-        configuration.addProperty("payable", account.getPayable());
+        configuration.addProperty("payable", account.isPayable());
         for (String currency : CustomCurrencies.getCustomCurrencies()) {
           configuration.addProperty(currency, account.getCustomBalance(currency));
         }
@@ -118,7 +117,7 @@ public class JsonStorageType implements StorageType {
       .setPayable(Optional.of(configuration.get("payable").getAsBoolean()).orElse(true))
       .setCustomBalances(balanceMap);
   }
-
+  
   
   @Override
   public Map<UUID, Account> getAccounts(Collection<UUID> uuids) {
@@ -138,7 +137,7 @@ public class JsonStorageType implements StorageType {
     if (configuration != null) {
       configuration.addProperty("name", account.getName());
       configuration.addProperty("balance", account.getBalance());
-      configuration.addProperty("payable", account.getPayable());
+      configuration.addProperty("payable", account.isPayable());
       for (String currency : CustomCurrencies.getCustomCurrencies()) {
         configuration.addProperty(currency, account.getCustomBalance(currency));
       }
@@ -151,7 +150,7 @@ public class JsonStorageType implements StorageType {
       new QualityError("Failed to find account (" + account.getUUID().toString() + ")").log();
     }
   }
-
+  
   
   @Override
   public void updateAccounts(Collection<Account> accounts) {
@@ -168,17 +167,19 @@ public class JsonStorageType implements StorageType {
         .map(fileName -> fileName.substring(0, fileName.lastIndexOf('.')))
         .filter(Misc::isValidUUID)
         .map(UUID::fromString)
-        .collect(Collectors.toList());
+        .toList();
     } catch (IOException exception) {
       new QualityError("Failed to collect all uuids.", exception).log();
     }
     return Collections.emptyList();
   }
-
-  @Override
-  public void addCurrency(String currencyName) {}
   
   @Override
-  public void removeCurrency(String currencyName) {}
+  public void addCurrency(String currencyName) {
+  }
+  
+  @Override
+  public void removeCurrency(String currencyName) {
+  }
   
 }

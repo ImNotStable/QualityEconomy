@@ -19,8 +19,8 @@ public class Messages {
   private static final File messageFile = new File(QualityEconomy.getInstance().getDataFolder(), "messages.yml");
   private static final HashMap<String, String> messages = new HashMap<>();
   
-  public static Component getMessage(MessageType id) {
-    return MiniMessage.miniMessage().deserialize(messages.get(id.getValue()));
+  public static void sendParsedMessage(MessageType id, CommandSender sender) {
+    sender.sendMessage(getParsedMessage(id));
   }
   
   public static void sendParsedMessage(MessageType id, String[] tags, CommandSender sender) {
@@ -36,6 +36,10 @@ public class Messages {
       tagResolvers[i] = TagResolver.resolver(id.getTags()[i], Tag.selfClosingInserting(Component.text(tags[i])));
     }
     return MiniMessage.miniMessage().deserialize(messages.get(id.getValue()), tagResolvers);
+  }
+  
+  public static Component getParsedMessage(MessageType id) {
+    return MiniMessage.miniMessage().deserialize(messages.get(id.getValue()));
   }
   
   public static void load() {

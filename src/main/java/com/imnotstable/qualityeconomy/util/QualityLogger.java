@@ -6,27 +6,23 @@ import net.kyori.adventure.text.format.NamedTextColor;
 public class QualityLogger {
   
   private static final Component title = Component.text("QualityEconomy", NamedTextColor.DARK_GREEN);
-  private final Component message;
-  private String extraMessage;
+  private final Component[] messages;
   
-  public QualityLogger(String message, String extraMessage) {
-    this.message = Component.text(message);
-    this.extraMessage = extraMessage;
+  public QualityLogger(String... messages) {
+    this.messages = new Component[messages.length];
+    for (int i = 0; i < messages.length; i++)
+      this.messages[i] = Component.text(messages[i]);
   }
   
   public QualityLogger(String message) {
-    this.message = Component.text(message);
+    messages = new Component[]{Component.text(message)};
   }
   
   public void log() {
     Logger.nl();
     Logger.log(title);
-    Logger.log(message);
+    Logger.log(messages);
     Logger.nl();
-    if (extraMessage != null) {
-      Logger.log(Component.text("Extra Information: " + extraMessage, NamedTextColor.RED));
-      Logger.nl();
-    }
   }
   
 }
