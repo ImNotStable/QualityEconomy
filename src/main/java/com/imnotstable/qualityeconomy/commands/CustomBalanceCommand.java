@@ -4,9 +4,8 @@ import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
-import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
+import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
-import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
@@ -19,22 +18,23 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+@Getter
 public class CustomBalanceCommand extends AbstractCommand {
   
-  private final @Getter String name = "custombalance";
+  private final String name = "custombalance";
   
   private final CommandTree command = new CommandTree(name)
     .withAliases("cbalance", "custombal", "cbal")
     .then(new StringArgument("currency")
-      .replaceSuggestions(ArgumentSuggestions.strings(info -> CustomCurrencies.getCustomCurrencies().toArray(new String[0])))
+      .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageFormat().getCurrencies().toArray(new String[0])))
       .then(new OfflinePlayerArgument("target")
-        .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
+        .replaceSuggestions(ArgumentSuggestions.strings(CommandUtils::getOfflinePlayerSuggestion))
         .executes(this::viewOtherBalance))
       .executesPlayer(this::viewOwnBalance));
   private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isCustomBalanceCommandEnabled() || CustomCurrencies.getCustomCurrencies().isEmpty())
+    if (isRegistered || !Configuration.isCustomBalanceCommandEnabled() || StorageManager.getActiveStorageFormat().getCurrencies().isEmpty())
       return;
     command.register();
     isRegistered = true;
@@ -49,10 +49,10 @@ public class CustomBalanceCommand extends AbstractCommand {
   
   private void viewOtherBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
-    if (CommandUtils.currencyDoesNotExist(currency, sender))
+    if (CommandUtils.requirement(StorageManager.getActiveStorageFormat().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
       return;
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (CommandUtils.playerDoesNotExist(target.getUniqueId(), sender))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
     Messages.sendParsedMessage(MessageType.BALANCE_OTHER_BALANCE, new String[]{
       Number.formatCommas(QualityEconomyAPI.getCustomBalance(target.getUniqueId(), currency)),
@@ -62,7 +62,7 @@ public class CustomBalanceCommand extends AbstractCommand {
   
   private void viewOwnBalance(Player sender, CommandArguments args) {
     String currency = (String) args.get("currency");
-    if (CommandUtils.currencyDoesNotExist(currency, sender))
+    if (CommandUtils.requirement(StorageManager.getActiveStorageFormat().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
       return;
     Messages.sendParsedMessage(MessageType.BALANCE_OWN_BALANCE, new String[]{
       Number.formatCommas(QualityEconomyAPI.getCustomBalance(sender.getUniqueId(), currency))

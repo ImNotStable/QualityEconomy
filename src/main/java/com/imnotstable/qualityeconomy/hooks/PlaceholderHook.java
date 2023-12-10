@@ -3,7 +3,7 @@ package com.imnotstable.qualityeconomy.hooks;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
-import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
+import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.QualityError;
@@ -57,7 +57,8 @@ public class PlaceholderHook extends PlaceholderExpansion {
       "balancetop_#<integer>",
       "balance", "balance_<uuid>", "balance_<player>",
       "cbalance_<currency>", "cbalance_<currency>_<uuid>", "cbalance_<currency>_<player>",
-      "isPayable", "isPayable_<uuid>", "isPayable_<player>"
+      "isPayable", "isPayable_<uuid>", "isPayable_<player>",
+      "isRequestable", "isRequestable_<uuid>", "isRequestable_<player>"
     );
   }
   
@@ -104,7 +105,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
         }
         if (uuid == null)
           return null;
-        if (!CustomCurrencies.getCustomCurrencies().contains(elements[1]))
+        if (!StorageManager.getActiveStorageFormat().getCurrencies().contains(elements[1]))
           return null;
         return String.valueOf(QualityEconomyAPI.getCustomBalance(uuid, elements[1]));
       }
@@ -122,6 +123,21 @@ public class PlaceholderHook extends PlaceholderExpansion {
         if (uuid == null)
           return null;
         return String.valueOf(QualityEconomyAPI.isPayable(uuid));
+      }
+      case "isRequestable" -> {
+        UUID uuid = null;
+        if (elements.length == 2) {
+          if (Misc.isValidUUID(elements[1])) {
+            uuid = UUID.fromString(elements[1]);
+          } else {
+            uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();
+          }
+        } else if (elements.length == 1) {
+          uuid = player.getUniqueId();
+        }
+        if (uuid == null)
+          return null;
+        return String.valueOf(QualityEconomyAPI.isRequestable(uuid));
       }
     }
     

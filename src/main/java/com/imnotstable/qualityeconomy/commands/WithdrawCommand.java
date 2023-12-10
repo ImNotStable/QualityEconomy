@@ -27,9 +27,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
+@Getter
 public class WithdrawCommand extends AbstractCommand implements Listener {
   
-  private final @Getter String name = "withdraw";
+  private final String name = "withdraw";
   
   private final CommandAPICommand command = new CommandAPICommand(name)
     .withArguments(new DoubleArgument("amount", Number.getMinimumValue()))
@@ -52,7 +53,7 @@ public class WithdrawCommand extends AbstractCommand implements Listener {
   
   private void withdraw(Player sender, CommandArguments args) {
     double amount = Number.roundObj(args.get("amount"));
-    if (CommandUtils.playerDoesNotHaveEnoughMoney(sender.getUniqueId(), amount, sender))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
       return;
     QualityEconomyAPI.removeBalance(sender.getUniqueId(), amount);
     sender.getInventory().addItem(getBankNote(amount, sender));

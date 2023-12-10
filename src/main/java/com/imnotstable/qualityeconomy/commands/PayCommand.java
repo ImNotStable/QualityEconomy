@@ -5,7 +5,6 @@ import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
-import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
@@ -18,15 +17,16 @@ import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+@Getter
 public class PayCommand extends AbstractCommand {
   
-  private final @Getter String name = "pay";
+  private final String name = "pay";
   
   private final CommandTree command = new CommandTree(name)
     .then(new LiteralArgument("toggle")
       .executesPlayer(this::togglePay))
     .then(new OfflinePlayerArgument("target")
-      .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
+      .replaceSuggestions(ArgumentSuggestions.strings(CommandUtils::getOfflinePlayerSuggestion))
       .then(new DoubleArgument("amount", Number.getMinimumValue())
         .executesPlayer(this::pay)));
   private boolean isRegistered = false;
@@ -57,14 +57,14 @@ public class PayCommand extends AbstractCommand {
   
   private void pay(Player sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (CommandUtils.playerDoesNotExist(target.getUniqueId(), sender))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
     if (!QualityEconomyAPI.isPayable(target.getUniqueId())) {
       Messages.sendParsedMessage(MessageType.NOT_ACCEPTING_PAYMENTS, sender);
       return;
     }
     double amount = Number.roundObj(args.get("amount"));
-    if (CommandUtils.playerDoesNotHaveEnoughMoney(sender.getUniqueId(), amount, sender))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
       return;
     Messages.sendParsedMessage(MessageType.PAY_SEND, new String[]{
       Number.formatCommas(amount),

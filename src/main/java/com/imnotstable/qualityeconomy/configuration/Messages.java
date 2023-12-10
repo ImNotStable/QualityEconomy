@@ -16,11 +16,11 @@ import java.util.Map;
 
 public class Messages {
   
-  private static final File messageFile = new File(QualityEconomy.getInstance().getDataFolder(), "messages.yml");
+  private static final File file = new File(QualityEconomy.getInstance().getDataFolder(), "messages.yml");
   private static final HashMap<String, String> messages = new HashMap<>();
   
   public static void sendParsedMessage(MessageType id, CommandSender sender) {
-    sender.sendMessage(getParsedMessage(id));
+    sender.sendMessage(MiniMessage.miniMessage().deserialize(messages.get(id.getValue())));
   }
   
   public static void sendParsedMessage(MessageType id, String[] tags, CommandSender sender) {
@@ -38,12 +38,8 @@ public class Messages {
     return MiniMessage.miniMessage().deserialize(messages.get(id.getValue()), tagResolvers);
   }
   
-  public static Component getParsedMessage(MessageType id) {
-    return MiniMessage.miniMessage().deserialize(messages.get(id.getValue()));
-  }
-  
   public static void load() {
-    if (!messageFile.exists())
+    if (!file.exists())
       QualityEconomy.getInstance().saveResource("messages.yml", false);
     else
       update();
@@ -51,24 +47,24 @@ public class Messages {
   }
   
   public static void reload() {
-    YamlConfiguration configuration = YamlConfiguration.loadConfiguration(messageFile);
+    YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
     for (String path : configuration.getKeys(true)) {
       messages.put(path, configuration.getString(path, ""));
     }
   }
   
   public static void update() {
-    YamlConfiguration configuration = YamlConfiguration.loadConfiguration(messageFile);
+    YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
     Map<String, Object> values = new HashMap<>();
     configuration.getKeys(true).forEach(key -> values.putIfAbsent(key, configuration.get(key)));
     QualityEconomy.getInstance().saveResource("messages.yml", true);
-    YamlConfiguration finalConfiguration = YamlConfiguration.loadConfiguration(messageFile);
+    YamlConfiguration finalConfiguration = YamlConfiguration.loadConfiguration(file);
     values.forEach((key, value) -> {
       if (finalConfiguration.contains(key))
         finalConfiguration.set(key, value);
     });
     try {
-      finalConfiguration.save(messageFile);
+      finalConfiguration.save(file);
     } catch (IOException exception) {
       new QualityError("Failed to update messages.yml", exception).log();
     }

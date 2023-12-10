@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class CommandManager {
   
-  private static Map<String, AbstractCommand> commands = Map.of(
+  private static final Map<String, AbstractCommand> commands = Map.of(
     "balance", new BalanceCommand(),
     "balancetop", new BalanceTopCommand(),
     "custombalance", new CustomBalanceCommand(),

@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class VaultHook implements Economy {
-  @Getter
-  private static Economy economy;
+  
+  private static @Getter Economy economy;
   
   public static void initVaultHook(QualityEconomy plugin) {
     Bukkit.getServicesManager().register(Economy.class, new VaultHook(), plugin, ServicePriority.Highest);

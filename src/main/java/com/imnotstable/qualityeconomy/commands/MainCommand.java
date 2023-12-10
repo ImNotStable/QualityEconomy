@@ -3,11 +3,9 @@ package com.imnotstable.qualityeconomy.commands;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.Messages;
-import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
-import com.imnotstable.qualityeconomy.storage.DBTransferUtils;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
-import com.imnotstable.qualityeconomy.util.TestToolkit;
+import com.imnotstable.qualityeconomy.util.Debug;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
@@ -27,11 +25,43 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+@Getter
 public class MainCommand extends AbstractCommand {
   
-  private final @Getter String name = "qualityeconomy";
+  private final String name = "qualityeconomy";
   
   private final Pattern IMPORT_FILE_PATTERN = Pattern.compile("^QualityEconomy \\d{4}.\\d{2}.\\d{2} \\d{2}-\\d{2}\\.json$");
+  private final CommandTree command = new CommandTree(name)
+    .withAliases("qe")
+    .withPermission("qualityeconomy.admin")
+    .then(new LiteralArgument("reload")
+      .executes(this::reload)
+      .then(new LiteralArgument("messages")
+        .executes(this::reloadMessages)))
+    .then(new LiteralArgument("database")
+      .then(new LiteralArgument("import")
+        .then(new GreedyStringArgument("fileName")
+          .replaceSuggestions(ArgumentSuggestions.strings(info -> getImportableFiles()))
+          .executes(this::importDatabase)))
+      .then(new LiteralArgument("export")
+        .executes(this::exportDatabase))
+      .then(new LiteralArgument("createFakeEntries")
+        .withRequirement(sender -> Debug.DEBUG_MODE)
+        .then(new IntegerArgument("entries", 1)
+          .executes(this::createFakeEntries)))
+      .then(new LiteralArgument("changeAllEntries")
+        .withRequirement(sender -> Debug.DEBUG_MODE)
+        .executes(this::changeAllEntries)))
+    .then(new LiteralArgument("economy")
+      .withRequirement(sender -> Configuration.areCustomCurrenciesEnabled())
+      .then(new LiteralArgument("createCustomCurrency")
+        .then(new StringArgument("name")
+          .executes(this::createCustomCurrency)))
+      .then(new LiteralArgument("deleteCustomCurrency")
+        .then(new StringArgument("name")
+          .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageFormat().getCurrencies().toArray(new String[0])))
+          .executes(this::deleteCustomCurrency)
+        )));
   private boolean isRegistered;
   
   public void register() {
@@ -41,40 +71,6 @@ public class MainCommand extends AbstractCommand {
     isRegistered = true;
   }
   
-  private final CommandTree command = new CommandTree(name)
-    .withAliases("qe")
-    .withPermission("qualityeconomy.admin")
-    .then(new LiteralArgument("reload")
-      .executes(this::reload)
-      .then(new LiteralArgument("messages")
-        .executes(this::reloadMessages))
-      .then(new LiteralArgument("configuration")
-        .executes(this::reloadConfiguration)))
-    .then(new LiteralArgument("database")
-      .then(new LiteralArgument("import")
-        .then(new GreedyStringArgument("fileName")
-          .replaceSuggestions(ArgumentSuggestions.strings(info -> getImportableFiles()))
-          .executes(this::importDatabase)))
-      .then(new LiteralArgument("export")
-        .executes(this::exportDatabase))
-      .then(new LiteralArgument("createFakeEntries")
-        .withRequirement(sender -> TestToolkit.DEBUG_MODE)
-        .then(new IntegerArgument("entries", 1)
-          .executes(this::createFakeEntries)))
-      .then(new LiteralArgument("changeAllEntries")
-        .withRequirement(sender -> TestToolkit.DEBUG_MODE)
-        .executes(this::changeAllEntries)))
-    .then(new LiteralArgument("economy")
-      .withRequirement(sender -> Configuration.areCustomCurrenciesEnabled())
-      .then(new LiteralArgument("createCustomCurrency")
-        .then(new StringArgument("name")
-          .executes(this::createCustomCurrency)))
-      .then(new LiteralArgument("deleteCustomCurrency")
-        .then(new StringArgument("name")
-          .replaceSuggestions(ArgumentSuggestions.strings(info -> CustomCurrencies.getCustomCurrencies().toArray(new String[0])))
-          .executes(this::deleteCustomCurrency)
-        )));
-  
   public void unregister() {
     if (!isRegistered)
       return;
@@ -83,14 +79,14 @@ public class MainCommand extends AbstractCommand {
   }
   
   private void reload(CommandSender sender, CommandArguments args) {
-      TestToolkit.Timer timer = new TestToolkit.Timer("Reloading QualityEconomy...");
-      StorageManager.endStorageProcesses();
-      Configuration.load();
-      Messages.load();
-      CommandManager.unregisterCommands();
-      CommandManager.registerCommands();
-      StorageManager.initStorageProcesses();
-      timer.end("Reloaded QualityEconomy");
+    Debug.Timer timer = new Debug.Timer("reload()");
+    StorageManager.endStorageProcesses();
+    Configuration.load();
+    Messages.load();
+    CommandManager.unregisterCommands();
+    StorageManager.initStorageProcesses();
+    CommandManager.registerCommands();
+    timer.end();
     sender.sendMessage(Component.text("Reloading QualityEconomy...", NamedTextColor.GRAY));
   }
   
@@ -99,20 +95,15 @@ public class MainCommand extends AbstractCommand {
     sender.sendMessage(Component.text("Reloading QualityEconomy messages.yml...", NamedTextColor.GRAY));
   }
   
-  private void reloadConfiguration(CommandSender sender, CommandArguments args) {
-    Configuration.load();
-    sender.sendMessage(Component.text("Reloading QualityEconomy config.yml...", NamedTextColor.GRAY));
-  }
-  
   private void importDatabase(CommandSender sender, CommandArguments args) {
     sender.sendMessage(Component.text("Importing Database...", NamedTextColor.GRAY));
-    DBTransferUtils.importDatabase(args.get("fileName").toString());
+    StorageManager.importDatabase(args.get("fileName").toString());
     sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
   }
   
   private void exportDatabase(CommandSender sender, CommandArguments args) {
     sender.sendMessage(Component.text("Exporting Database...", NamedTextColor.GRAY));
-    DBTransferUtils.exportDatabase("plugins/QualityEconomy/");
+    StorageManager.exportDatabase("plugins/QualityEconomy/");
     sender.sendMessage(Component.text("Exported Database", NamedTextColor.GREEN));
   }
   
@@ -131,22 +122,22 @@ public class MainCommand extends AbstractCommand {
   
   private void createCustomCurrency(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("name");
-    if (CustomCurrencies.getCustomCurrencies().contains(currency)) {
+    if (StorageManager.getActiveStorageFormat().getCurrencies().contains(currency)) {
       sender.sendMessage(Component.text("That currency already exists", NamedTextColor.RED));
       return;
     }
     sender.sendMessage(Component.text("Creating custom currency \"" + currency + "\"", NamedTextColor.GRAY));
-    CustomCurrencies.createCustomCurrency(currency);
+    StorageManager.getActiveStorageFormat().addCurrency(currency);
   }
   
   private void deleteCustomCurrency(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("name");
-    if (!CustomCurrencies.getCustomCurrencies().contains(currency)) {
+    if (!StorageManager.getActiveStorageFormat().getCurrencies().contains(currency)) {
       sender.sendMessage(Component.text("That currency does not exist", NamedTextColor.RED));
       return;
     }
     sender.sendMessage(Component.text("Deleting custom currency \"" + currency + "\"", NamedTextColor.GRAY));
-    CustomCurrencies.deleteCustomCurrency(currency);
+    StorageManager.getActiveStorageFormat().removeCurrency(currency);
   }
   
   private String[] getImportableFiles() {

@@ -1,9 +1,8 @@
 package com.imnotstable.qualityeconomy.storage.accounts;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
-import com.imnotstable.qualityeconomy.util.TestToolkit;
+import com.imnotstable.qualityeconomy.util.Debug;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
@@ -22,7 +21,7 @@ public class AccountManager {
   private static final ConcurrentMap<UUID, Account> accounts = new ConcurrentHashMap<>();
   
   public static Account createAccount(UUID uuid) {
-    TestToolkit.Timer timer = new TestToolkit.Timer("Creating account...");
+    Debug.Timer timer = new Debug.Timer("createAccount()");
     Account account;
     if (!accountExists(uuid)) {
       account = new Account(uuid);
@@ -38,7 +37,7 @@ public class AccountManager {
         account.setName(entity.getName());
     }
     accounts.put(uuid, account);
-    timer.end("Created account");
+    timer.end();
     return account;
   }
   
@@ -47,58 +46,65 @@ public class AccountManager {
   }
   
   public static Account getAccount(UUID uuid) {
-    TestToolkit.Timer timer = new TestToolkit.Timer("Retrieving account...");
+    Debug.Timer timer = new Debug.Timer("getAccount()");
     Account account = accounts.computeIfAbsent(uuid, AccountManager::createAccount);
-    timer.end("Retrieved account");
+    timer.end();
     return account;
   }
   
   public static boolean accountExists(UUID uuid) {
-    TestToolkit.Timer timer = new TestToolkit.Timer("Checking if account exists");
+    Debug.Timer timer = new Debug.Timer("accountExists()");
     boolean accountExists = accounts.containsKey(uuid);
-    timer.end("Checked if account exists");
+    timer.end();
     return accountExists;
   }
   
   public static void updateAccount(Account account) {
-    TestToolkit.Timer timer = new TestToolkit.Timer("Updating account...");
+    Debug.Timer timer = new Debug.Timer("updateAccount()");
     accounts.put(account.getUUID(), account);
-    timer.end("Updated account");
+    timer.end();
   }
   
   public static void setupAccounts() {
-    TestToolkit.Timer timer = new TestToolkit.Timer("Setting up all accounts...");
+    Debug.Timer timer = new Debug.Timer("setupAccounts()");
     clearAccounts();
     accounts.putAll(StorageManager.getActiveStorageFormat().getAllAccounts());
-    timer.end("Setup all accounts");
+    timer.end();
   }
   
   public static void saveAllAccounts() {
-    TestToolkit.Timer timer = new TestToolkit.Timer("Saving all accounts...");
+    Debug.Timer timer = new Debug.Timer("saveAllAccounts()");
     StorageManager.getActiveStorageFormat().updateAccounts(AccountManager.accounts.values());
-    timer.end("Saved all accounts");
+    timer.end();
   }
   
   public static void clearAccounts() {
-    TestToolkit.Timer timer = new TestToolkit.Timer("Clearing accounts...");
+    Debug.Timer timer = new Debug.Timer("clearAccounts()");
     accounts.clear();
-    timer.end("Cleared accounts");
+    timer.end();
   }
   
   public static void createFakeAccounts(int entries) {
     new BukkitRunnable() {
       @Override
       public void run() {
-        TestToolkit.Timer timer = new TestToolkit.Timer(String.format("Creating %d fake entries", entries));
+        Debug.Timer timer = new Debug.Timer(String.format("createFakeAccounts(%d)", entries));
         Collection<Account> accounts = new ArrayList<>();
         Random random = new Random();
         for (int i = 0; i < entries; ++i) {
           UUID uuid = UUID.randomUUID();
-          accounts.add(new Account(uuid).setName(uuid.toString().split("-")[0]).setBalance(random.nextDouble(1_000_000_000_000_000.0)).setPayable(false));
+          HashMap<String, Double> customBalances = new HashMap<>();
+          for (String currency : StorageManager.getActiveStorageFormat().getCurrencies()) {
+            customBalances.put(currency, random.nextDouble(1_000_000_000_000_000.0));
+          }
+          accounts.add(new Account(uuid).setName(uuid.toString().split("-")[0])
+                  .setBalance(random.nextDouble(1_000_000_000_000_000.0))
+                  .setCustomBalances(customBalances).setPayable(false)
+          );
         }
         StorageManager.getActiveStorageFormat().createAccounts(accounts);
         setupAccounts();
-        timer.end(String.format("Created %d fake entries", entries));
+        timer.end();
       }
     }.runTaskAsynchronously(QualityEconomy.getInstance());
   }
@@ -107,18 +113,18 @@ public class AccountManager {
     new BukkitRunnable() {
       @Override
       public void run() {
-        TestToolkit.Timer timer = new TestToolkit.Timer("Changing all accounts");
+        Debug.Timer timer = new Debug.Timer("changeAllAccounts()");
         Random random = new Random();
         accounts.values().forEach(account -> {
           HashMap<String, Double> customBalances = new HashMap<>();
-          for (String currency : CustomCurrencies.getCustomCurrencies()) {
+          for (String currency : StorageManager.getActiveStorageFormat().getCurrencies()) {
             customBalances.put(currency, random.nextDouble(1_000_000_000_000_000.0));
           }
           account.setBalance(random.nextDouble(1_000_000_000_000_000.0)).setCustomBalances(customBalances);
         });
         StorageManager.getActiveStorageFormat().updateAccounts(accounts.values());
         setupAccounts();
-        timer.end("Changed all accounts");
+        timer.end();
       }
     }.runTaskAsynchronously(QualityEconomy.getInstance());
   }

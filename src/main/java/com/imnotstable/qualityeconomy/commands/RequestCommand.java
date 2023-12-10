@@ -6,7 +6,6 @@ import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
-import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
@@ -26,9 +25,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Getter
 public class RequestCommand extends AbstractCommand {
   
-  private final @Getter String name = "request";
+  private final String name = "request";
   
   //<Requestee, <Requester, Amount>>
   private Map<UUID, Map<UUID, Double>> requests;
@@ -43,10 +43,11 @@ public class RequestCommand extends AbstractCommand {
       })
       .then(new PlayerArgument("target")
         .executesPlayer(this::answerRequest)))
-    .then(new OfflinePlayerArgument("target")
-      .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
-      .then(new DoubleArgument("amount", Number.getMinimumValue())
-        .executesPlayer(this::request)));
+    .then(new LiteralArgument("send")
+      .then(new OfflinePlayerArgument("target")
+        .replaceSuggestions(ArgumentSuggestions.strings(CommandUtils::getOfflinePlayerSuggestion))
+        .then(new DoubleArgument("amount", Number.getMinimumValue())
+          .executesPlayer(this::request))));
   private boolean isRegistered = false;
   
   public void register() {
@@ -74,7 +75,7 @@ public class RequestCommand extends AbstractCommand {
   
   private void request(Player requester, CommandArguments args) {
     OfflinePlayer requestee = (OfflinePlayer) args.get("target");
-    if (CommandUtils.playerDoesNotExist(requestee.getUniqueId(), requester))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(requestee.getUniqueId()), MessageType.PLAYER_NOT_FOUND, requester))
       return;
     if (CommandUtils.requirement(requestee.isOnline(), MessageType.PLAYER_NOT_ONLINE, requester))
       return;
@@ -88,9 +89,9 @@ public class RequestCommand extends AbstractCommand {
       requestee.getName()
     }, requester);
     Messages.sendParsedMessage(MessageType.REQUEST_RECEIVE, new String[]{
-        Number.formatCommas(amount),
-        requester.getName()
-      }, requester);
+      Number.formatCommas(amount),
+      requester.getName()
+    }, requester);
     UUID requesterUUID = requester.getUniqueId();
     UUID requesteeUUID = requestee.getUniqueId();
     requests.computeIfAbsent(requesteeUUID, uuid -> new HashMap<>()).put(requesterUUID, amount);
@@ -105,10 +106,10 @@ public class RequestCommand extends AbstractCommand {
   
   private void accept(Player requestee, CommandArguments args) {
     OfflinePlayer requester = (OfflinePlayer) args.get("target");
-    if (CommandUtils.playerDoesNotExist(requester.getUniqueId(), requestee))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(requester.getUniqueId()), MessageType.PLAYER_NOT_FOUND, requestee))
       return;
     double amount = Number.roundObj(requests.get(requestee.getUniqueId()).get(requester.getUniqueId()));
-    if (CommandUtils.playerDoesNotHaveEnoughMoney(requestee.getUniqueId(), amount, requestee))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, requestee))
       return;
     Messages.sendParsedMessage(MessageType.REQUEST_ACCEPT_SEND, new String[]{
       Number.formatCommas(amount),
@@ -124,10 +125,10 @@ public class RequestCommand extends AbstractCommand {
   
   private void deny(Player requestee, CommandArguments args) {
     OfflinePlayer requester = (OfflinePlayer) args.get("target");
-    if (CommandUtils.playerDoesNotExist(requester.getUniqueId(), requestee))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(requester.getUniqueId()), MessageType.PLAYER_NOT_FOUND, requestee))
       return;
     double amount = Number.roundObj(args.get("amount"));
-    if (CommandUtils.playerDoesNotHaveEnoughMoney(requestee.getUniqueId(), amount, requestee))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, requestee))
       return;
     Messages.sendParsedMessage(MessageType.REQUEST_DENY_SEND, new String[]{
       Number.formatCommas(amount),

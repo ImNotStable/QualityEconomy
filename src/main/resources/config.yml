@@ -3,7 +3,6 @@
 # h2
 # sqlite
 # mysql
-# json
 storage-type: sqlite
 
 # Amount of decimal places allowed within balances
@@ -15,7 +14,6 @@ decimal-places: 3
 banknotes: false
 
 # Whether you want these commands enabled
-# WARNING - Changing pay & request from true to false irreversibly erases the toggle settings
 commands:
   balance: true
   balancetop: true

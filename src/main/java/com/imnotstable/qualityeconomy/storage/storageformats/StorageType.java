@@ -3,6 +3,7 @@ package com.imnotstable.qualityeconomy.storage.storageformats;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,19 +19,11 @@ public interface StorageType {
   
   void createAccounts(Collection<Account> accounts);
   
-  boolean accountExists(UUID uuid);
-  
-  Account getAccount(UUID uuid);
-  
-  Map<UUID, Account> getAccounts(Collection<UUID> uuids);
-  
   Map<UUID, Account> getAllAccounts();
-  
-  void updateAccount(Account account);
   
   void updateAccounts(Collection<Account> accounts);
   
-  Collection<UUID> getAllUUIDs();
+  List<String> getCurrencies();
   
   void addCurrency(String currencyName);
   

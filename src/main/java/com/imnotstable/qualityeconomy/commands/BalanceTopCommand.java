@@ -7,7 +7,7 @@ import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Number;
-import com.imnotstable.qualityeconomy.util.TestToolkit;
+import com.imnotstable.qualityeconomy.util.Debug;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.IntegerArgument;
@@ -22,11 +22,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
+@Getter
 public class BalanceTopCommand extends AbstractCommand {
   
-  private final @Getter String name = "balancetop";
-  
   public static List<Account> orderedPlayerList = new ArrayList<>();
+  private final String name = "balancetop";
   private boolean isRegistered = false;
   private double serverTotal = 0;
   private int maxPage;
@@ -63,7 +63,7 @@ public class BalanceTopCommand extends AbstractCommand {
   }
   
   private void viewBalanceTop(CommandSender sender, CommandArguments args) {
-    int page = (int) args.getOrDefault("page", 1);
+    int page = Math.min((int) args.getOrDefault("page", 1), maxPage);
     int startIndex = (page - 1) * 10;
     int endIndex = Math.min(startIndex + 10, orderedPlayerList.size());
     
@@ -90,7 +90,7 @@ public class BalanceTopCommand extends AbstractCommand {
   }
   
   public void updateBalanceTop() {
-    TestToolkit.Timer timer = new TestToolkit.Timer("Reloading balancetop...");
+    Debug.Timer timer = new Debug.Timer("updateBalanceTop()");
     
     Collection<Account> accounts = AccountManager.getAllAccounts();
     
@@ -103,7 +103,7 @@ public class BalanceTopCommand extends AbstractCommand {
       .toList();
     
     maxPage = (int) Math.ceil(orderedPlayerList.size() / 10.0);
-    timer.end("Reloaded balancetop");
+    timer.end();
   }
   
 }

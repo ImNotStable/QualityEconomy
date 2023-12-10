@@ -5,14 +5,12 @@ import com.imnotstable.qualityeconomy.commands.WithdrawCommand;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.hooks.HookManager;
-import com.imnotstable.qualityeconomy.storage.CustomCurrencies;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
+import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.QualityLogger;
-import com.imnotstable.qualityeconomy.util.TestToolkit;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
-import fr.mrmicky.fastinv.FastInvManager;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -35,19 +33,20 @@ public final class QualityEconomy extends JavaPlugin {
   @Override
   public void onEnable() {
     if (new File(getDataFolder(), "debug_mode").exists()) {
-      TestToolkit.DEBUG_MODE = true;
+      Debug.DEBUG_MODE = true;
       Logger.log(Component.text("Enabled DEBUG_MODE", NamedTextColor.GRAY));
     }
-    TestToolkit.Timer timer = new TestToolkit.Timer("Enabling QualityEconomy...");
+    Debug.Timer timer = new Debug.Timer("onEnable()");
     new QualityLogger("This is a warning", "Please export your database before updating to any version", "Once this message no longer exists, then that will no longer be required.").log();
     instance = this;
     CommandAPI.onEnable();
-    FastInvManager.register(this);
     new Metrics(this, 20121);
     
     Configuration.load();
     Messages.load();
-    CustomCurrencies.loadCustomCurrencies();
+    
+    StorageManager.initStorageProcesses();
+    
     CommandManager.registerCommands();
     
     HookManager.loadHooks(this);
@@ -55,16 +54,14 @@ public final class QualityEconomy extends JavaPlugin {
     Bukkit.getPluginManager().registerEvents(new StorageManager(), this);
     Bukkit.getPluginManager().registerEvents(new WithdrawCommand(), this);
     
-    StorageManager.initStorageProcesses();
-    
-    timer.end("Enabled QualityEconomy");
+    timer.end();
   }
   
   @Override
   public void onDisable() {
-    TestToolkit.Timer timer = new TestToolkit.Timer("Disabling QualityEconomy...");
+    Debug.Timer timer = new Debug.Timer("onDisable()");
     StorageManager.endStorageProcesses();
     CommandAPI.onDisable();
-    timer.end("Disabled QualityEconomy");
+    timer.end();
   }
 }

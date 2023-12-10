@@ -2,7 +2,7 @@ package com.imnotstable.qualityeconomy.configuration;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.util.QualityError;
-import com.imnotstable.qualityeconomy.util.TestToolkit;
+import com.imnotstable.qualityeconomy.util.Debug;
 import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -13,24 +13,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class Configuration {
   
   private static final File file = new File(QualityEconomy.getInstance().getDataFolder(), "config.yml");
   private static final List<String> enabledCommands = new ArrayList<>();
-  @Getter
-  private static String storageType;
-  @Getter
-  private static int decimalPlaces;
+  private static @Getter String storageType;
+  private static @Getter int decimalPlaces;
   private static boolean banknotes;
   private static boolean customCurrencies;
-  @Getter
-  private static long backupInterval;
-  @Getter
-  private static long balancetopInterval;
-  @Getter
-  private static long autoSaveAccountsInterval;
-  @Getter
-  private static List<String> MySQL;
+  private static @Getter long backupInterval;
+  private static @Getter long balancetopInterval;
+  private static @Getter long autoSaveAccountsInterval;
+  private static @Getter List<String> MySQL;
   
   public static void load() {
     if (!file.exists())
@@ -47,10 +42,14 @@ public class Configuration {
     banknotes = configuration.getBoolean("banknotes", false);
     enabledCommands.clear();
     List.of("balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy").forEach(command -> {
-      if (configuration.getBoolean("commands." + command, TestToolkit.DEBUG_MODE))
+      if (configuration.getBoolean("commands." + command, Debug.DEBUG_MODE))
         enabledCommands.add(command);
     });
     customCurrencies = configuration.getBoolean("custom-currencies", false);
+    if (!customCurrencies) {
+      enabledCommands.remove("custombalance");
+      enabledCommands.remove("customeconomy");
+    }
     backupInterval = (long) (configuration.getDouble("backup-interval", 1) * 72000);
     balancetopInterval = configuration.getInt("balancetop-inverval", 5) * 20L;
     autoSaveAccountsInterval = configuration.getInt("autosave-accounts-interval", 60) * 20L;

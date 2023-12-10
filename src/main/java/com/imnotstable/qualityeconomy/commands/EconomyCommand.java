@@ -5,7 +5,6 @@ import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
-import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
@@ -18,15 +17,16 @@ import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
+@Getter
 public class EconomyCommand extends AbstractCommand {
   
-  private final @Getter String name = "economy";
+  private final String name = "economy";
   
   private final CommandTree command = new CommandTree(name)
     .withPermission("qualityeconomy.economy")
     .withAliases("eco")
     .then(new OfflinePlayerArgument("target")
-      .replaceSuggestions(ArgumentSuggestions.strings(Misc::getOfflinePlayerSuggestion))
+      .replaceSuggestions(ArgumentSuggestions.strings(CommandUtils::getOfflinePlayerSuggestion))
       .then(new LiteralArgument("reset").executes(this::resetBalance))
       .then(new LiteralArgument("set").then(new DoubleArgument("amount").executes(this::setBalance)))
       .then(new LiteralArgument("add").then(new DoubleArgument("amount").executes(this::addBalance)))
@@ -49,7 +49,7 @@ public class EconomyCommand extends AbstractCommand {
   
   private void resetBalance(CommandSender sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (CommandUtils.playerDoesNotExist(target.getUniqueId(), sender))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
     QualityEconomyAPI.setBalance(target.getUniqueId(), 0);
     Messages.sendParsedMessage(MessageType.ECONOMY_RESET, new String[]{
@@ -59,7 +59,7 @@ public class EconomyCommand extends AbstractCommand {
   
   private void setBalance(CommandSender sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (CommandUtils.playerDoesNotExist(target.getUniqueId(), sender))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.setBalance(target.getUniqueId(), balance);
@@ -71,7 +71,7 @@ public class EconomyCommand extends AbstractCommand {
   
   private void addBalance(CommandSender sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (CommandUtils.playerDoesNotExist(target.getUniqueId(), sender))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.addBalance(target.getUniqueId(), balance);
@@ -83,7 +83,7 @@ public class EconomyCommand extends AbstractCommand {
   
   private void removeBalance(CommandSender sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
-    if (CommandUtils.playerDoesNotExist(target.getUniqueId(), sender))
+    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.removeBalance(target.getUniqueId(), balance);
