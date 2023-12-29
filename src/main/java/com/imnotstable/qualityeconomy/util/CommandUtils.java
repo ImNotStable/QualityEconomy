@@ -2,10 +2,13 @@ package com.imnotstable.qualityeconomy.util;
 
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
-import dev.jorel.commandapi.SuggestionInfo;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.Arrays;
 
 public class CommandUtils {
   
@@ -17,8 +20,12 @@ public class CommandUtils {
     return false;
   }
   
-  public static String[] getOfflinePlayerSuggestion(SuggestionInfo<CommandSender> ignored) {
-    return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList().toArray(new String[0]);
+  public static ArgumentSuggestions<CommandSender> getOnlinePlayerSuggestion() {
+    return ArgumentSuggestions.strings(info -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toList().toArray(new String[0]));
   }
-
+  
+  public static ArgumentSuggestions<CommandSender> getOfflinePlayerSuggestion() {
+    return ArgumentSuggestions.strings(info -> Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).toList().toArray(new String[0]));
+  }
+  
 }

@@ -18,9 +18,9 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@Getter
-public class CustomBalanceCommand extends AbstractCommand {
+public class CustomBalanceCommand implements Command {
   
+  @Getter
   private final String name = "custombalance";
   
   private final CommandTree command = new CommandTree(name)
@@ -28,13 +28,13 @@ public class CustomBalanceCommand extends AbstractCommand {
     .then(new StringArgument("currency")
       .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageFormat().getCurrencies().toArray(new String[0])))
       .then(new OfflinePlayerArgument("target")
-        .replaceSuggestions(ArgumentSuggestions.strings(CommandUtils::getOfflinePlayerSuggestion))
+        .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
         .executes(this::viewOtherBalance))
       .executesPlayer(this::viewOwnBalance));
   private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isCustomBalanceCommandEnabled() || StorageManager.getActiveStorageFormat().getCurrencies().isEmpty())
+    if (isRegistered || !Configuration.isCommandEnabled("custombalance") || StorageManager.getActiveStorageFormat().getCurrencies().isEmpty())
       return;
     command.register();
     isRegistered = true;

@@ -6,8 +6,8 @@ import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
-import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.IntegerArgument;
@@ -22,10 +22,10 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-@Getter
-public class BalanceTopCommand extends AbstractCommand {
+public class BalanceTopCommand implements Command {
   
   public static List<Account> orderedPlayerList = new ArrayList<>();
+  @Getter
   private final String name = "balancetop";
   private boolean isRegistered = false;
   private double serverTotal = 0;
@@ -43,7 +43,7 @@ public class BalanceTopCommand extends AbstractCommand {
   private Integer taskID = null;
   
   public void register() {
-    if (isRegistered || !Configuration.isBalancetopCommandEnabled())
+    if (isRegistered || !Configuration.isCommandEnabled("balancetop"))
       return;
     command.register();
     if (Configuration.getBalancetopInterval() != 0)

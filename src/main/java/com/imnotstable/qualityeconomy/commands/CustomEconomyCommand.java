@@ -20,8 +20,9 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 @Getter
-public class CustomEconomyCommand extends AbstractCommand {
+public class CustomEconomyCommand implements Command {
   
+  @Getter
   private final String name = "customeconomy";
   
   private final CommandTree command = new CommandTree(name)
@@ -30,7 +31,7 @@ public class CustomEconomyCommand extends AbstractCommand {
     .then(new StringArgument("currency")
       .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageFormat().getCurrencies().toArray(new String[0])))
       .then(new OfflinePlayerArgument("target")
-        .replaceSuggestions(ArgumentSuggestions.strings(CommandUtils::getOfflinePlayerSuggestion))
+        .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
         .then(new LiteralArgument("reset").executes(this::resetBalance))
         .then(new LiteralArgument("set").then(new DoubleArgument("amount").executes(this::setBalance)))
         .then(new LiteralArgument("add").then(new DoubleArgument("amount").executes(this::addBalance)))
@@ -38,7 +39,7 @@ public class CustomEconomyCommand extends AbstractCommand {
   private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isCustomEconomyCommandEnabled() || StorageManager.getActiveStorageFormat().getCurrencies().isEmpty())
+    if (isRegistered || !Configuration.isCommandEnabled("customeconomy") || StorageManager.getActiveStorageFormat().getCurrencies().isEmpty())
       return;
     command.register();
     isRegistered = true;

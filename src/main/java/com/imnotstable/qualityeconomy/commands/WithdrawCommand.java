@@ -5,8 +5,8 @@ import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
+import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Number;
-import com.imnotstable.qualityeconomy.util.QualityError;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.DoubleArgument;
@@ -27,9 +27,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
-@Getter
-public class WithdrawCommand extends AbstractCommand implements Listener {
+public class WithdrawCommand implements Listener, Command {
   
+  @Getter
   private final String name = "withdraw";
   
   private final CommandAPICommand command = new CommandAPICommand(name)
@@ -86,7 +86,7 @@ public class WithdrawCommand extends AbstractCommand implements Listener {
     try {
       amount = Double.parseDouble(LegacyComponentSerializer.legacyAmpersand().serialize(meta.displayName()).substring(3).split("&7 ")[0]);
     } catch (NumberFormatException exception) {
-      new QualityError("Failed to format number", exception).log();
+      new Debug.QualityError("Failed to format number", exception).log();
       return;
     }
     Inventory inventory = event.getPlayer().getInventory();

@@ -98,8 +98,8 @@ public class AccountManager {
             customBalances.put(currency, random.nextDouble(1_000_000_000_000_000.0));
           }
           accounts.add(new Account(uuid).setName(uuid.toString().split("-")[0])
-                  .setBalance(random.nextDouble(1_000_000_000_000_000.0))
-                  .setCustomBalances(customBalances).setPayable(false)
+            .setBalance(random.nextDouble(1_000_000_000_000_000.0))
+            .setCustomBalances(customBalances).setPayable(false)
           );
         }
         StorageManager.getActiveStorageFormat().createAccounts(accounts);

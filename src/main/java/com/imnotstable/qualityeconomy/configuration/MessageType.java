@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-@Getter
 public enum MessageType {
   BALANCETOP_TITLE("balancetop.title", new String[]{"maxpage", "page"}),
   BALANCETOP_SERVER_TOTAL("balancetop.server-total", new String[]{"servertotal"}),
@@ -32,12 +31,14 @@ public enum MessageType {
   PLAYER_NOT_FOUND("errors.player-not-found", new String[0]),
   PLAYER_NOT_ONLINE("errors.player-not-online", new String[0]),
   CURRENCY_NOT_FOUND("errors.currency-not-found", new String[0]),
-  SELF_NOT_ENOUGH_MONEY("errors.self.not-enough-money", new String[0]),
-  OTHER_NOT_ENOUGH_MONEY("errors.other.not-enough-money", new String[0]),
+  SELF_NOT_ENOUGH_MONEY("errors.not-enough-money.self", new String[0]),
+  OTHER_NOT_ENOUGH_MONEY("errors.not-enough-money.other", new String[0]),
   NOT_ACCEPTING_PAYMENTS("errors.not-accepting-payments", new String[0]),
   NOT_ACCEPTING_REQUESTS("errors.not-accepting-requests", new String[0]);
   
+  @Getter
   private final String value;
+  @Getter
   private final String[] tags;
   
 }

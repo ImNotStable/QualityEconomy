@@ -1,5 +1,6 @@
 package com.imnotstable.qualityeconomy.api;
 
+import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,6 +11,10 @@ public class QualityEconomyAPI {
   
   public static void createAccount(@NotNull UUID uuid) {
     AccountManager.createAccount(uuid);
+  }
+  
+  public static Account getAccount(@NotNull UUID uuid) {
+    return AccountManager.getAccount(uuid);
   }
   
   public static boolean hasAccount(@NotNull UUID uuid) {

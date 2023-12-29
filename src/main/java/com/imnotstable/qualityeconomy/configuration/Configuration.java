@@ -1,31 +1,37 @@
 package com.imnotstable.qualityeconomy.configuration;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.util.QualityError;
 import com.imnotstable.qualityeconomy.util.Debug;
 import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Getter
 public class Configuration {
   
   private static final File file = new File(QualityEconomy.getInstance().getDataFolder(), "config.yml");
-  private static final List<String> enabledCommands = new ArrayList<>();
-  private static @Getter String storageType;
-  private static @Getter int decimalPlaces;
+  private static final Set<String> enabledCommands = new HashSet<>();
+  @Getter
+  private static String storageType;
+  @Getter
+  private static int decimalPlaces;
   private static boolean banknotes;
   private static boolean customCurrencies;
-  private static @Getter long backupInterval;
-  private static @Getter long balancetopInterval;
-  private static @Getter long autoSaveAccountsInterval;
-  private static @Getter List<String> MySQL;
+  @Getter
+  private static long backupInterval;
+  @Getter
+  private static long balancetopInterval;
+  @Getter
+  private static long autoSaveAccountsInterval;
+  @Getter
+  private static List<String> MySQL;
   
   public static void load() {
     if (!file.exists())
@@ -40,10 +46,10 @@ public class Configuration {
     storageType = configuration.getString("storage-type", "sqlite").toLowerCase();
     decimalPlaces = Math.max(configuration.getInt("decimal-places", 4), 0);
     banknotes = configuration.getBoolean("banknotes", false);
-    enabledCommands.clear();
-    List.of("balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy").forEach(command -> {
-      if (configuration.getBoolean("commands." + command, Debug.DEBUG_MODE))
-        enabledCommands.add(command);
+    enabledCommands.addAll(Set.of("balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy"));
+    enabledCommands.forEach(command -> {
+      if (!configuration.getBoolean("commands." + command, Debug.DEBUG_MODE))
+        enabledCommands.remove(command);
     });
     customCurrencies = configuration.getBoolean("custom-currencies", false);
     if (!customCurrencies) {
@@ -74,7 +80,7 @@ public class Configuration {
     try {
       finalConfiguration.save(file);
     } catch (IOException exception) {
-      new QualityError("Failed to update config.yml", exception).log();
+      new Debug.QualityError("Failed to update config.yml", exception).log();
     }
   }
   
@@ -84,34 +90,6 @@ public class Configuration {
   
   public static boolean isCommandEnabled(String command) {
     return enabledCommands.contains(command);
-  }
-  
-  public static boolean isBalanceCommandEnabled() {
-    return enabledCommands.contains("balance");
-  }
-  
-  public static boolean isBalancetopCommandEnabled() {
-    return enabledCommands.contains("balancetop");
-  }
-  
-  public static boolean isEconomyCommandEnabled() {
-    return enabledCommands.contains("economy");
-  }
-  
-  public static boolean isPayCommandEnabled() {
-    return enabledCommands.contains("pay");
-  }
-  
-  public static boolean isRequestCommandEnabled() {
-    return enabledCommands.contains("request");
-  }
-  
-  public static boolean isCustomBalanceCommandEnabled() {
-    return enabledCommands.contains("custombalance");
-  }
-  
-  public static boolean isCustomEconomyCommandEnabled() {
-    return enabledCommands.contains("customeconomy");
   }
   
   public static boolean areCustomCurrenciesEnabled() {

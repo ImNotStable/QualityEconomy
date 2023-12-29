@@ -9,7 +9,6 @@ import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.MultiLiteralArgument;
@@ -25,9 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Getter
-public class RequestCommand extends AbstractCommand {
+public class RequestCommand implements Command {
   
+  @Getter
   private final String name = "request";
   
   //<Requestee, <Requester, Amount>>
@@ -45,13 +44,13 @@ public class RequestCommand extends AbstractCommand {
         .executesPlayer(this::answerRequest)))
     .then(new LiteralArgument("send")
       .then(new OfflinePlayerArgument("target")
-        .replaceSuggestions(ArgumentSuggestions.strings(CommandUtils::getOfflinePlayerSuggestion))
+        .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
         .then(new DoubleArgument("amount", Number.getMinimumValue())
           .executesPlayer(this::request))));
   private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isRequestCommandEnabled())
+    if (isRegistered || !Configuration.isCommandEnabled("request"))
       return;
     command.register();
     requests = new HashMap<>();
@@ -70,7 +69,7 @@ public class RequestCommand extends AbstractCommand {
     boolean toggle = !QualityEconomyAPI.isRequestable(sender.getUniqueId());
     QualityEconomyAPI.setRequestable(sender.getUniqueId(), toggle);
     if (toggle) Messages.sendParsedMessage(MessageType.REQUEST_TOGGLE_ON, sender);
-    else Messages.sendParsedMessage(MessageType.PAY_TOGGLE_OFF, sender);
+    else Messages.sendParsedMessage(MessageType.REQUEST_TOGGLE_OFF, sender);
   }
   
   private void request(Player requester, CommandArguments args) {
@@ -108,7 +107,7 @@ public class RequestCommand extends AbstractCommand {
     OfflinePlayer requester = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(requester.getUniqueId()), MessageType.PLAYER_NOT_FOUND, requestee))
       return;
-    double amount = Number.roundObj(requests.get(requestee.getUniqueId()).get(requester.getUniqueId()));
+    double amount = Number.round(requests.get(requestee.getUniqueId()).get(requester.getUniqueId()));
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, requestee))
       return;
     Messages.sendParsedMessage(MessageType.REQUEST_ACCEPT_SEND, new String[]{

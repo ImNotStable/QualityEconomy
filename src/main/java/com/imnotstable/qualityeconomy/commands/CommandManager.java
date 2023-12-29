@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class CommandManager {
   
-  private static final Map<String, AbstractCommand> commands = Map.of(
+  private static final Map<String, Command> commands = Map.of(
     "balance", new BalanceCommand(),
     "balancetop", new BalanceTopCommand(),
     "custombalance", new CustomBalanceCommand(),
@@ -19,15 +19,15 @@ public class CommandManager {
   );
   
   public static void registerCommands() {
-    commands.values().forEach(AbstractCommand::register);
+    commands.values().forEach(Command::register);
   }
   
   public static void unregisterCommands() {
-    commands.values().forEach(AbstractCommand::unregister);
+    commands.values().forEach(Command::unregister);
   }
   
-  public static @Nullable AbstractCommand getCommand(String commandName) {
-    return commands.get(commandName);
+  public static @Nullable Command getCommand(String command) {
+    return commands.get(command);
   }
   
 }

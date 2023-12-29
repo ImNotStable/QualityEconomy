@@ -3,8 +3,8 @@ package com.imnotstable.qualityeconomy.hooks;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
-import com.imnotstable.qualityeconomy.util.QualityError;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -20,13 +20,14 @@ import java.util.List;
 
 public class VaultHook implements Economy {
   
-  private static @Getter Economy economy;
+  @Getter
+  private static Economy economy;
   
   public static void initVaultHook(QualityEconomy plugin) {
     Bukkit.getServicesManager().register(Economy.class, new VaultHook(), plugin, ServicePriority.Highest);
     RegisteredServiceProvider<Economy> econRSP = Bukkit.getServicesManager().getRegistration(Economy.class);
     if (econRSP == null) {
-      new QualityError("Failed to register economy with Vault").log();
+      new Debug.QualityError("Failed to register economy with Vault").log();
       return;
     }
     economy = econRSP.getProvider();

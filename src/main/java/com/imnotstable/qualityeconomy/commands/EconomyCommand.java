@@ -8,7 +8,6 @@ import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
@@ -17,16 +16,16 @@ import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
-@Getter
-public class EconomyCommand extends AbstractCommand {
+public class EconomyCommand implements Command {
   
+  @Getter
   private final String name = "economy";
   
   private final CommandTree command = new CommandTree(name)
     .withPermission("qualityeconomy.economy")
     .withAliases("eco")
     .then(new OfflinePlayerArgument("target")
-      .replaceSuggestions(ArgumentSuggestions.strings(CommandUtils::getOfflinePlayerSuggestion))
+      .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
       .then(new LiteralArgument("reset").executes(this::resetBalance))
       .then(new LiteralArgument("set").then(new DoubleArgument("amount").executes(this::setBalance)))
       .then(new LiteralArgument("add").then(new DoubleArgument("amount").executes(this::addBalance)))
@@ -34,7 +33,7 @@ public class EconomyCommand extends AbstractCommand {
   private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isEconomyCommandEnabled())
+    if (isRegistered || !Configuration.isCommandEnabled("economy"))
       return;
     command.register();
     isRegistered = true;

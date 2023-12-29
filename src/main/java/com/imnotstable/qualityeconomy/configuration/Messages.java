@@ -1,7 +1,7 @@
 package com.imnotstable.qualityeconomy.configuration;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.util.QualityError;
+import com.imnotstable.qualityeconomy.util.Debug;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
@@ -24,10 +24,6 @@ public class Messages {
   }
   
   public static void sendParsedMessage(MessageType id, String[] tags, CommandSender sender) {
-    sender.sendMessage(getParsedMessage(id, tags));
-  }
-  
-  public static Component getParsedMessage(MessageType id, String[] tags) {
     int tagsReq = id.getTags().length;
     if (tags.length != tagsReq)
       throw new IllegalArgumentException("Found " + tags.length + " tags when required " + tagsReq);
@@ -35,7 +31,7 @@ public class Messages {
     for (int i = 0; i < tagsReq; i++) {
       tagResolvers[i] = TagResolver.resolver(id.getTags()[i], Tag.selfClosingInserting(Component.text(tags[i])));
     }
-    return MiniMessage.miniMessage().deserialize(messages.get(id.getValue()), tagResolvers);
+    sender.sendMessage(MiniMessage.miniMessage().deserialize(messages.get(id.getValue()), tagResolvers));
   }
   
   public static void load() {
@@ -66,7 +62,8 @@ public class Messages {
     try {
       finalConfiguration.save(file);
     } catch (IOException exception) {
-      new QualityError("Failed to update messages.yml", exception).log();
+      new Debug.QualityError("Failed to update messages.yml", exception).log();
     }
   }
+  
 }

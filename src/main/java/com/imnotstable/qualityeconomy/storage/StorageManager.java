@@ -11,9 +11,8 @@ import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
-import com.imnotstable.qualityeconomy.util.Logger;
-import com.imnotstable.qualityeconomy.util.QualityError;
 import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -53,16 +52,15 @@ public class StorageManager implements Listener {
       case "h2" -> activeStorageType = new SQLStorageType(1);
       case "sqlite" -> activeStorageType = new SQLStorageType(2);
       case "mysql" -> activeStorageType = new SQLStorageType(3);
-      case "mariadb" -> activeStorageType = new SQLStorageType(4);
       default -> {
-        new QualityError("Unexpected Storage Type: " + Configuration.getStorageType()).log();
+        new Debug.QualityError("Unexpected Storage Type: " + Configuration.getStorageType()).log();
         timer.interrupt();
         Bukkit.getPluginManager().disablePlugin(QualityEconomy.getInstance());
         return;
       }
     }
     if (!activeStorageType.initStorageProcesses()) {
-      new QualityError("Failed to initiate storage processes").log();
+      new Debug.QualityError("Failed to initiate storage processes").log();
       timer.interrupt();
       return;
     }
@@ -101,17 +99,19 @@ public class StorageManager implements Listener {
     timer.end();
   }
   
-  public static void importDatabase(final String fileName) {
+  public static void importDatabase(String fileName) {
     new BukkitRunnable() {
       @Override
       public void run() {
         Debug.Timer timer = new Debug.Timer("importDatabase()");
         String path = String.format("plugins/QualityEconomy/%s", fileName);
         AccountManager.clearAccounts();
-        StorageType storageType = getActiveStorageFormat();
-        storageType.wipeDatabase();
-        for (String currency : getActiveStorageFormat().getCurrencies())
-          getActiveStorageFormat().removeCurrency(currency);
+        getActiveStorageFormat().wipeDatabase();
+        StorageManager.endStorageProcesses();
+        StorageManager.initStorageProcesses();
+        StorageType storageFormat = getActiveStorageFormat();
+        for (String currency : storageFormat.getCurrencies())
+          storageFormat.removeCurrency(currency);
         Collection<Account> accounts = new ArrayList<>();
         try {
           String content = new String(Files.readAllBytes(Paths.get(path)));
@@ -123,7 +123,7 @@ public class StorageManager implements Listener {
             for (JsonElement currencyElement : currenciesArray) {
               String currency = currencyElement.getAsString();
               customCurrencies.add(currency);
-              getActiveStorageFormat().addCurrency(currency);
+              storageFormat.addCurrency(currency);
             }
           }
           
@@ -142,10 +142,10 @@ public class StorageManager implements Listener {
               }
               accounts.add(new Account(uuid).setName(name).setBalance(balance).setPayable(payable).setRequestable(requestable).setCustomBalances(balanceMap));
             });
-          storageType.createAccounts(accounts);
+          storageFormat.createAccounts(accounts);
           timer.progress();
         } catch (IOException exception) {
-          new QualityError("Error while importing playerdata", exception).log();
+          new Debug.QualityError("Error while importing playerdata", exception).log();
         }
         timer.end();
         AccountManager.setupAccounts();
@@ -180,7 +180,7 @@ public class StorageManager implements Listener {
         try (FileWriter fileWriter = new FileWriter(file)) {
           fileWriter.write(gson.toJson(rootJson));
         } catch (IOException exception) {
-          new QualityError("Error while exporting playerdata", exception).log();
+          new Debug.QualityError("Error while exporting playerdata", exception).log();
         }
         timer.end();
       }

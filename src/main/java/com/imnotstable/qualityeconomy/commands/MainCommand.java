@@ -4,8 +4,10 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
+import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.Misc;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
@@ -17,17 +19,29 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
-@Getter
-public class MainCommand extends AbstractCommand {
+public class MainCommand implements Command {
   
+  @Getter
   private final String name = "qualityeconomy";
   
   private final Pattern IMPORT_FILE_PATTERN = Pattern.compile("^QualityEconomy \\d{4}.\\d{2}.\\d{2} \\d{2}-\\d{2}\\.json$");
@@ -39,8 +53,15 @@ public class MainCommand extends AbstractCommand {
       .then(new LiteralArgument("messages")
         .executes(this::reloadMessages)))
     .then(new LiteralArgument("database")
+      .then(new LiteralArgument("execute")
+        .withRequirement(sender -> Debug.DEBUG_MODE)
+        .then(new GreedyStringArgument("statement")
+        .executesConsole(this::executeDatabase)))
+      .then(new LiteralArgument("reset")
+        .withRequirement(sender -> Debug.DEBUG_MODE)
+        .executesConsole(this::resetDatabase))
       .then(new LiteralArgument("import")
-        .then(new GreedyStringArgument("fileName")
+        .then(new GreedyStringArgument("importable")
           .replaceSuggestions(ArgumentSuggestions.strings(info -> getImportableFiles()))
           .executes(this::importDatabase)))
       .then(new LiteralArgument("export")
@@ -95,10 +116,67 @@ public class MainCommand extends AbstractCommand {
     sender.sendMessage(Component.text("Reloading QualityEconomy messages.yml...", NamedTextColor.GRAY));
   }
   
+  private void executeDatabase(ConsoleCommandSender sender, CommandArguments args) {
+    String sql = (String) args.get("statement");
+    try (Connection connection = StorageManager.getActiveStorageFormat().getConnection();
+         Statement statement = connection.createStatement()) {
+      if (statement.execute(sql))
+        sender.sendMessage(Component.text().append(
+          Component.text("Successfully executed statement ", NamedTextColor.GREEN),
+          Component.text("(" + sql + ")", NamedTextColor.GRAY)
+        ));
+      else
+        sender.sendMessage(Component.text().append(
+          Component.text("Failed to execute statement ", NamedTextColor.RED),
+          Component.text("(" + sql + ")", NamedTextColor.GRAY)
+        ));
+    } catch (SQLException exception) {
+      sender.sendMessage(Component.text(exception.getMessage(), NamedTextColor.RED));
+      exception.printStackTrace();
+    }
+  }
+  
+  private void resetDatabase(ConsoleCommandSender sender, CommandArguments args) {
+    StorageManager.getActiveStorageFormat().wipeDatabase();
+    StorageManager.endStorageProcesses();
+    StorageManager.initStorageProcesses();
+    sender.sendMessage(Component.text("Resetting database...", NamedTextColor.RED));
+  }
+  
   private void importDatabase(CommandSender sender, CommandArguments args) {
-    sender.sendMessage(Component.text("Importing Database...", NamedTextColor.GRAY));
-    StorageManager.importDatabase(args.get("fileName").toString());
+    String importable = (String) args.get("importable");
+    if (Misc.equals(importable, "Essentials"))
+      transferPluginData(importable);
+    else
+      StorageManager.importDatabase(importable);
+    
     sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
+  }
+  
+  private void transferPluginData(String plugin) {
+      new BukkitRunnable() {
+        @Override
+        public void run() {
+          Debug.Timer timer = new Debug.Timer("transferPluginData()");
+          Collection<Account> accounts = new ArrayList<>();
+          if (plugin.equals("Essentials")) {
+            File userdata = new File(Bukkit.getPluginManager().getPlugin(plugin).getDataFolder(), "userdata");
+            File[] userfiles = userdata.listFiles((dir, name) -> Misc.isValidUUID(name.split("\\.")[0]));
+            for (File userfile : userfiles) {
+              YamlConfiguration user = YamlConfiguration.loadConfiguration(userfile);
+              accounts.add(new Account(UUID.fromString(userfile.getName().split("\\.")[0]))
+                .setName(user.getString("last-account-name"))
+                .setBalance(Double.parseDouble(user.getString("money"))));
+            }
+          }
+          StorageManager.getActiveStorageFormat().wipeDatabase();
+          StorageManager.endStorageProcesses();
+          StorageManager.initStorageProcesses();
+          StorageManager.getActiveStorageFormat().createAccounts(accounts);
+          AccountManager.setupAccounts();
+          timer.end();
+        }
+      }.runTaskAsynchronously(QualityEconomy.getInstance());
   }
   
   private void exportDatabase(CommandSender sender, CommandArguments args) {
@@ -108,12 +186,8 @@ public class MainCommand extends AbstractCommand {
   }
   
   private void createFakeEntries(CommandSender sender, CommandArguments args) {
-    try {
-      int entries = (int) args.get("entries");
-      AccountManager.createFakeAccounts(entries != 0 ? entries : 10);
-    } catch (NumberFormatException ignored) {
-      sender.sendMessage(Component.text("Invalid amount.", NamedTextColor.RED));
-    }
+    int entries = (int) args.get("entries");
+    AccountManager.createFakeAccounts(entries != 0 ? entries : 10);
   }
   
   private void changeAllEntries(CommandSender sender, CommandArguments args) {
@@ -141,15 +215,36 @@ public class MainCommand extends AbstractCommand {
   }
   
   private String[] getImportableFiles() {
-    File[] pluginFiles = Optional.ofNullable(QualityEconomy.getInstance().getDataFolder().listFiles((dir, name) ->
-      IMPORT_FILE_PATTERN.matcher(name).matches())).orElse(new File[0]);
-    File[] backupFiles = Optional.ofNullable(new File(QualityEconomy.getInstance().getDataFolder(), "backup").listFiles((dir, name) ->
-      IMPORT_FILE_PATTERN.matcher(name).matches())).orElse(new File[0]);
+    File dataFolder = QualityEconomy.getInstance().getDataFolder();
+    FilenameFilter filter = (dir, name) -> IMPORT_FILE_PATTERN.matcher(name).matches();
     
-    return Stream.concat(Arrays.stream(pluginFiles), Arrays.stream(backupFiles))
+    List<String> pluginFiles = Optional.ofNullable(dataFolder.listFiles(filter))
+      .map(Arrays::asList)
+      .orElse(Collections.emptyList())
+      .stream()
       .map(File::getName)
-      .toArray(String[]::new);
+      .toList();
+    
+    File backupFolder = new File(dataFolder, "backups");
+    List<String> backupFiles = backupFolder.isDirectory()
+      ? Optional.ofNullable(backupFolder.listFiles(filter))
+      .map(Arrays::asList)
+      .orElse(Collections.emptyList())
+      .stream()
+      .map(file -> "backups/" + file.getName())
+      .toList()
+      : Collections.emptyList();
+    
+    List<String> completions = new ArrayList<>(pluginFiles);
+    completions.addAll(backupFiles);
+    
+    if (Bukkit.getPluginManager().isPluginEnabled("Essentials")) {
+      completions.add("Essentials");
+    }
+    
+    return completions.toArray(new String[0]);
   }
-  
+
+
   
 }

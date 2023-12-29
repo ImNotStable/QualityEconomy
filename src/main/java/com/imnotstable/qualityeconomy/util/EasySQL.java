@@ -15,18 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EasySQL {
-
+  
   public static final int H2 = 1;
   public static final int SQLITE = 2;
   public static final int MYSQL = 3;
-  public static final int MARIADB = 4;
   
   static {
     try {
       DriverManager.registerDriver(new org.h2.Driver());
-      DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
     } catch (SQLException exception) {
-      new QualityError("Failed to load H2 Driver", exception).log();
+      new Debug.QualityError("Failed to load H2 Driver", exception).log();
     }
   }
   
@@ -40,21 +38,21 @@ public class EasySQL {
     this.databaseType = databaseType;
     openDataSource();
     try (Connection connection = openConnection()) {
-      createTable(connection, "PLAYERDATA", "UUID CHAR(36) PRIMARY KEY, USERNAME VARCHAR(16), BALANCE REAL NOT NULL");
+      createTable(connection, "PLAYERDATA", "UUID CHAR(36) PRIMARY KEY, USERNAME VARCHAR(16), BALANCE FLOAT(53) NOT NULL");
       columns = getColumns(connection);
     } catch (SQLException exception) {
-      new QualityError("Failed to start database", exception).log();
+      new Debug.QualityError("Failed to start database", exception).log();
     }
     generateStatements();
   }
   
   protected void close() {
     if (dataSource == null) {
-      new QualityError("Attempted to close datasource when datasource doesn't exist").log();
+      new Debug.QualityError("Attempted to close datasource when datasource doesn't exist").log();
       return;
     }
     if (dataSource.isClosed()) {
-      new QualityError("Attempted to close datasource when datasource is already closed").log();
+      new Debug.QualityError("Attempted to close datasource when datasource is already closed").log();
       return;
     }
     dataSource.close();
@@ -81,20 +79,8 @@ public class EasySQL {
         hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
         hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
       }
-      case MARIADB -> {
-        String address = Configuration.getMySQL().get(0);
-        String name = Configuration.getMySQL().get(1);
-        String user = Configuration.getMySQL().get(2);
-        String password = Configuration.getMySQL().get(3);
-        hikariConfig.setJdbcUrl(String.format("jdbc:mariadb://%s/%s", address, name));
-        hikariConfig.setUsername(user);
-        hikariConfig.setPassword(password);
-        hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
-        hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
-        hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-      }
       default -> {
-        new QualityError("Invalid database type: " + databaseType).log();
+        new Debug.QualityError("Invalid database type: " + databaseType).log();
         return;
       }
     }
@@ -141,7 +127,7 @@ public class EasySQL {
         columns.add(rs.getString("COLUMN_NAME"));
       }
     } catch (SQLException exception) {
-      new QualityError("Failed to get columns of database", exception).log();
+      new Debug.QualityError("Failed to get columns of database", exception).log();
       throw exception;
     }
     return columns;
@@ -151,7 +137,7 @@ public class EasySQL {
     try (ResultSet columns = metaData.getColumns(null, null, "PLAYERDATA", column)) {
       return columns.next();
     } catch (SQLException exception) {
-      new QualityError("Failed to check if column exists", exception).log();
+      new Debug.QualityError("Failed to check if column exists", exception).log();
       throw exception;
     }
   }

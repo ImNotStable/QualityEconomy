@@ -8,7 +8,6 @@ import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
@@ -17,22 +16,22 @@ import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-@Getter
-public class PayCommand extends AbstractCommand {
+public class PayCommand implements Command {
   
+  @Getter
   private final String name = "pay";
   
   private final CommandTree command = new CommandTree(name)
     .then(new LiteralArgument("toggle")
       .executesPlayer(this::togglePay))
     .then(new OfflinePlayerArgument("target")
-      .replaceSuggestions(ArgumentSuggestions.strings(CommandUtils::getOfflinePlayerSuggestion))
+      .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
       .then(new DoubleArgument("amount", Number.getMinimumValue())
         .executesPlayer(this::pay)));
   private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isPayCommandEnabled())
+    if (isRegistered || !Configuration.isCommandEnabled("pay"))
       return;
     command.register();
     isRegistered = true;

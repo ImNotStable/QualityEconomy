@@ -4,9 +4,9 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
+import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.Misc;
-import com.imnotstable.qualityeconomy.util.QualityError;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -73,7 +73,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
             int place = Integer.parseInt(elements[1].substring(1)) - 1;
             return BalanceTopCommand.orderedPlayerList.get(place).getName();
           } catch (NumberFormatException exception) {
-            new QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
+            new Debug.QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
           }
         }
       }

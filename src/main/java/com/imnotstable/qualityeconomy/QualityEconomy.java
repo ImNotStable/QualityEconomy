@@ -8,7 +8,6 @@ import com.imnotstable.qualityeconomy.hooks.HookManager;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
-import com.imnotstable.qualityeconomy.util.QualityLogger;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import lombok.Getter;
@@ -27,7 +26,7 @@ public final class QualityEconomy extends JavaPlugin {
   
   @Override
   public void onLoad() {
-    CommandAPI.onLoad(new CommandAPIBukkitConfig(this).silentLogs(true));
+    CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(false).silentLogs(true));
   }
   
   @Override
@@ -37,7 +36,7 @@ public final class QualityEconomy extends JavaPlugin {
       Logger.log(Component.text("Enabled DEBUG_MODE", NamedTextColor.GRAY));
     }
     Debug.Timer timer = new Debug.Timer("onEnable()");
-    new QualityLogger("This is a warning", "Please export your database before updating to any version", "Once this message no longer exists, then that will no longer be required.").log();
+    new Debug.QualityLogger("This is a warning", "Please export your database before updating to any version", "Once this message no longer exists, then that will no longer be required.").log();
     instance = this;
     CommandAPI.onEnable();
     new Metrics(this, 20121);

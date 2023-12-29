@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class Account {
-  
   private final UUID uuid;
   private final Map<String, Double> otherBalances = new HashMap<>();
   private @Getter String name = "";

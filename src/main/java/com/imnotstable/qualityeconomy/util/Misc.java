@@ -1,5 +1,6 @@
 package com.imnotstable.qualityeconomy.util;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public class Misc {
@@ -8,6 +9,10 @@ public class Misc {
   
   public static boolean isValidUUID(String uuid) {
     return UUID_PATTERN.matcher(uuid).matches();
+  }
+  
+  public static boolean equals(Object object, Object... comparable) {
+    return Arrays.stream(comparable).allMatch(object::equals);
   }
   
 }

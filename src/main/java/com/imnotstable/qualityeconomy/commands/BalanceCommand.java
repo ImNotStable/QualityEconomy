@@ -8,7 +8,6 @@ import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
-import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.Getter;
@@ -16,21 +15,21 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-@Getter
-public class BalanceCommand extends AbstractCommand {
+public class BalanceCommand implements Command {
   
+  @Getter
   private final String name = "balance";
   
   private final CommandTree command = new CommandTree(name)
     .withAliases("bal")
     .then(new OfflinePlayerArgument("target")
-      .replaceSuggestions(ArgumentSuggestions.strings(CommandUtils::getOfflinePlayerSuggestion))
+      .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
       .executes(this::viewOtherBalance))
     .executesPlayer(this::viewOwnBalance);
   private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isBalanceCommandEnabled())
+    if (isRegistered || !Configuration.isCommandEnabled("balance"))
       return;
     command.register();
     isRegistered = true;
