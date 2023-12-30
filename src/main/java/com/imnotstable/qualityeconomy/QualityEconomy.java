@@ -62,7 +62,7 @@ public final class QualityEconomy extends JavaPlugin {
     metrics.addCustomChart(new AdvancedPie("other_plugins_used", () -> {
       Map<String, Integer> plugins = new HashMap<>();
       for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-        plugins.put(plugin.getName(), 0);
+        plugins.put(plugin.getName(), 1);
       }
       return plugins;
     }));
