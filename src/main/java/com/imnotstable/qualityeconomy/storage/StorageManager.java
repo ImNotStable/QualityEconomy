@@ -12,9 +12,6 @@ import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.util.Debug;
-import com.imnotstable.qualityeconomy.util.Logger;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -107,11 +104,8 @@ public class StorageManager implements Listener {
         String path = String.format("plugins/QualityEconomy/%s", fileName);
         AccountManager.clearAccounts();
         getActiveStorageFormat().wipeDatabase();
-        StorageManager.endStorageProcesses();
-        StorageManager.initStorageProcesses();
-        StorageType storageFormat = getActiveStorageFormat();
-        for (String currency : storageFormat.getCurrencies())
-          storageFormat.removeCurrency(currency);
+        for (String currency : getActiveStorageFormat().getCurrencies())
+          getActiveStorageFormat().removeCurrency(currency);
         Collection<Account> accounts = new ArrayList<>();
         try {
           String content = new String(Files.readAllBytes(Paths.get(path)));
@@ -123,7 +117,7 @@ public class StorageManager implements Listener {
             for (JsonElement currencyElement : currenciesArray) {
               String currency = currencyElement.getAsString();
               customCurrencies.add(currency);
-              storageFormat.addCurrency(currency);
+              getActiveStorageFormat().addCurrency(currency);
             }
           }
           
@@ -142,7 +136,7 @@ public class StorageManager implements Listener {
               }
               accounts.add(new Account(uuid).setName(name).setBalance(balance).setPayable(payable).setRequestable(requestable).setCustomBalances(balanceMap));
             });
-          storageFormat.createAccounts(accounts);
+          getActiveStorageFormat().createAccounts(accounts);
           timer.progress();
         } catch (IOException exception) {
           new Debug.QualityError("Error while importing playerdata", exception).log();
@@ -160,13 +154,14 @@ public class StorageManager implements Listener {
         Debug.Timer timer = new Debug.Timer("exportDatabase()");
         AccountManager.saveAllAccounts();
         File directory = new File(path);
-        if (!directory.exists() || !directory.isDirectory()) {
-          if (!directory.mkdir())
-            Logger.log(Component.text("Failed to create directory for database export", NamedTextColor.RED));
-        }
+        if (!directory.exists() || !directory.isDirectory())
+          if (!directory.mkdir()) {
+            new Debug.QualityError("Failed to create directory for database export", "Path: " + directory.getPath()).log();
+            return;
+          }
         Gson gson = new Gson();
-        JsonObject rootJson = new JsonObject();
-        rootJson.add("custom-currencies", gson.toJsonTree(getActiveStorageFormat().getCurrencies()));
+        JsonObject root = new JsonObject();
+        root.add("custom-currencies", gson.toJsonTree(getActiveStorageFormat().getCurrencies()));
         getActiveStorageFormat().getAllAccounts().forEach((uuid, account) -> {
           JsonObject accountJson = new JsonObject();
           accountJson.addProperty("name", account.getName());
@@ -174,13 +169,13 @@ public class StorageManager implements Listener {
           accountJson.addProperty("payable", account.isPayable());
           accountJson.addProperty("requestable", account.isRequestable());
           account.getCustomBalances().forEach(accountJson::addProperty);
-          rootJson.add(uuid.toString(), accountJson);
+          root.add(uuid.toString(), accountJson);
         });
         File file = new File(String.format("%sQualityEconomy %s.json", path, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH-mm"))));
         try (FileWriter fileWriter = new FileWriter(file)) {
-          fileWriter.write(gson.toJson(rootJson));
+          fileWriter.write(gson.toJson(root));
         } catch (IOException exception) {
-          new Debug.QualityError("Error while exporting playerdata", exception).log();
+          new Debug.QualityError("Error while exporting database", exception).log();
         }
         timer.end();
       }

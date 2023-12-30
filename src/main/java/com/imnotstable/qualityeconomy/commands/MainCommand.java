@@ -138,8 +138,6 @@ public class MainCommand implements Command {
   
   private void resetDatabase(ConsoleCommandSender sender, CommandArguments args) {
     StorageManager.getActiveStorageFormat().wipeDatabase();
-    StorageManager.endStorageProcesses();
-    StorageManager.initStorageProcesses();
     sender.sendMessage(Component.text("Resetting database...", NamedTextColor.RED));
   }
   
@@ -160,18 +158,17 @@ public class MainCommand implements Command {
           Debug.Timer timer = new Debug.Timer("transferPluginData()");
           Collection<Account> accounts = new ArrayList<>();
           if (plugin.equals("Essentials")) {
-            File userdata = new File(Bukkit.getPluginManager().getPlugin(plugin).getDataFolder(), "userdata");
-            File[] userfiles = userdata.listFiles((dir, name) -> Misc.isValidUUID(name.split("\\.")[0]));
-            for (File userfile : userfiles) {
+            File[] userdata = new File("plugins/Essentials/userdata").listFiles((dir, name) -> Misc.isValidUUID(name.split("\\.")[0]));
+            if (userdata == null || userdata.length == 0) return;
+            for (File userfile : userdata) {
               YamlConfiguration user = YamlConfiguration.loadConfiguration(userfile);
-              accounts.add(new Account(UUID.fromString(userfile.getName().split("\\.")[0]))
-                .setName(user.getString("last-account-name"))
-                .setBalance(Double.parseDouble(user.getString("money"))));
+              UUID uuid = UUID.fromString(userfile.getName().split("\\.")[0]);
+              String username = user.getString("last-account-name");
+              double balance = Double.parseDouble(user.getString("money"));
+              accounts.add(new Account(uuid).setName(username).setBalance(balance));
             }
           }
           StorageManager.getActiveStorageFormat().wipeDatabase();
-          StorageManager.endStorageProcesses();
-          StorageManager.initStorageProcesses();
           StorageManager.getActiveStorageFormat().createAccounts(accounts);
           AccountManager.setupAccounts();
           timer.end();
@@ -181,7 +178,7 @@ public class MainCommand implements Command {
   
   private void exportDatabase(CommandSender sender, CommandArguments args) {
     sender.sendMessage(Component.text("Exporting Database...", NamedTextColor.GRAY));
-    StorageManager.exportDatabase("plugins/QualityEconomy/");
+    StorageManager.exportDatabase("plugins/QualityEconomy/exports/");
     sender.sendMessage(Component.text("Exported Database", NamedTextColor.GREEN));
   }
   
@@ -218,12 +215,15 @@ public class MainCommand implements Command {
     File dataFolder = QualityEconomy.getInstance().getDataFolder();
     FilenameFilter filter = (dir, name) -> IMPORT_FILE_PATTERN.matcher(name).matches();
     
-    List<String> pluginFiles = Optional.ofNullable(dataFolder.listFiles(filter))
+    File exportsFolder = new File(dataFolder, "exports");
+    List<String> exportsFiles = exportsFolder.isDirectory()
+      ? Optional.ofNullable(exportsFolder.listFiles(filter))
       .map(Arrays::asList)
       .orElse(Collections.emptyList())
       .stream()
-      .map(File::getName)
-      .toList();
+      .map(file -> "exports/" + file.getName())
+      .toList()
+      : Collections.emptyList();
     
     File backupFolder = new File(dataFolder, "backups");
     List<String> backupFiles = backupFolder.isDirectory()
@@ -235,7 +235,7 @@ public class MainCommand implements Command {
       .toList()
       : Collections.emptyList();
     
-    List<String> completions = new ArrayList<>(pluginFiles);
+    List<String> completions = new ArrayList<>(exportsFiles);
     completions.addAll(backupFiles);
     
     if (Bukkit.getPluginManager().isPluginEnabled("Essentials")) {

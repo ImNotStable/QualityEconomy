@@ -62,6 +62,8 @@ public class SQLStorageType extends EasySQL implements StorageType {
       statement.executeUpdate("DROP TABLE PLAYERDATA");
       if (Configuration.areCustomCurrenciesEnabled())
         statement.executeUpdate("DROP TABLE CURRENCIES");
+      close();
+      open();
     } catch (SQLException exception) {
       new Debug.QualityError("Failed to wipe database", exception).log();
     }

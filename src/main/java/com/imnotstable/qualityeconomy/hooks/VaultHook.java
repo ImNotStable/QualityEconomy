@@ -23,15 +23,16 @@ public class VaultHook implements Economy {
   @Getter
   private static Economy economy;
   
-  public static void initVaultHook(QualityEconomy plugin) {
+  public static boolean initVaultHook(QualityEconomy plugin) {
     Bukkit.getServicesManager().register(Economy.class, new VaultHook(), plugin, ServicePriority.Highest);
     RegisteredServiceProvider<Economy> econRSP = Bukkit.getServicesManager().getRegistration(Economy.class);
     if (econRSP == null) {
       new Debug.QualityError("Failed to register economy with Vault").log();
-      return;
+      return false;
     }
     economy = econRSP.getProvider();
     Logger.log(Component.text("Successfully registered economy with Vault", NamedTextColor.GREEN));
+    return true;
   }
   
   @Override

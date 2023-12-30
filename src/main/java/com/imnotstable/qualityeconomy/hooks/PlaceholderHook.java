@@ -19,11 +19,13 @@ import java.util.UUID;
 
 public class PlaceholderHook extends PlaceholderExpansion {
   
-  public static void initPlaceholderHook() {
-    if (new PlaceholderHook().register())
+  public static boolean initPlaceholderHook() {
+    if (new PlaceholderHook().register()) {
       Logger.log(Component.text("Successfully registered expansion with PlaceholderAPI", NamedTextColor.GREEN));
-    else
+      return true;
+    } else
       Logger.log(Component.text("Failed to register expansion with PlaceholderAPI", NamedTextColor.RED));
+    return false;
   }
   
   @Override

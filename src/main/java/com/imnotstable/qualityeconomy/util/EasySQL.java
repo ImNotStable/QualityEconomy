@@ -36,6 +36,10 @@ public class EasySQL {
   
   protected EasySQL(int databaseType) {
     this.databaseType = databaseType;
+    open();
+  }
+  
+  protected void open() {
     openDataSource();
     try (Connection connection = openConnection()) {
       createTable(connection, "PLAYERDATA", "UUID CHAR(36) PRIMARY KEY, USERNAME VARCHAR(16), BALANCE FLOAT(53) NOT NULL");

@@ -89,7 +89,7 @@ public class BalanceTopCommand implements Command {
     }, sender);
   }
   
-  public void updateBalanceTop() {
+  private void updateBalanceTop() {
     Debug.Timer timer = new Debug.Timer("updateBalanceTop()");
     
     Collection<Account> accounts = AccountManager.getAllAccounts();
