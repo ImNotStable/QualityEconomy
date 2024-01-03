@@ -11,11 +11,11 @@ public class Logger {
   }
   
   public static void log(Component message) {
-    Bukkit.getConsoleSender().sendMessage(Component.text("[QualityEconomy] ").append(message));
+    Bukkit.getConsoleSender().sendMessage(Component.text().content("[QualityEconomy] ").append(message).build());
   }
   
   public static void log(String message) {
-    Bukkit.getConsoleSender().sendMessage(Component.text("[QualityEconomy] ").append(Component.text(message)));
+    log(Component.text(message));
   }
   
   public static void nl() {

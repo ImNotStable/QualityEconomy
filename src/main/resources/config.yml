@@ -3,7 +3,7 @@
 # h2
 # sqlite
 # mysql
-storage-type: sqlite
+storage-type: h2
 
 # Amount of decimal places allowed within balances
 # -1 to disable rounding

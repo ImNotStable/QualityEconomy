@@ -1,6 +1,7 @@
 package com.imnotstable.qualityeconomy.storage.accounts;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import org.bukkit.Bukkit;
@@ -11,6 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,7 +44,7 @@ public class AccountManager {
   }
   
   public static Collection<Account> getAllAccounts() {
-    return accounts.values();
+    return new HashSet<>(accounts.values());
   }
   
   public static Account getAccount(UUID uuid) {
@@ -91,10 +93,11 @@ public class AccountManager {
         Debug.Timer timer = new Debug.Timer(String.format("createFakeAccounts(%d)", entries));
         Collection<Account> accounts = new ArrayList<>();
         Random random = new Random();
+        Collection<String> currencies = Configuration.areCustomCurrenciesEnabled() ? StorageManager.getActiveStorageFormat().getCurrencies() : new ArrayList<>();
         for (int i = 0; i < entries; ++i) {
           UUID uuid = UUID.randomUUID();
           HashMap<String, Double> customBalances = new HashMap<>();
-          for (String currency : StorageManager.getActiveStorageFormat().getCurrencies()) {
+          for (String currency : currencies) {
             customBalances.put(currency, random.nextDouble(1_000_000_000_000_000.0));
           }
           accounts.add(new Account(uuid).setName(uuid.toString().split("-")[0])
@@ -115,9 +118,10 @@ public class AccountManager {
       public void run() {
         Debug.Timer timer = new Debug.Timer("changeAllAccounts()");
         Random random = new Random();
+        Collection<String> currencies = Configuration.areCustomCurrenciesEnabled() ? StorageManager.getActiveStorageFormat().getCurrencies() : new ArrayList<>();
         accounts.values().forEach(account -> {
           HashMap<String, Double> customBalances = new HashMap<>();
-          for (String currency : StorageManager.getActiveStorageFormat().getCurrencies()) {
+          for (String currency : currencies) {
             customBalances.put(currency, random.nextDouble(1_000_000_000_000_000.0));
           }
           account.setBalance(random.nextDouble(1_000_000_000_000_000.0)).setCustomBalances(customBalances);

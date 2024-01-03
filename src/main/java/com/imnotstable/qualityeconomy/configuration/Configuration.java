@@ -46,10 +46,10 @@ public class Configuration {
     storageType = configuration.getString("storage-type", "sqlite").toLowerCase();
     decimalPlaces = Math.max(configuration.getInt("decimal-places", 4), 0);
     banknotes = configuration.getBoolean("banknotes", false);
-    enabledCommands.addAll(Set.of("balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy"));
-    enabledCommands.forEach(command -> {
-      if (!configuration.getBoolean("commands." + command, Debug.DEBUG_MODE))
-        enabledCommands.remove(command);
+    enabledCommands.clear();
+    Set.of("balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy").forEach(command -> {
+      if (configuration.getBoolean("commands." + command, Debug.DEBUG_MODE))
+        enabledCommands.add(command);
     });
     customCurrencies = configuration.getBoolean("custom-currencies", false);
     if (!customCurrencies) {

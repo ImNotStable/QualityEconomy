@@ -99,7 +99,7 @@ public class BalanceTopCommand implements Command {
       .sum();
     
     orderedPlayerList = accounts.stream()
-      .sorted(Comparator.comparing(Account::getBalance).reversed())
+      .sorted(Comparator.comparingDouble(Account::getBalance).reversed())
       .toList();
     
     maxPage = (int) Math.ceil(orderedPlayerList.size() / 10.0);

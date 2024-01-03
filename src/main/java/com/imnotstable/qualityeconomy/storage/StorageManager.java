@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
@@ -101,48 +100,43 @@ public class StorageManager implements Listener {
       @Override
       public void run() {
         Debug.Timer timer = new Debug.Timer("importDatabase()");
-        String path = String.format("plugins/QualityEconomy/%s", fileName);
         AccountManager.clearAccounts();
         getActiveStorageFormat().wipeDatabase();
-        for (String currency : getActiveStorageFormat().getCurrencies())
-          getActiveStorageFormat().removeCurrency(currency);
         Collection<Account> accounts = new ArrayList<>();
         try {
-          String content = new String(Files.readAllBytes(Paths.get(path)));
-          JsonObject rootJson = JsonParser.parseString(content).getAsJsonObject();
+          String content = new String(Files.readAllBytes(Paths.get(String.format("plugins/QualityEconomy/%s", fileName))));
+          JsonObject rootJson = new Gson().fromJson(content, JsonObject.class);
           
           List<String> customCurrencies = new ArrayList<>();
           if (rootJson.get("custom-currencies") != null) {
-            JsonArray currenciesArray = rootJson.getAsJsonArray("custom-currencies");
-            for (JsonElement currencyElement : currenciesArray) {
-              String currency = currencyElement.getAsString();
+            JsonArray currenciesJSON = rootJson.getAsJsonArray("custom-currencies");
+            for (JsonElement currencyJSON : currenciesJSON) {
+              String currency = currencyJSON.getAsString();
               customCurrencies.add(currency);
               getActiveStorageFormat().addCurrency(currency);
             }
           }
-          
           rootJson.entrySet().stream()
             .filter(entry -> !entry.getKey().equalsIgnoreCase("custom-currencies"))
             .forEach(entry -> {
+              JsonObject accountJSON = entry.getValue().getAsJsonObject();
               UUID uuid = UUID.fromString(entry.getKey());
-              JsonObject accountJson = entry.getValue().getAsJsonObject();
-              String name = accountJson.get("name").getAsString();
-              double balance = accountJson.get("balance").getAsDouble();
-              boolean payable = accountJson.get("payable").getAsBoolean();
-              boolean requestable = accountJson.get("requestable").getAsBoolean();
+              String name = accountJSON.get("name").getAsString();
+              double balance = accountJSON.get("balance").getAsDouble();
+              boolean payable = accountJSON.get("payable").getAsBoolean();
+              boolean requestable = accountJSON.get("requestable").getAsBoolean();
               Map<String, Double> balanceMap = new HashMap<>();
               for (String currency : customCurrencies) {
-                balanceMap.put(currency, accountJson.get(currency).getAsDouble());
+                balanceMap.put(currency, accountJSON.get(currency).getAsDouble());
               }
               accounts.add(new Account(uuid).setName(name).setBalance(balance).setPayable(payable).setRequestable(requestable).setCustomBalances(balanceMap));
             });
           getActiveStorageFormat().createAccounts(accounts);
-          timer.progress();
+          AccountManager.setupAccounts();
         } catch (IOException exception) {
           new Debug.QualityError("Error while importing playerdata", exception).log();
         }
         timer.end();
-        AccountManager.setupAccounts();
       }
     }.runTaskAsynchronously(QualityEconomy.getInstance());
   }
@@ -183,7 +177,7 @@ public class StorageManager implements Listener {
   }
   
   @EventHandler
-  public void onPlayerJoinEvent(PlayerJoinEvent event) {
+  public void on(PlayerJoinEvent event) {
     Debug.Timer timer = new Debug.Timer("onPlayerJoinEvent()");
     AccountManager.createAccount(event.getPlayer().getUniqueId());
     timer.end();

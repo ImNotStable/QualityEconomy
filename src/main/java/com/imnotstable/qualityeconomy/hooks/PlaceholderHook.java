@@ -3,6 +3,7 @@ package com.imnotstable.qualityeconomy.hooks;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
@@ -19,7 +20,7 @@ import java.util.UUID;
 
 public class PlaceholderHook extends PlaceholderExpansion {
   
-  public static boolean initPlaceholderHook() {
+  public static boolean load() {
     if (new PlaceholderHook().register()) {
       Logger.log(Component.text("Successfully registered expansion with PlaceholderAPI", NamedTextColor.GREEN));
       return true;
@@ -95,6 +96,8 @@ public class PlaceholderHook extends PlaceholderExpansion {
         return String.valueOf(QualityEconomyAPI.getBalance(uuid));
       }
       case "cbalance" -> {
+        if (Configuration.areCustomCurrenciesEnabled())
+          return "Feature is disabled";
         UUID uuid = null;
         if (elements.length == 3) {
           if (Misc.isValidUUID(elements[2])) {

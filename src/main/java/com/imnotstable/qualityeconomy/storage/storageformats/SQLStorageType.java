@@ -56,7 +56,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
     close();
   }
   
-  public void wipeDatabase() {
+  public synchronized void wipeDatabase() {
     try (Connection connection = getConnection();
          Statement statement = connection.createStatement()) {
       statement.executeUpdate("DROP TABLE PLAYERDATA");
@@ -70,11 +70,9 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public void createAccount(Account account) {
+  public synchronized void createAccount(Account account) {
     try (Connection connection = getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(getInsertStatement())) {
-      Logger.log(getInsertStatement());
-      Logger.log(String.join(", ", columns));
       UUID uuid = account.getUUID();
       preparedStatement.setString(1, uuid.toString());
       preparedStatement.setString(2, account.getName());
@@ -83,8 +81,9 @@ public class SQLStorageType extends EasySQL implements StorageType {
         preparedStatement.setBoolean(columns.indexOf("PAYABLE") + 1, account.isPayable());
       if (Configuration.isCommandEnabled("request"))
         preparedStatement.setBoolean(columns.indexOf("REQUESTABLE") + 1, account.isRequestable());
-      for (String currency : currencies)
-        preparedStatement.setDouble(columns.indexOf(currency) + 1, account.getCustomBalance(currency));
+      if (Configuration.areCustomCurrenciesEnabled())
+        for (String currency : currencies)
+          preparedStatement.setDouble(columns.indexOf(currency) + 1, account.getCustomBalance(currency));
       int affectedRows = preparedStatement.executeUpdate();
       
       if (affectedRows == 0) {
@@ -95,7 +94,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
     }
   }
   
-  public void createAccounts(Collection<Account> accounts) {
+  public synchronized void createAccounts(Collection<Account> accounts) {
     if (accounts.isEmpty())
       return;
     
@@ -112,8 +111,9 @@ public class SQLStorageType extends EasySQL implements StorageType {
             preparedStatement.setBoolean(columns.indexOf("PAYABLE") + 1, account.isPayable());
           if (Configuration.isCommandEnabled("request"))
             preparedStatement.setBoolean(columns.indexOf("REQUESTABLE") + 1, account.isRequestable());
-          for (String currency : currencies)
-            preparedStatement.setDouble(columns.indexOf(currency) + 1, account.getCustomBalance(currency));
+          if (Configuration.areCustomCurrenciesEnabled())
+            for (String currency : currencies)
+              preparedStatement.setDouble(columns.indexOf(currency) + 1, account.getCustomBalance(currency));
           preparedStatement.addBatch();
         }
         
@@ -129,7 +129,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public Map<UUID, Account> getAllAccounts() {
+  public synchronized Map<UUID, Account> getAllAccounts() {
     Map<UUID, Account> accounts = new HashMap<>();
     
     try (Connection connection = getConnection();
@@ -137,18 +137,20 @@ public class SQLStorageType extends EasySQL implements StorageType {
       ResultSet resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
         UUID uuid = UUID.fromString(resultSet.getString("UUID"));
-        Map<String, Double> customCurrencies = new HashMap<>();
-        for (String currency : currencies) {
-          customCurrencies.put(currency, resultSet.getDouble(currency));
-        }
         Account account = new Account(uuid)
           .setName(resultSet.getString("USERNAME"))
-          .setBalance(resultSet.getDouble("BALANCE"))
-          .setCustomBalances(customCurrencies);
+          .setBalance(resultSet.getDouble("BALANCE"));
         if (Configuration.isCommandEnabled("pay"))
           account.setPayable(resultSet.getBoolean("PAYABLE"));
         if (Configuration.isCommandEnabled("request"))
           account.setRequestable(resultSet.getBoolean("REQUESTABLE"));
+        if (Configuration.areCustomCurrenciesEnabled()) {
+          Map<String, Double> customCurrencies = new HashMap<>();
+          for (String currency : currencies) {
+            customCurrencies.put(currency, resultSet.getDouble(currency));
+          }
+          account.setCustomBalances(customCurrencies);
+        }
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
@@ -158,7 +160,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public void updateAccounts(Collection<Account> accounts) {
+  public synchronized void updateAccounts(Collection<Account> accounts) {
     if (accounts.isEmpty())
       return;
     
@@ -172,9 +174,9 @@ public class SQLStorageType extends EasySQL implements StorageType {
             preparedStatement.setBoolean(columns.indexOf("PAYABLE"), account.isPayable());
           if (Configuration.isCommandEnabled("request"))
             preparedStatement.setBoolean(columns.indexOf("REQUESTABLE"), account.isRequestable());
-          for (String currency : currencies) {
-            preparedStatement.setDouble(columns.indexOf(currency), account.getCustomBalance(currency));
-          }
+          if (Configuration.areCustomCurrenciesEnabled())
+            for (String currency : currencies)
+              preparedStatement.setDouble(columns.indexOf(currency), account.getCustomBalance(currency));
           preparedStatement.setString(columns.size(), account.getUUID().toString());
           preparedStatement.addBatch();
         }

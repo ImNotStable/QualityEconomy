@@ -177,9 +177,8 @@ public class MainCommand implements Command {
   }
   
   private void exportDatabase(CommandSender sender, CommandArguments args) {
-    sender.sendMessage(Component.text("Exporting Database...", NamedTextColor.GRAY));
     StorageManager.exportDatabase("plugins/QualityEconomy/exports/");
-    sender.sendMessage(Component.text("Exported Database", NamedTextColor.GREEN));
+    sender.sendMessage(Component.text("Exporting database", NamedTextColor.GREEN));
   }
   
   private void createFakeEntries(CommandSender sender, CommandArguments args) {
