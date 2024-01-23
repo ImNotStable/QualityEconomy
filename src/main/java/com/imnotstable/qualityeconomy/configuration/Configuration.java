@@ -4,6 +4,7 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.util.Debug;
 import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +31,8 @@ public class Configuration {
   private static long balancetopInterval;
   @Getter
   private static long autoSaveAccountsInterval;
-  @Getter
-  private static List<String> MySQL;
+  private static List<String> databaseInfo;
+  private static final Map<String, String> advancedSettings = new HashMap<>();
   
   public static void load() {
     if (!file.exists())
@@ -47,10 +48,10 @@ public class Configuration {
     decimalPlaces = Math.max(configuration.getInt("decimal-places", 4), 0);
     banknotes = configuration.getBoolean("banknotes", false);
     enabledCommands.clear();
-    Set.of("balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy").forEach(command -> {
+    for (String command : new String[]{"balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy"}) {
       if (configuration.getBoolean("commands." + command, Debug.DEBUG_MODE))
         enabledCommands.add(command);
-    });
+    }
     customCurrencies = configuration.getBoolean("custom-currencies", false);
     if (!customCurrencies) {
       enabledCommands.remove("custombalance");
@@ -59,13 +60,24 @@ public class Configuration {
     backupInterval = (long) (configuration.getDouble("backup-interval", 1) * 72000);
     balancetopInterval = configuration.getInt("balancetop-inverval", 5) * 20L;
     autoSaveAccountsInterval = configuration.getInt("autosave-accounts-interval", 60) * 20L;
-    MySQL = List.of(
-      configuration.getString("MySQL.address", "localhost:3306"),
-      configuration.getString("MySQL.name", "qualityeconomy"),
-      configuration.getString("MySQL.user", "root"),
-      configuration.getString("MySQL.password", "root")
+    databaseInfo = List.of(
+      configuration.getString("database-information.database"),
+      configuration.getString("database-information.address"),
+      configuration.getString("database-information.port"),
+      configuration.getString("database-information.username"),
+      configuration.getString("database-information.password")
     );
+    advancedSettings.clear();
+    if (configuration.contains("database-information.advanced-settings"))
+      configuration.getMapList("database-information.advanced-settings").forEach(map -> {
+        String key = (String) map.get("key");
+        String value = (String) map.get("value");
+        if (key != null && value != null)
+          advancedSettings.put(key, value);
+      });
+    
   }
+  
   
   public static void update() {
     YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
@@ -94,6 +106,11 @@ public class Configuration {
   
   public static boolean areCustomCurrenciesEnabled() {
     return customCurrencies;
+  }
+  
+  public static @NotNull String getDatabaseInfo(int index, String def) {
+    String info = databaseInfo.get(index);
+    return info != null ? info : def;
   }
   
 }

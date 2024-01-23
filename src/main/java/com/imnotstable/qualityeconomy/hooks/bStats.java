@@ -21,9 +21,8 @@ public class bStats {
     metrics.addCustomChart(new SimplePie("placeholderapi_usage", () -> String.valueOf(HookManager.isPlaceholderapiEnabled())));
     metrics.addCustomChart(new AdvancedPie("other_plugins_used", () -> {
       Map<String, Integer> plugins = new HashMap<>();
-      for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+      for (Plugin plugin : Bukkit.getPluginManager().getPlugins())
         plugins.put(plugin.getName(), 1);
-      }
       return plugins;
     }));
   }

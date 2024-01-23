@@ -74,7 +74,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
         if (elements.length == 2 && elements[1].startsWith("#")) {
           try {
             int place = Integer.parseInt(elements[1].substring(1)) - 1;
-            return BalanceTopCommand.orderedPlayerList.get(place).getName();
+            return BalanceTopCommand.orderedPlayerList.get(place).getUsername();
           } catch (NumberFormatException exception) {
             new Debug.QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
           }

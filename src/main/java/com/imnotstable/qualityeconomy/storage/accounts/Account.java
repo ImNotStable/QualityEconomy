@@ -10,7 +10,7 @@ import java.util.UUID;
 public class Account {
   private final UUID uuid;
   private final Map<String, Double> otherBalances = new HashMap<>();
-  private @Getter String name = "";
+  private @Getter String username = "";
   private double balance = 0.0;
   private @Getter boolean isPayable = true;
   private @Getter boolean isRequestable = false;
@@ -23,8 +23,8 @@ public class Account {
     return uuid;
   }
   
-  public Account setName(String name) {
-    this.name = name;
+  public Account setUsername(String username) {
+    this.username = username;
     return this;
   }
   

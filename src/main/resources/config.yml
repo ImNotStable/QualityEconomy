@@ -1,8 +1,6 @@
 # This is the storage type the plugin will use
 # Choose one of the options below
-# h2
-# sqlite
-# mysql
+# h2, sqlite, mysql, mariadb
 storage-type: h2
 
 # Amount of decimal places allowed within balances
@@ -35,8 +33,12 @@ backup-interval: 1
 balancetop-interval: 5
 autosave-accounts-interval: 60
 
-MySQL:
-  name: qualityeconomy
-  host: localhost:3306
-  user: root
-  password: root
+database-information:
+  database: database-name
+  address: localhost
+  port: 0
+  username: username
+  password: password
+# This is used for datasource properties (Only use if knowledgeable)
+#  advanced-settings:
+#    property: value

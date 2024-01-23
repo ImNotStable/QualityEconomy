@@ -1,6 +1,7 @@
-package com.imnotstable.qualityeconomy.util;
+package com.imnotstable.qualityeconomy.util.storage;
 
 import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.util.Debug;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
@@ -14,17 +15,19 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EasySQL {
+public class EasySQL extends EasyCurrencies {
   
-  public static final int H2 = 1;
-  public static final int SQLITE = 2;
-  public static final int MYSQL = 3;
+  private static final int H2 = 1;
+  private static final int SQLITE = 2;
+  private static final int MYSQL = 3;
+  private static final int MARIADB = 4;
   
   static {
     try {
       DriverManager.registerDriver(new org.h2.Driver());
+      DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to load H2 Driver", exception).log();
+      new Debug.QualityError("Failed to load JBDC Drivers", exception).log();
     }
   }
   
@@ -37,6 +40,10 @@ public class EasySQL {
   protected EasySQL(int databaseType) {
     this.databaseType = databaseType;
     open();
+  }
+  
+  protected Connection getConnection() throws SQLException {
+    return dataSource.getConnection();
   }
   
   protected void open() {
@@ -71,29 +78,27 @@ public class EasySQL {
         hikariConfig.setPassword("");
       }
       case SQLITE -> hikariConfig.setJdbcUrl("jdbc:sqlite:plugins/QualityEconomy/playerdata.db");
-      case MYSQL -> {
-        String address = Configuration.getMySQL().get(0);
-        String name = Configuration.getMySQL().get(1);
-        String user = Configuration.getMySQL().get(2);
-        String password = Configuration.getMySQL().get(3);
-        hikariConfig.setJdbcUrl(String.format("jdbc:mysql://%s/%s", address, name));
-        hikariConfig.setUsername(user);
-        hikariConfig.setPassword(password);
-        hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
-        hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
-        hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-      }
+      case MYSQL -> setupDatasource(hikariConfig, "mysql");
+      case MARIADB -> setupDatasource(hikariConfig, "mariadb");
+      
       default -> {
         new Debug.QualityError("Invalid database type: " + databaseType).log();
         return;
       }
     }
-    hikariConfig.setMaximumPoolSize(10);
-    hikariConfig.setMinimumIdle(5);
-    hikariConfig.setConnectionTimeout(60000);
-    hikariConfig.setMaxLifetime(1800000);
     hikariConfig.setPoolName("QualityEconomyPool");
     dataSource = new HikariDataSource(hikariConfig);
+  }
+  
+  private void setupDatasource(HikariConfig hikariConfig, String type) {
+    String database = Configuration.getDatabaseInfo(0, "qualityeconomy");
+    String address = Configuration.getDatabaseInfo(1, "localhost");
+    String port = Configuration.getDatabaseInfo(2, "3306");
+    String username = Configuration.getDatabaseInfo(3, "root");
+    String password = Configuration.getDatabaseInfo(4, "root");
+    hikariConfig.setJdbcUrl(String.format("jdbc:%s://%s:%s/%s", type, address, port, database));
+    hikariConfig.setUsername(username);
+    hikariConfig.setPassword(password);
   }
   
   private Connection openConnection() throws SQLException {

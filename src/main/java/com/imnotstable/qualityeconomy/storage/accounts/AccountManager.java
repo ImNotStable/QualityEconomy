@@ -24,20 +24,21 @@ public class AccountManager {
   
   public static Account createAccount(UUID uuid) {
     Debug.Timer timer = new Debug.Timer("createAccount()");
-    Account account;
-    if (!accountExists(uuid)) {
-      account = new Account(uuid);
-      StorageManager.getActiveStorageFormat().createAccount(account);
-    } else
-      account = getAccount(uuid);
+    String username = "";
     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
     if (offlinePlayer.hasPlayedBefore() || offlinePlayer.isOnline())
-      account.setName(offlinePlayer.getName());
+      username = offlinePlayer.getName();
     else {
       Entity entity = Bukkit.getEntity(uuid);
       if (entity != null)
-        account.setName(entity.getName());
+        username = entity.getName();
     }
+    Account account;
+    if (!accountExists(uuid)) {
+      account = new Account(uuid).setUsername(username);
+      StorageManager.getActiveStorageFormat().createAccount(account);
+    } else
+      account = getAccount(uuid).setUsername(username);
     accounts.put(uuid, account);
     timer.end();
     return account;
@@ -68,10 +69,15 @@ public class AccountManager {
   }
   
   public static void setupAccounts() {
-    Debug.Timer timer = new Debug.Timer("setupAccounts()");
-    clearAccounts();
-    accounts.putAll(StorageManager.getActiveStorageFormat().getAllAccounts());
-    timer.end();
+    new BukkitRunnable() {
+      @Override
+        public void run() {
+        Debug.Timer timer = new Debug.Timer("setupAccounts()");
+        clearAccounts();
+        accounts.putAll(StorageManager.getActiveStorageFormat().getAllAccounts());
+        timer.end();
+      }
+    }.runTaskAsynchronously(QualityEconomy.getInstance());
   }
   
   public static void saveAllAccounts() {
@@ -100,7 +106,7 @@ public class AccountManager {
           for (String currency : currencies) {
             customBalances.put(currency, random.nextDouble(1_000_000_000_000_000.0));
           }
-          accounts.add(new Account(uuid).setName(uuid.toString().split("-")[0])
+          accounts.add(new Account(uuid).setUsername(uuid.toString().split("-")[0])
             .setBalance(random.nextDouble(1_000_000_000_000_000.0))
             .setCustomBalances(customBalances).setPayable(false)
           );

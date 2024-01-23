@@ -6,7 +6,7 @@
 
     <groupId>com.imnotstable</groupId>
     <artifactId>QualityEconomy</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
     <packaging>jar</packaging>
 
     <name>QualityEconomy</name>
@@ -56,11 +56,11 @@
                     <relocations>
                         <relocation>
                             <pattern>dev.jorel.commandapi</pattern>
-                            <shadedPattern>com.imnotstable.qualityeconomy</shadedPattern>
+                            <shadedPattern>com.imnotstable.qualityeconomy.commandapi</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>com.imnotstable.qualityeconomy</shadedPattern>
+                            <shadedPattern>com.imnotstable.qualityeconomy.bstats</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>
@@ -140,12 +140,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.2.224</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.30</version>
@@ -155,6 +149,31 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>5.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.224</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>3.3.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>4.11.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>5.2.0-alpha2</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

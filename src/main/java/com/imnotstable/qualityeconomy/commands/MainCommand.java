@@ -118,7 +118,7 @@ public class MainCommand implements Command {
   
   private void executeDatabase(ConsoleCommandSender sender, CommandArguments args) {
     String sql = (String) args.get("statement");
-    try (Connection connection = StorageManager.getActiveStorageFormat().getConnection();
+    try (Connection connection = null;
          Statement statement = connection.createStatement()) {
       if (statement.execute(sql))
         sender.sendMessage(Component.text().append(
@@ -165,7 +165,7 @@ public class MainCommand implements Command {
               UUID uuid = UUID.fromString(userfile.getName().split("\\.")[0]);
               String username = user.getString("last-account-name");
               double balance = Double.parseDouble(user.getString("money"));
-              accounts.add(new Account(uuid).setName(username).setBalance(balance));
+              accounts.add(new Account(uuid).setUsername(username).setBalance(balance));
             }
           }
           StorageManager.getActiveStorageFormat().wipeDatabase();

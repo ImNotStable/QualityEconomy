@@ -8,7 +8,10 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
+import com.imnotstable.qualityeconomy.storage.storageformats.MongoStorageType;
+import com.imnotstable.qualityeconomy.storage.storageformats.RedisStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageType;
+import com.imnotstable.qualityeconomy.storage.storageformats.SingleJsonStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.util.Debug;
 import org.bukkit.Bukkit;
@@ -48,6 +51,10 @@ public class StorageManager implements Listener {
       case "h2" -> activeStorageType = new SQLStorageType(1);
       case "sqlite" -> activeStorageType = new SQLStorageType(2);
       case "mysql" -> activeStorageType = new SQLStorageType(3);
+      case "mariadb" -> activeStorageType = new SQLStorageType(4);
+      case "mongodb" -> activeStorageType = new MongoStorageType();
+      case "redis" -> activeStorageType = new RedisStorageType();
+      case "singlejson" -> activeStorageType = new SingleJsonStorageType();
       default -> {
         new Debug.QualityError("Unexpected Storage Type: " + Configuration.getStorageType()).log();
         timer.interrupt();
@@ -108,8 +115,8 @@ public class StorageManager implements Listener {
           JsonObject rootJson = new Gson().fromJson(content, JsonObject.class);
           
           List<String> customCurrencies = new ArrayList<>();
-          if (rootJson.get("custom-currencies") != null) {
-            JsonArray currenciesJSON = rootJson.getAsJsonArray("custom-currencies");
+          if (rootJson.has("CUSTOM-CURRENCIES")) {
+            JsonArray currenciesJSON = rootJson.getAsJsonArray("CUSTOM-CURRENCIES");
             for (JsonElement currencyJSON : currenciesJSON) {
               String currency = currencyJSON.getAsString();
               customCurrencies.add(currency);
@@ -117,19 +124,19 @@ public class StorageManager implements Listener {
             }
           }
           rootJson.entrySet().stream()
-            .filter(entry -> !entry.getKey().equalsIgnoreCase("custom-currencies"))
+            .filter(entry -> !entry.getKey().equals("CUSTOM-CURRENCIES"))
             .forEach(entry -> {
               JsonObject accountJSON = entry.getValue().getAsJsonObject();
               UUID uuid = UUID.fromString(entry.getKey());
-              String name = accountJSON.get("name").getAsString();
-              double balance = accountJSON.get("balance").getAsDouble();
-              boolean payable = accountJSON.get("payable").getAsBoolean();
-              boolean requestable = accountJSON.get("requestable").getAsBoolean();
+              String name = accountJSON.get("NAME").getAsString();
+              double balance = accountJSON.get("BALANCE").getAsDouble();
+              boolean payable = accountJSON.get("PAYABLE").getAsBoolean();
+              boolean requestable = accountJSON.get("REQUESTABLE").getAsBoolean();
               Map<String, Double> balanceMap = new HashMap<>();
               for (String currency : customCurrencies) {
                 balanceMap.put(currency, accountJSON.get(currency).getAsDouble());
               }
-              accounts.add(new Account(uuid).setName(name).setBalance(balance).setPayable(payable).setRequestable(requestable).setCustomBalances(balanceMap));
+              accounts.add(new Account(uuid).setUsername(name).setBalance(balance).setPayable(payable).setRequestable(requestable).setCustomBalances(balanceMap));
             });
           getActiveStorageFormat().createAccounts(accounts);
           AccountManager.setupAccounts();
@@ -147,27 +154,27 @@ public class StorageManager implements Listener {
       public void run() {
         Debug.Timer timer = new Debug.Timer("exportDatabase()");
         AccountManager.saveAllAccounts();
-        File directory = new File(path);
-        if (!directory.exists() || !directory.isDirectory())
-          if (!directory.mkdir()) {
-            new Debug.QualityError("Failed to create directory for database export", "Path: " + directory.getPath()).log();
+        File dir = new File(path);
+        if (!dir.exists() || !dir.isDirectory())
+          if (!dir.mkdir()) {
+            new Debug.QualityError("Failed to create directory \"" + path + "\"").log();
             return;
           }
         Gson gson = new Gson();
         JsonObject root = new JsonObject();
-        root.add("custom-currencies", gson.toJsonTree(getActiveStorageFormat().getCurrencies()));
+        root.add("CUSTOM-CURRENCIES", gson.toJsonTree(getActiveStorageFormat().getCurrencies()));
         getActiveStorageFormat().getAllAccounts().forEach((uuid, account) -> {
           JsonObject accountJson = new JsonObject();
-          accountJson.addProperty("name", account.getName());
-          accountJson.addProperty("balance", account.getBalance());
-          accountJson.addProperty("payable", account.isPayable());
-          accountJson.addProperty("requestable", account.isRequestable());
+          accountJson.addProperty("NAME", account.getUsername());
+          accountJson.addProperty("BALANCE", account.getBalance());
+          accountJson.addProperty("PAYABLE", account.isPayable());
+          accountJson.addProperty("REQUESTABLE", account.isRequestable());
           account.getCustomBalances().forEach(accountJson::addProperty);
           root.add(uuid.toString(), accountJson);
         });
         File file = new File(String.format("%sQualityEconomy %s.json", path, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH-mm"))));
-        try (FileWriter fileWriter = new FileWriter(file)) {
-          fileWriter.write(gson.toJson(root));
+        try (FileWriter writer = new FileWriter(file)) {
+          writer.write(gson.toJson(root));
         } catch (IOException exception) {
           new Debug.QualityError("Error while exporting database", exception).log();
         }
