@@ -8,6 +8,7 @@ import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.storage.EasySQL;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -61,7 +62,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public synchronized void createAccount(Account account) {
+  public synchronized void createAccount(@NotNull Account account) {
     try (Connection connection = getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(getInsertStatement())) {
       UUID uuid = account.getUUID();
@@ -86,7 +87,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public synchronized void createAccounts(Collection<Account> accounts) {
+  public synchronized void createAccounts(@NotNull Collection<Account> accounts) {
     if (accounts.isEmpty())
       return;
     
@@ -152,7 +153,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public synchronized void updateAccounts(Collection<Account> accounts) {
+  public synchronized void updateAccounts(@NotNull Collection<Account> accounts) {
     if (accounts.isEmpty())
       return;
     
@@ -184,16 +185,14 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public void addCurrency(String currency) {
-    currency = super.addCurrencyAttempt(currency);
-    if (currency == null)
-      return;
+  public void addCurrency(@NotNull String currency) {
+    currency = addCurrencyAttempt(currency);
     try (Connection connection = getConnection()) {
       try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO CURRENCIES(CURRENCY) VALUES(?)")) {
         preparedStatement.setString(1, currency);
         preparedStatement.executeUpdate();
         addColumn(connection, currency, "FLOAT(53)", "0.0");
-        super.addCurrencySuccess(currency);
+        addCurrencySuccess(currency);
       } catch (SQLException exception) {
         new Debug.QualityError("Failed to add currency to database (" + currency + ")", exception).log();
         connection.rollback();
@@ -204,16 +203,14 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public void removeCurrency(String currency) {
-    currency = super.removeCurrencyAttempt(currency);
-    if (currency == null)
-      return;
+  public void removeCurrency(@NotNull String currency) {
+    currency = removeCurrencyAttempt(currency);
     try (Connection connection = getConnection()) {
       try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM CURRENCIES WHERE CURRENCY = ?")) {
         preparedStatement.setString(1, currency);
         preparedStatement.executeUpdate();
         dropColumn(connection, currency);
-        super.removeCurrencySuccess(currency);
+        removeCurrencySuccess(currency);
       } catch (SQLException exception) {
         new Debug.QualityError("Failed to remove currency from database (" + currency + ")", exception).log();
         connection.rollback();

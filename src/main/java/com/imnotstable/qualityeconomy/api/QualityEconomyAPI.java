@@ -1,9 +1,11 @@
 package com.imnotstable.qualityeconomy.api;
 
+import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
@@ -26,7 +28,7 @@ public class QualityEconomyAPI {
   }
   
   public static void setBalance(@NotNull UUID uuid, double amount) {
-    AccountManager.updateAccount(AccountManager.getAccount(uuid).setBalance(amount));
+    AccountManager.updateAccount(getAccount(uuid).setBalance(amount));
   }
   
   public static void addBalance(@NotNull UUID uuid, double amount) {
@@ -47,11 +49,11 @@ public class QualityEconomyAPI {
   }
   
   public static double getCustomBalance(@NotNull UUID uuid, @NotNull String currency) {
-    return AccountManager.getAccount(uuid).getCustomBalance(currency);
+    return getAccount(uuid).getCustomBalance(currency);
   }
   
   public static void setCustomBalance(@NotNull UUID uuid, @NotNull String currency, double amount) {
-    AccountManager.updateAccount(AccountManager.getAccount(uuid).setCustomBalance(currency, amount));
+    AccountManager.updateAccount(getAccount(uuid).setCustomBalance(currency, amount));
   }
   
   public static void addCustomBalance(@NotNull UUID uuid, @NotNull String currency, double amount) {
@@ -72,19 +74,31 @@ public class QualityEconomyAPI {
   }
   
   public static void setPayable(@NotNull UUID uuid, boolean isPayable) {
-    AccountManager.getAccount(uuid).setPayable(isPayable);
+    getAccount(uuid).setPayable(isPayable);
   }
   
   public static boolean isPayable(@NotNull UUID uuid) {
-    return AccountManager.getAccount(uuid).isPayable();
+    return getAccount(uuid).isPayable();
   }
   
   public static void setRequestable(@NotNull UUID uuid, boolean isPayable) {
-    AccountManager.getAccount(uuid).setRequestable(isPayable);
+    getAccount(uuid).setRequestable(isPayable);
   }
   
   public static boolean isRequestable(@NotNull UUID uuid) {
-    return AccountManager.getAccount(uuid).isRequestable();
+    return getAccount(uuid).isRequestable();
+  }
+  
+  public static void createCustomCurrency(@NotNull String currency) {
+    StorageManager.getActiveStorageFormat().addCurrency(currency);
+  }
+  
+  public static void deleteCustomCurrency(@NotNull String currency) {
+    StorageManager.getActiveStorageFormat().removeCurrency(currency);
+  }
+  
+  public static List<String> getCustomCurrencies() {
+    return StorageManager.getActiveStorageFormat().getCurrencies();
   }
   
 }

@@ -83,7 +83,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
       case "balance" -> {
         UUID uuid = null;
         if (elements.length == 2) {
-          if (Misc.isValidUUID(elements[1])) {
+          if (Misc.isUUID(elements[1])) {
             uuid = UUID.fromString(elements[1]);
           } else {
             uuid = Bukkit.getOfflinePlayer(elements[1]).getUniqueId();
@@ -100,7 +100,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
           return "Feature is disabled";
         UUID uuid = null;
         if (elements.length == 3) {
-          if (Misc.isValidUUID(elements[2])) {
+          if (Misc.isUUID(elements[2])) {
             uuid = UUID.fromString(elements[2]);
           } else {
             uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();
@@ -117,7 +117,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
       case "isPayable" -> {
         UUID uuid = null;
         if (elements.length == 2) {
-          if (Misc.isValidUUID(elements[1])) {
+          if (Misc.isUUID(elements[1])) {
             uuid = UUID.fromString(elements[1]);
           } else {
             uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();
@@ -132,7 +132,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
       case "isRequestable" -> {
         UUID uuid = null;
         if (elements.length == 2) {
-          if (Misc.isValidUUID(elements[1])) {
+          if (Misc.isUUID(elements[1])) {
             uuid = UUID.fromString(elements[1]);
           } else {
             uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();

@@ -7,8 +7,8 @@ import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.util.Debug;
-import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.storage.EasyJson;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -56,19 +56,19 @@ public class JsonStorageType extends EasyJson implements StorageType {
   }
   
   @Override
-  public void createAccount(Account account) {
+  public void createAccount(@NotNull Account account) {
     json.add(String.valueOf(account.getUUID()), serialize(account));
     save();
   }
   
   @Override
-  public void createAccounts(Collection<Account> accounts) {
+  public void createAccounts(@NotNull Collection<Account> accounts) {
     accounts.forEach(account -> json.add(String.valueOf(account.getUUID()), serialize(account)));
     save();
   }
   
   @Override
-  public void updateAccounts(Collection<Account> accounts) {
+  public void updateAccounts(@NotNull Collection<Account> accounts) {
     accounts.forEach(account -> json.add(String.valueOf(account.getUUID()), serialize(account)));
     save();
   }
@@ -77,7 +77,7 @@ public class JsonStorageType extends EasyJson implements StorageType {
   public Map<UUID, Account> getAllAccounts() {
     HashMap<UUID, Account> accounts = new HashMap<>();
     for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-      if (!Misc.isValidUUID(entry.getKey()))
+      if (!entry.getKey().equals("custom-currencies"))
         continue;
       UUID uuid = UUID.fromString(entry.getKey());
       JsonObject accountJson = entry.getValue().getAsJsonObject();
@@ -97,28 +97,24 @@ public class JsonStorageType extends EasyJson implements StorageType {
   }
   
   @Override
-  public void addCurrency(String currency) {
-    currency = super.addCurrencyAttempt(currency);
-    if (currency == null)
-      return;
+  public void addCurrency(@NotNull String currency) {
+    currency = addCurrencyAttempt(currency);
     JsonArray currencies = json.getAsJsonArray("custom-currencies");
     if (currencies == null || currencies.isEmpty())
       currencies = new JsonArray();
     currencies.add(currency);
     json.add("custom-currencies", currencies);
-    super.addCurrencySuccess(currency);
+    addCurrencySuccess(currency);
     save();
   }
   
   @Override
-  public void removeCurrency(String currency) {
-    currency = super.removeCurrencyAttempt(currency);
-    if (currency == null)
-      return;
+  public void removeCurrency(@NotNull String currency) {
+    currency = removeCurrencyAttempt(currency);
     JsonArray currencies = json.getAsJsonArray("custom-currencies");
     currencies.remove(new Gson().toJsonTree(currency));
     json.add("custom-currencies", currencies);
-    super.removeCurrencySuccess(currency);
+    removeCurrencySuccess(currency);
     save();
   }
   

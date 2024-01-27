@@ -5,6 +5,7 @@ import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.storage.EasyYaml;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -48,19 +49,19 @@ public class YamlStorageType extends EasyYaml implements StorageType {
   }
   
   @Override
-  public void createAccount(Account account) {
+  public void createAccount(@NotNull Account account) {
     setAccount(account);
     save();
   }
   
   @Override
-  public void createAccounts(Collection<Account> accounts) {
+  public void createAccounts(@NotNull Collection<Account> accounts) {
     accounts.forEach(this::createAccount);
     save();
   }
   
   @Override
-  public void updateAccounts(Collection<Account> accounts) {
+  public void updateAccounts(@NotNull Collection<Account> accounts) {
     accounts.forEach(this::createAccount);
     save();
   }
@@ -68,7 +69,9 @@ public class YamlStorageType extends EasyYaml implements StorageType {
   @Override
   public Map<UUID, Account> getAllAccounts() {
     Map<UUID, Account> accounts = new HashMap<>();
-    yaml.getKeys(false).forEach(uuid -> {
+    for (String uuid : yaml.getKeys(false)) {
+      if (!uuid.equals("custom-currencies"))
+        continue;
       Account account = new Account(UUID.fromString(uuid));
       account.setUsername(yaml.getString(uuid + ".USERNAME"));
       account.setBalance(yaml.getDouble(uuid + ".BALANCE"));
@@ -80,31 +83,27 @@ public class YamlStorageType extends EasyYaml implements StorageType {
         for (String currency : getCurrencies())
           account.setCustomBalance(currency, yaml.getDouble(uuid + "." + currency));
       accounts.put(account.getUUID(), account);
-    });
+    }
     return accounts;
   }
   
   @Override
-  public void addCurrency(String currency) {
-    currency = super.addCurrencyAttempt(currency);
-    if (currency == null)
-      return;
+  public void addCurrency(@NotNull String currency) {
+    currency = addCurrencyAttempt(currency);
     List<String> currencies = yaml.getStringList("custom-currencies");
     currencies.add(currency);
     yaml.set("custom-currencies", currencies);
-    super.addCurrencySuccess(currency);
+    addCurrencySuccess(currency);
     save();
   }
   
   @Override
-  public void removeCurrency(String currency) {
-    currency = super.removeCurrencyAttempt(currency);
-    if (currency == null)
-      return;
+  public void removeCurrency(@NotNull String currency) {
+    currency = removeCurrencyAttempt(currency);
     List<String> currencies = yaml.getStringList("custom-currencies");
     currencies.remove(currency);
     yaml.set("custom-currencies", currencies);
-    super.removeCurrencySuccess(currency);
+    removeCurrencySuccess(currency);
     save();
   }
   

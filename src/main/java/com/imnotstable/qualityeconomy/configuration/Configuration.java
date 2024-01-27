@@ -77,7 +77,6 @@ public class Configuration {
     
   }
   
-  
   public static void update() {
     YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
     Map<String, Object> values = new HashMap<>();

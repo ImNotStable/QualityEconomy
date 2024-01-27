@@ -14,6 +14,7 @@ import com.mongodb.client.model.WriteModel;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,14 +63,14 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   }
   
   @Override
-  public synchronized void createAccount(Account account) {
+  public synchronized void createAccount(@NotNull Account account) {
     Document document = createDocument(account);
     if (!playerdata.insertOne(document).wasAcknowledged())
       new Debug.QualityError("Failed to create account (" + account.getUUID() + ")").log();
   }
   
   @Override
-  public synchronized void createAccounts(Collection<Account> accounts) {
+  public synchronized void createAccounts(@NotNull Collection<Account> accounts) {
     List<Document> documents = new ArrayList<>();
     accounts.forEach(account -> documents.add(createDocument(account)));
     if (!playerdata.insertMany(documents).wasAcknowledged())
@@ -77,7 +78,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   }
   
   @Override
-  public synchronized void updateAccounts(Collection<Account> accounts) {
+  public synchronized void updateAccounts(@NotNull Collection<Account> accounts) {
     List<WriteModel<Document>> updates = new ArrayList<>();
     
     for (Account account : accounts) {
@@ -119,8 +120,8 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   }
   
   @Override
-  public void addCurrency(String currency) {
-    currency = super.addCurrencyAttempt(currency);
+  public void addCurrency(@NotNull String currency) {
+    currency = addCurrencyAttempt(currency);
     if (currency == null)
       return;
     if (customCurrencies == null) {
@@ -131,8 +132,8 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   }
   
   @Override
-  public void removeCurrency(String currency) {
-    currency = super.removeCurrencyAttempt(currency);
+  public void removeCurrency(@NotNull String currency) {
+    currency = removeCurrencyAttempt(currency);
     if (currency == null)
       return;
     if (customCurrencies == null) {

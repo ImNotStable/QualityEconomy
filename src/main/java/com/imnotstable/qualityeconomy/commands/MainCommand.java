@@ -158,7 +158,7 @@ public class MainCommand implements Command {
           Debug.Timer timer = new Debug.Timer("transferPluginData()");
           Collection<Account> accounts = new ArrayList<>();
           if (plugin.equals("Essentials")) {
-            File[] userdata = new File("plugins/Essentials/userdata").listFiles((dir, name) -> Misc.isValidUUID(name.split("\\.")[0]));
+            File[] userdata = new File("plugins/Essentials/userdata").listFiles((dir, name) -> Misc.isUUID(name.split("\\.")[0]));
             if (userdata == null || userdata.length == 0) return;
             for (File userfile : userdata) {
               YamlConfiguration user = YamlConfiguration.loadConfiguration(userfile);

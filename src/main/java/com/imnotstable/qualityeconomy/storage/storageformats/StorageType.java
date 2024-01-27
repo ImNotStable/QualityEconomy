@@ -1,6 +1,7 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,18 +16,18 @@ public interface StorageType {
   
   void wipeDatabase();
   
-  void createAccount(Account account);
+  void createAccount(@NotNull Account account);
   
-  void createAccounts(Collection<Account> accounts);
+  void createAccounts(@NotNull Collection<Account> accounts);
   
-  void updateAccounts(Collection<Account> accounts);
+  void updateAccounts(@NotNull Collection<Account> accounts);
   
   Map<UUID, Account> getAllAccounts();
   
   List<String> getCurrencies();
   
-  void addCurrency(String currency);
+  void addCurrency(@NotNull String currency);
   
-  void removeCurrency(String currency);
+  void removeCurrency(@NotNull String currency);
   
 }
