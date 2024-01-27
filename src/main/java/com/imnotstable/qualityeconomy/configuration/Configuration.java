@@ -48,10 +48,9 @@ public class Configuration {
     decimalPlaces = Math.max(configuration.getInt("decimal-places", 4), 0);
     banknotes = configuration.getBoolean("banknotes", false);
     enabledCommands.clear();
-    for (String command : new String[]{"balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy"}) {
+    for (String command : new String[]{"balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy"})
       if (configuration.getBoolean("commands." + command, Debug.DEBUG_MODE))
         enabledCommands.add(command);
-    }
     customCurrencies = configuration.getBoolean("custom-currencies", false);
     if (!customCurrencies) {
       enabledCommands.remove("custombalance");

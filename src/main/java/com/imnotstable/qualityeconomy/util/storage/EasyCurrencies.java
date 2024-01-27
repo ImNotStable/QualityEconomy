@@ -11,7 +11,7 @@ public class EasyCurrencies {
   
   protected final List<String> currencies = new ArrayList<>();
   
-  protected List<String> getCurrencies() {
+  public List<String> getCurrencies() {
     if (!Configuration.areCustomCurrenciesEnabled()) {
       new Debug.QualityError("This feature is disabled within QualityEconomy's configuration").log();
       return new ArrayList<>();

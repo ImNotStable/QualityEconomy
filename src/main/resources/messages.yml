@@ -17,7 +17,7 @@ pay:
   send: "<gray>Sent <yellow>$<amount> <gray>to <yellow><receiver>"
   receive: "<gray>Received <yellow>$<amount> <gray>from <yellow><sender>"
 withdraw:
-  withdraw: "<gray>You withdrew <yellow>$<amount>"
+  message: "<gray>You withdrew <yellow>$<amount>"
 request:
   toggle-on: "<gray>Requests are now <green>enabled <gray>from other players"
   toggle-off: "<gray>Requests are now <red>disabled <gray>from other players"

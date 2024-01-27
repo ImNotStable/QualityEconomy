@@ -191,7 +191,7 @@ public class MainCommand implements Command {
   }
   
   private void createCustomCurrency(CommandSender sender, CommandArguments args) {
-    String currency = (String) args.get("name");
+    String currency = args.get("name").toString().toUpperCase();
     if (StorageManager.getActiveStorageFormat().getCurrencies().contains(currency)) {
       sender.sendMessage(Component.text("That currency already exists", NamedTextColor.RED));
       return;
@@ -201,7 +201,7 @@ public class MainCommand implements Command {
   }
   
   private void deleteCustomCurrency(CommandSender sender, CommandArguments args) {
-    String currency = (String) args.get("name");
+    String currency = args.get("name").toString().toUpperCase();
     if (!StorageManager.getActiveStorageFormat().getCurrencies().contains(currency)) {
       sender.sendMessage(Component.text("That currency does not exist", NamedTextColor.RED));
       return;

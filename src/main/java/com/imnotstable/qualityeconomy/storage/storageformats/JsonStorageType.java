@@ -8,29 +8,31 @@ import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Misc;
-import com.imnotstable.qualityeconomy.util.storage.EasySingleJson;
+import com.imnotstable.qualityeconomy.util.storage.EasyJson;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class SingleJsonStorageType extends EasySingleJson implements StorageType {
+public class JsonStorageType extends EasyJson implements StorageType {
   
   @Override
   public boolean initStorageProcesses() {
     if (json != null) return false;
     try {
       if (!file.exists()) {
-        file.createNewFile();
+        if (!file.createNewFile())
+          return false;
         json = new JsonObject();
-      } else
+      } else {
         try (FileReader reader = new FileReader(file)) {
           json = new Gson().fromJson(reader, JsonObject.class);
         }
+      }
+      json.getAsJsonArray("custom-currencies").forEach(currency -> currencies.add(currency.getAsString()));
     } catch (IOException exception) {
       new Debug.QualityError("Failed to initiate storage processes", exception).log();
       return false;
@@ -95,19 +97,17 @@ public class SingleJsonStorageType extends EasySingleJson implements StorageType
   }
   
   @Override
-  public List<String> getCurrencies() {
-    return super.getCurrencies();
-  }
-  
-  @Override
   public void addCurrency(String currency) {
     currency = super.addCurrencyAttempt(currency);
     if (currency == null)
       return;
     JsonArray currencies = json.getAsJsonArray("custom-currencies");
-    currencies.add(currencies);
+    if (currencies == null || currencies.isEmpty())
+      currencies = new JsonArray();
+    currencies.add(currency);
     json.add("custom-currencies", currencies);
     super.addCurrencySuccess(currency);
+    save();
   }
   
   @Override
@@ -116,9 +116,10 @@ public class SingleJsonStorageType extends EasySingleJson implements StorageType
     if (currency == null)
       return;
     JsonArray currencies = json.getAsJsonArray("custom-currencies");
-    currencies.remove(currencies);
+    currencies.remove(new Gson().toJsonTree(currency));
     json.add("custom-currencies", currencies);
     super.removeCurrencySuccess(currency);
+    save();
   }
   
 }

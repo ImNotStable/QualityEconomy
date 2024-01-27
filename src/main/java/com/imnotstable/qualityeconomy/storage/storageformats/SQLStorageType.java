@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,9 +32,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
       return false;
     try (Connection connection = getConnection()) {
       toggleCurrencyTable(connection);
-      toggleCurrencyColumns(connection);
-      togglePayableColumn(connection);
-      toggleRequestableColumn(connection);
+      toggleColumns(connection);
     } catch (SQLException exception) {
       new Debug.QualityError("Error while initiating storage processes", exception).log();
       return false;
@@ -187,11 +184,6 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public List<String> getCurrencies() {
-    return super.getCurrencies();
-  }
-  
-  @Override
   public void addCurrency(String currency) {
     currency = super.addCurrencyAttempt(currency);
     if (currency == null)
@@ -200,7 +192,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
       try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO CURRENCIES(CURRENCY) VALUES(?)")) {
         preparedStatement.setString(1, currency);
         preparedStatement.executeUpdate();
-        addColumn(connection, currency, "FLOAT(53) NOT NULL DEFAULT 0.0");
+        addColumn(connection, currency, "FLOAT(53)", "0.0");
         super.addCurrencySuccess(currency);
       } catch (SQLException exception) {
         new Debug.QualityError("Failed to add currency to database (" + currency + ")", exception).log();
@@ -232,11 +224,11 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   private void toggleCurrencyTable(Connection connection) throws SQLException {
-    boolean tableExists = tableExists(getMetaData(connection), "CURRENCIES");
+    boolean tableExists = currencyTableExists(getMetaData(connection));
     if (Configuration.areCustomCurrenciesEnabled() && !tableExists)
-      createTable(connection, "CURRENCIES", "CURRENCY VARCHAR(255) PRIMARY KEY");
+      createCurrencyTable(connection);
     else if (!Configuration.areCustomCurrenciesEnabled() && tableExists)
-      dropTable(connection, "CURRENCIES");
+      dropCurrencyTable(connection);
     
     if (tableExists) {
       try (ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM CURRENCIES")) {
@@ -250,34 +242,27 @@ public class SQLStorageType extends EasySQL implements StorageType {
     }
   }
   
-  private void toggleCurrencyColumns(Connection connection) throws SQLException {
+  private void toggleColumns(Connection connection) throws SQLException {
     DatabaseMetaData metaData = getMetaData(connection);
-    if (Configuration.areCustomCurrenciesEnabled())
-      for (String currency : currencies) {
+    if (Configuration.areCustomCurrenciesEnabled()) {
+      for (String currency : currencies)
         if (!columnExists(metaData, currency))
-          addColumn(connection, currency, "FLOAT(53) NOT NULL DEFAULT 0.0");
-      }
+          addColumn(connection, currency, "FLOAT(53)", "0.0");
+    }
     else {
-      for (String currency : currencies) {
+      for (String currency : currencies)
         if (columnExists(metaData, currency))
           dropColumn(connection, currency);
-      }
     }
-  }
-  
-  private void togglePayableColumn(Connection connection) throws SQLException {
-    boolean columnExists = columnExists(getMetaData(connection), "PAYABLE");
-    if (Configuration.isCommandEnabled("pay") && !columnExists)
-      addColumn(connection, "PAYABLE", "BOOLEAN NOT NULL DEFAULT TRUE");
-    else if (!Configuration.isCommandEnabled("pay") && columnExists)
+    boolean payableExists = columnExists(metaData, "PAYABLE");
+    if (Configuration.isCommandEnabled("pay") && !payableExists)
+      addColumn(connection, "PAYABLE", "BOOLEAN", "TRUE");
+    else if (!Configuration.isCommandEnabled("pay") && payableExists)
       dropColumn(connection, "PAYABLE");
-  }
-  
-  private void toggleRequestableColumn(Connection connection) throws SQLException {
-    boolean columnExists = columnExists(getMetaData(connection), "REQUESTABLE");
-    if (Configuration.isCommandEnabled("request") && !columnExists)
-      addColumn(connection, "REQUESTABLE", "BOOLEAN NOT NULL DEFAULT FALSE");
-    else if (!Configuration.isCommandEnabled("request") && columnExists)
+    boolean requestableExists = columnExists(metaData, "REQUESTABLE");
+    if (Configuration.isCommandEnabled("request") && !requestableExists)
+      addColumn(connection, "REQUESTABLE", "BOOLEAN", "FALSE");
+    else if (!Configuration.isCommandEnabled("request") && requestableExists)
       dropColumn(connection, "REQUESTABLE");
   }
   

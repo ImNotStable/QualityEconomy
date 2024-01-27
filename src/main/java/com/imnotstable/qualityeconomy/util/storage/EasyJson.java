@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class EasySingleJson extends EasyCurrencies {
+public class EasyJson extends EasyCurrencies {
   
   protected final File file = new File(QualityEconomy.getInstance().getDataFolder(), "playerdata.json");
   protected JsonObject json;

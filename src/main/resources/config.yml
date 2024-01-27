@@ -39,6 +39,10 @@ database-information:
   port: 0
   username: username
   password: password
-# This is used for datasource properties (Only use if knowledgeable)
-#  advanced-settings:
-#    property: value
+
+  advanced-settings:
+    maximum-pool-size: 10
+    minimum-idle: 10
+    maximum-lifetime: 1800000
+    keepalive-time: 0
+    connection-timeout: 5000

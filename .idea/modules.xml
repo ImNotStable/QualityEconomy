@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/QualityEconomy.iml" filepath="$PROJECT_DIR$/.idea/modules/QualityEconomy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/QualityEconomy.main.iml" filepath="$PROJECT_DIR$/.idea/modules/QualityEconomy.main.iml" />
     </modules>
   </component>
 </project>

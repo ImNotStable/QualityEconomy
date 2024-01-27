@@ -119,11 +119,6 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   }
   
   @Override
-  public List<String> getCurrencies() {
-    return super.getCurrencies();
-  }
-  
-  @Override
   public void addCurrency(String currency) {
     currency = super.addCurrencyAttempt(currency);
     if (currency == null)

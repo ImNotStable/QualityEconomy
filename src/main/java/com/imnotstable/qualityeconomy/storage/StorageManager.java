@@ -8,11 +8,11 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
+import com.imnotstable.qualityeconomy.storage.storageformats.JsonStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.MongoStorageType;
-import com.imnotstable.qualityeconomy.storage.storageformats.RedisStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageType;
-import com.imnotstable.qualityeconomy.storage.storageformats.SingleJsonStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
+import com.imnotstable.qualityeconomy.storage.storageformats.YamlStorageType;
 import com.imnotstable.qualityeconomy.util.Debug;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -53,8 +53,8 @@ public class StorageManager implements Listener {
       case "mysql" -> activeStorageType = new SQLStorageType(3);
       case "mariadb" -> activeStorageType = new SQLStorageType(4);
       case "mongodb" -> activeStorageType = new MongoStorageType();
-      case "redis" -> activeStorageType = new RedisStorageType();
-      case "singlejson" -> activeStorageType = new SingleJsonStorageType();
+      case "json" -> activeStorageType = new JsonStorageType();
+      case "yaml" -> activeStorageType = new YamlStorageType();
       default -> {
         new Debug.QualityError("Unexpected Storage Type: " + Configuration.getStorageType()).log();
         timer.interrupt();

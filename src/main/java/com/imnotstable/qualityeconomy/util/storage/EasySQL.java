@@ -2,6 +2,7 @@ package com.imnotstable.qualityeconomy.util.storage;
 
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.Misc;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
@@ -49,7 +50,7 @@ public class EasySQL extends EasyCurrencies {
   protected void open() {
     openDataSource();
     try (Connection connection = openConnection()) {
-      createTable(connection, "PLAYERDATA", "UUID CHAR(36) PRIMARY KEY, USERNAME VARCHAR(16), BALANCE FLOAT(53) NOT NULL");
+      createPlayerDataTable(connection);
       columns = getColumns(connection);
     } catch (SQLException exception) {
       new Debug.QualityError("Failed to start database", exception).log();
@@ -72,15 +73,10 @@ public class EasySQL extends EasyCurrencies {
   protected void openDataSource() {
     HikariConfig hikariConfig = new HikariConfig();
     switch (databaseType) {
-      case H2 -> {
-        hikariConfig.setJdbcUrl("jdbc:h2:./plugins/QualityEconomy/playerdata");
-        hikariConfig.setUsername("sa");
-        hikariConfig.setPassword("");
-      }
-      case SQLITE -> hikariConfig.setJdbcUrl("jdbc:sqlite:plugins/QualityEconomy/playerdata.db");
+      case H2 -> hikariConfig.setJdbcUrl("jdbc:h2:./plugins/QualityEconomy/playerdata");
+      case SQLITE -> hikariConfig.setJdbcUrl("jdbc:sqlite:./plugins/QualityEconomy/playerdata.sqlite");
       case MYSQL -> setupDatasource(hikariConfig, "mysql");
       case MARIADB -> setupDatasource(hikariConfig, "mariadb");
-      
       default -> {
         new Debug.QualityError("Invalid database type: " + databaseType).log();
         return;
@@ -105,16 +101,20 @@ public class EasySQL extends EasyCurrencies {
     return dataSource.getConnection();
   }
   
-  protected void createTable(Connection connection, String table, String types) throws SQLException {
-    executeStatement(connection, "CREATE TABLE IF NOT EXISTS " + table + "(" + types + ");");
+  protected void createPlayerDataTable(Connection connection) throws SQLException {
+    executeStatement(connection, "CREATE TABLE IF NOT EXISTS PLAYERDATA(UUID CHAR(36) PRIMARY KEY, USERNAME VARCHAR(16), BALANCE FLOAT(53) NOT NULL);");
   }
   
-  protected void dropTable(Connection connection, String table) throws SQLException {
-    executeStatement(connection, "DROP TABLE" + table + ";");
+  protected void createCurrencyTable(Connection connection) throws SQLException {
+    executeStatement(connection, "CREATE TABLE IF NOT EXISTS CURRENCIES(CURRENCY VARCHAR(255) PRIMARY KEY);");
   }
   
-  protected boolean tableExists(DatabaseMetaData metaData, String table) throws SQLException {
-    try (ResultSet resultSet = metaData.getTables(null, null, table, null)) {
+  protected void dropCurrencyTable(Connection connection) throws SQLException {
+    executeStatement(connection, "DROP TABLE CURRENCIES;");
+  }
+  
+  protected boolean currencyTableExists(DatabaseMetaData metaData) throws SQLException {
+    try (ResultSet resultSet = metaData.getTables(null, null, "CURRENCIES", null)) {
       return resultSet.next();
     }
   }
@@ -151,9 +151,9 @@ public class EasySQL extends EasyCurrencies {
     }
   }
   
-  protected void addColumn(Connection connection, String column, String type) throws SQLException {
+  protected void addColumn(Connection connection, String column, String type, String def) throws SQLException {
     try (Statement statement = connection.createStatement()) {
-      statement.executeUpdate("ALTER TABLE PLAYERDATA ADD COLUMN " + column + " " + type);
+      statement.executeUpdate("ALTER TABLE PLAYERDATA ADD COLUMN " + column + " " + type + " NOT NULL DEFAULT " + def + ";");
       columns.add(column);
       generateStatements();
     }
@@ -161,7 +161,7 @@ public class EasySQL extends EasyCurrencies {
   
   protected void dropColumn(Connection connection, String column) throws SQLException {
     try (Statement statement = connection.createStatement()) {
-      statement.executeUpdate("ALTER TABLE PLAYERDATA DROP COLUMN " + column);
+      statement.executeUpdate("ALTER TABLE PLAYERDATA DROP COLUMN " + column + ";");
       columns.remove(column);
       generateStatements();
     }
@@ -175,16 +175,15 @@ public class EasySQL extends EasyCurrencies {
     StringBuilder update = new StringBuilder("UPDATE PLAYERDATA SET USERNAME = ?, BALANCE = ?");
     
     for (String column : columns) {
-      if (column.equals("UUID") || column.equals("USERNAME") || column.equals("BALANCE"))
+      if (Misc.equals(column, "UUID", "USERNAME", "BALANCE"))
         continue;
       insert1.append(",").append(column);
       insert2.append(",?");
       update.append(", ").append(column).append(" = ?");
     }
-    update.append(" WHERE UUID = ?");
     
-    insertStatement = "INSERT INTO PLAYERDATA(" + insert1 + ") VALUES(" + insert2 + ")";
-    updateStatement = update.toString();
+    insertStatement = "INSERT INTO PLAYERDATA(" + insert1 + ") VALUES(" + insert2 + ");";
+    updateStatement = update.append(" WHERE UUID = ?;").toString();
   }
   
 }
