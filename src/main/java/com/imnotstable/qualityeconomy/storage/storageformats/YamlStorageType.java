@@ -70,7 +70,7 @@ public class YamlStorageType extends EasyYaml implements StorageType {
   public Map<UUID, Account> getAllAccounts() {
     Map<UUID, Account> accounts = new HashMap<>();
     for (String uuid : yaml.getKeys(false)) {
-      if (!uuid.equals("custom-currencies"))
+      if (uuid.equals("custom-currencies"))
         continue;
       Account account = new Account(UUID.fromString(uuid));
       account.setUsername(yaml.getString(uuid + ".USERNAME"));

@@ -77,7 +77,7 @@ public class JsonStorageType extends EasyJson implements StorageType {
   public Map<UUID, Account> getAllAccounts() {
     HashMap<UUID, Account> accounts = new HashMap<>();
     for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-      if (!entry.getKey().equals("custom-currencies"))
+      if (entry.getKey().equals("custom-currencies"))
         continue;
       UUID uuid = UUID.fromString(entry.getKey());
       JsonObject accountJson = entry.getValue().getAsJsonObject();

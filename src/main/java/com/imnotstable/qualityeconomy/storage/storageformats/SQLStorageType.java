@@ -65,21 +65,11 @@ public class SQLStorageType extends EasySQL implements StorageType {
   public synchronized void createAccount(@NotNull Account account) {
     try (Connection connection = getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(getInsertStatement())) {
-      UUID uuid = account.getUUID();
-      preparedStatement.setString(1, uuid.toString());
-      preparedStatement.setString(2, account.getUsername());
-      preparedStatement.setDouble(3, account.getBalance());
-      if (Configuration.isCommandEnabled("pay"))
-        preparedStatement.setBoolean(columns.indexOf("PAYABLE") + 1, account.isPayable());
-      if (Configuration.isCommandEnabled("request"))
-        preparedStatement.setBoolean(columns.indexOf("REQUESTABLE") + 1, account.isRequestable());
-      if (Configuration.areCustomCurrenciesEnabled())
-        for (String currency : currencies)
-          preparedStatement.setDouble(columns.indexOf(currency) + 1, account.getCustomBalance(currency));
+      createAccountSetter(preparedStatement, account);
       int affectedRows = preparedStatement.executeUpdate();
       
       if (affectedRows == 0) {
-        new Debug.QualityError("Failed to create account (" + uuid + ")").log();
+        new Debug.QualityError("Failed to create account (" + account.getUUID().toString() + ")").log();
       }
     } catch (SQLException exception) {
       new Debug.QualityError("Failed to create account (" + account.getUUID().toString() + ")", exception).log();
@@ -96,17 +86,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
         connection.setAutoCommit(false);
         
         for (Account account : accounts) {
-          UUID uuid = account.getUUID();
-          preparedStatement.setString(1, uuid.toString());
-          preparedStatement.setString(2, account.getUsername());
-          preparedStatement.setDouble(3, account.getBalance());
-          if (Configuration.isCommandEnabled("pay"))
-            preparedStatement.setBoolean(columns.indexOf("PAYABLE") + 1, account.isPayable());
-          if (Configuration.isCommandEnabled("request"))
-            preparedStatement.setBoolean(columns.indexOf("REQUESTABLE") + 1, account.isRequestable());
-          if (Configuration.areCustomCurrenciesEnabled())
-            for (String currency : currencies)
-              preparedStatement.setDouble(columns.indexOf(currency) + 1, account.getCustomBalance(currency));
+          createAccountSetter(preparedStatement, account);
           preparedStatement.addBatch();
         }
         

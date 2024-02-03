@@ -1,6 +1,7 @@
 package com.imnotstable.qualityeconomy.util.storage;
 
 import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.zaxxer.hikari.HikariConfig;
@@ -10,11 +11,13 @@ import lombok.Getter;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class EasySQL extends EasyCurrencies {
   
@@ -22,11 +25,13 @@ public class EasySQL extends EasyCurrencies {
   private static final int SQLITE = 2;
   private static final int MYSQL = 3;
   private static final int MARIADB = 4;
+  private static final int POSTGRESQL = 5;
   
   static {
     try {
       DriverManager.registerDriver(new org.h2.Driver());
       DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
+      DriverManager.registerDriver(new org.postgresql.Driver());
     } catch (SQLException exception) {
       new Debug.QualityError("Failed to load JBDC Drivers", exception).log();
     }
@@ -77,6 +82,7 @@ public class EasySQL extends EasyCurrencies {
       case SQLITE -> hikariConfig.setJdbcUrl("jdbc:sqlite:./plugins/QualityEconomy/playerdata.sqlite");
       case MYSQL -> setupDatasource(hikariConfig, "mysql");
       case MARIADB -> setupDatasource(hikariConfig, "mariadb");
+      case POSTGRESQL -> setupDatasource(hikariConfig, "postgresql");
       default -> {
         new Debug.QualityError("Invalid database type: " + databaseType).log();
         return;
@@ -165,6 +171,20 @@ public class EasySQL extends EasyCurrencies {
       columns.remove(column);
       generateStatements();
     }
+  }
+  
+  protected void createAccountSetter(PreparedStatement preparedStatement, Account account) throws SQLException {
+    UUID uuid = account.getUUID();
+    preparedStatement.setString(1, uuid.toString());
+    preparedStatement.setString(2, account.getUsername());
+    preparedStatement.setDouble(3, account.getBalance());
+    if (Configuration.isCommandEnabled("pay"))
+      preparedStatement.setBoolean(columns.indexOf("PAYABLE") + 1, account.isPayable());
+    if (Configuration.isCommandEnabled("request"))
+      preparedStatement.setBoolean(columns.indexOf("REQUESTABLE") + 1, account.isRequestable());
+    if (Configuration.areCustomCurrenciesEnabled())
+      for (String currency : currencies)
+        preparedStatement.setDouble(columns.indexOf(currency) + 1, account.getCustomBalance(currency));
   }
   
   private void generateStatements() {

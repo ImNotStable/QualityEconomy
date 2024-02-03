@@ -52,6 +52,7 @@ public class StorageManager implements Listener {
       case "sqlite" -> activeStorageType = new SQLStorageType(2);
       case "mysql" -> activeStorageType = new SQLStorageType(3);
       case "mariadb" -> activeStorageType = new SQLStorageType(4);
+      case "postgresql" -> activeStorageType = new SQLStorageType(5);
       case "mongodb" -> activeStorageType = new MongoStorageType();
       case "json" -> activeStorageType = new JsonStorageType();
       case "yaml" -> activeStorageType = new YamlStorageType();
