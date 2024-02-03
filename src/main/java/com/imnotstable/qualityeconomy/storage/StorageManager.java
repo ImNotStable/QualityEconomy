@@ -163,7 +163,8 @@ public class StorageManager implements Listener {
           }
         Gson gson = new Gson();
         JsonObject root = new JsonObject();
-        root.add("CUSTOM-CURRENCIES", gson.toJsonTree(getActiveStorageFormat().getCurrencies()));
+        if (Configuration.areCustomCurrenciesEnabled())
+          root.add("CUSTOM-CURRENCIES", gson.toJsonTree(getActiveStorageFormat().getCurrencies()));
         getActiveStorageFormat().getAllAccounts().forEach((uuid, account) -> {
           JsonObject accountJson = new JsonObject();
           accountJson.addProperty("NAME", account.getUsername());
