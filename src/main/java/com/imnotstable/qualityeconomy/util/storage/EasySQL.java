@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class EasySQL extends EasyCurrencies {
@@ -101,6 +102,12 @@ public class EasySQL extends EasyCurrencies {
     hikariConfig.setJdbcUrl(String.format("jdbc:%s://%s:%s/%s", type, address, port, database));
     hikariConfig.setUsername(username);
     hikariConfig.setPassword(password);
+    Map<String, Integer> settings = Configuration.getAdvancedSettings();
+    hikariConfig.setMaximumPoolSize(settings.get("maximum-pool-size"));
+    hikariConfig.setMinimumIdle(settings.get("minimum-idle"));
+    hikariConfig.setMaxLifetime(settings.get("maximum-liftime"));
+    hikariConfig.setKeepaliveTime(settings.get("keepalive-time"));
+    hikariConfig.setConnectionTimeout(settings.get("connection-timeout"));
   }
   
   private Connection openConnection() throws SQLException {

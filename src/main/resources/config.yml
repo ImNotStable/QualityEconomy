@@ -26,7 +26,7 @@ custom-currencies: false
 
 # Number in hours (decimals allowed)
 # 0 to disable
-backup-interval: 1
+backup-interval: 6
 
 # Number in seconds
 # 0 to disable

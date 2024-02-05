@@ -27,9 +27,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,10 +50,6 @@ public class MainCommand implements Command {
       .then(new LiteralArgument("messages")
         .executes(this::reloadMessages)))
     .then(new LiteralArgument("database")
-      .then(new LiteralArgument("execute")
-        .withRequirement(sender -> Debug.DEBUG_MODE)
-        .then(new GreedyStringArgument("statement")
-        .executesConsole(this::executeDatabase)))
       .then(new LiteralArgument("reset")
         .withRequirement(sender -> Debug.DEBUG_MODE)
         .executesConsole(this::resetDatabase))
@@ -116,26 +109,6 @@ public class MainCommand implements Command {
     sender.sendMessage(Component.text("Reloading QualityEconomy messages.yml...", NamedTextColor.GRAY));
   }
   
-  private void executeDatabase(ConsoleCommandSender sender, CommandArguments args) {
-    String sql = (String) args.get("statement");
-    try (Connection connection = null;
-         Statement statement = connection.createStatement()) {
-      if (statement.execute(sql))
-        sender.sendMessage(Component.text().append(
-          Component.text("Successfully executed statement ", NamedTextColor.GREEN),
-          Component.text("(" + sql + ")", NamedTextColor.GRAY)
-        ));
-      else
-        sender.sendMessage(Component.text().append(
-          Component.text("Failed to execute statement ", NamedTextColor.RED),
-          Component.text("(" + sql + ")", NamedTextColor.GRAY)
-        ));
-    } catch (SQLException exception) {
-      sender.sendMessage(Component.text(exception.getMessage(), NamedTextColor.RED));
-      exception.printStackTrace();
-    }
-  }
-  
   private void resetDatabase(ConsoleCommandSender sender, CommandArguments args) {
     StorageManager.getActiveStorageFormat().wipeDatabase();
     sender.sendMessage(Component.text("Resetting database...", NamedTextColor.RED));
@@ -144,14 +117,13 @@ public class MainCommand implements Command {
   private void importDatabase(CommandSender sender, CommandArguments args) {
     String importable = (String) args.get("importable");
     if (Misc.equals(importable, "Essentials"))
-      transferPluginData(importable);
+      transferPluginData(importable, sender);
     else
       StorageManager.importDatabase(importable);
     
-    sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
   }
   
-  private void transferPluginData(String plugin) {
+  private void transferPluginData(String plugin, CommandSender sender) {
       new BukkitRunnable() {
         @Override
         public void run() {
@@ -159,7 +131,10 @@ public class MainCommand implements Command {
           Collection<Account> accounts = new ArrayList<>();
           if (plugin.equals("Essentials")) {
             File[] userdata = new File("plugins/Essentials/userdata").listFiles((dir, name) -> Misc.isUUID(name.split("\\.")[0]));
-            if (userdata == null || userdata.length == 0) return;
+            if (userdata == null || userdata.length == 0) {
+              sender.sendMessage(Component.text("Failed to import Database", NamedTextColor.RED));
+              return;
+            }
             for (File userfile : userdata) {
               YamlConfiguration user = YamlConfiguration.loadConfiguration(userfile);
               UUID uuid = UUID.fromString(userfile.getName().split("\\.")[0]);
@@ -171,6 +146,7 @@ public class MainCommand implements Command {
           StorageManager.getActiveStorageFormat().wipeDatabase();
           StorageManager.getActiveStorageFormat().createAccounts(accounts);
           AccountManager.setupAccounts();
+          sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
           timer.end();
         }
       }.runTaskAsynchronously(QualityEconomy.getInstance());

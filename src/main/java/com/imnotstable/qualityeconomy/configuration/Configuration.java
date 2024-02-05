@@ -32,7 +32,8 @@ public class Configuration {
   @Getter
   private static long autoSaveAccountsInterval;
   private static List<String> databaseInfo;
-  private static final Map<String, String> advancedSettings = new HashMap<>();
+  @Getter
+  private static final Map<String, Integer> advancedSettings = new HashMap<>();
   
   public static void load() {
     if (!file.exists())
@@ -67,14 +68,11 @@ public class Configuration {
       configuration.getString("database-information.password")
     );
     advancedSettings.clear();
-    if (configuration.contains("database-information.advanced-settings"))
-      configuration.getMapList("database-information.advanced-settings").forEach(map -> {
-        String key = (String) map.get("key");
-        String value = (String) map.get("value");
-        if (key != null && value != null)
-          advancedSettings.put(key, value);
-      });
-    
+    advancedSettings.put("maximum-pool-size", configuration.getInt("advanced-settings.maximum-pool-size", 10));
+    advancedSettings.put("minimum-idle", configuration.getInt("advanced-settings.minimum-idle", 10));
+    advancedSettings.put("maximum-liftime", configuration.getInt("advanced-settings.maximum-lifetime", 1800000));
+    advancedSettings.put("keepalive-time", configuration.getInt("advanced-settings.keepalive-time", 0));
+    advancedSettings.put("connection-timeout", configuration.getInt("advanced-settings.connection-timeout", 5000));
   }
   
   public static void update() {
