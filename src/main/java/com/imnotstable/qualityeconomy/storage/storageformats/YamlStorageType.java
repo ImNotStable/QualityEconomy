@@ -56,13 +56,13 @@ public class YamlStorageType extends EasyYaml implements StorageType {
   
   @Override
   public void createAccounts(@NotNull Collection<Account> accounts) {
-    accounts.forEach(this::createAccount);
+    accounts.forEach(this::setAccount);
     save();
   }
   
   @Override
   public void updateAccounts(@NotNull Collection<Account> accounts) {
-    accounts.forEach(this::createAccount);
+    accounts.forEach(this::setAccount);
     save();
   }
   

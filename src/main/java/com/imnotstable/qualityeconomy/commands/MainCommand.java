@@ -118,9 +118,10 @@ public class MainCommand implements Command {
     String importable = (String) args.get("importable");
     if (Misc.equals(importable, "Essentials"))
       transferPluginData(importable, sender);
-    else
+    else {
       StorageManager.importDatabase(importable);
-    
+      sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
+    }
   }
   
   private void transferPluginData(String plugin, CommandSender sender) {
