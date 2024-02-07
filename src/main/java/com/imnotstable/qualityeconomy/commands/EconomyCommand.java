@@ -51,9 +51,9 @@ public class EconomyCommand implements Command {
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
     QualityEconomyAPI.setBalance(target.getUniqueId(), 0);
-    Messages.sendParsedMessage(MessageType.ECONOMY_RESET, new String[]{
+    Messages.sendParsedMessage(sender, MessageType.ECONOMY_RESET,
       target.getName()
-    }, sender);
+    );
   }
   
   private void setBalance(CommandSender sender, CommandArguments args) {
@@ -62,10 +62,10 @@ public class EconomyCommand implements Command {
       return;
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.setBalance(target.getUniqueId(), balance);
-    Messages.sendParsedMessage(MessageType.ECONOMY_SET, new String[]{
+    Messages.sendParsedMessage(sender, MessageType.ECONOMY_SET,
       Number.formatCommas(balance),
       target.getName()
-    }, sender);
+    );
   }
   
   private void addBalance(CommandSender sender, CommandArguments args) {
@@ -74,10 +74,10 @@ public class EconomyCommand implements Command {
       return;
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.addBalance(target.getUniqueId(), balance);
-    Messages.sendParsedMessage(MessageType.ECONOMY_ADD, new String[]{
+    Messages.sendParsedMessage(sender, MessageType.ECONOMY_ADD,
       Number.formatCommas(balance),
       target.getName()
-    }, sender);
+    );
   }
   
   private void removeBalance(CommandSender sender, CommandArguments args) {
@@ -86,10 +86,10 @@ public class EconomyCommand implements Command {
       return;
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.removeBalance(target.getUniqueId(), balance);
-    Messages.sendParsedMessage(MessageType.ECONOMY_REMOVE, new String[]{
+    Messages.sendParsedMessage(sender, MessageType.ECONOMY_REMOVE,
       Number.formatCommas(balance),
       target.getName()
-    }, sender);
+    );
   }
   
 }

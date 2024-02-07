@@ -57,9 +57,9 @@ public class WithdrawCommand implements Listener, Command {
       return;
     QualityEconomyAPI.removeBalance(sender.getUniqueId(), amount);
     sender.getInventory().addItem(getBankNote(amount, sender));
-    Messages.sendParsedMessage(MessageType.WITHDRAW_MESSAGE, new String[]{
+    Messages.sendParsedMessage(sender, MessageType.WITHDRAW_MESSAGE,
       Number.formatCommas(amount)
-    }, sender);
+    );
   }
   
   public ItemStack getBankNote(double amount, Player player) {

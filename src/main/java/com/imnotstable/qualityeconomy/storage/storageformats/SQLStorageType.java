@@ -15,7 +15,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,11 +48,10 @@ public class SQLStorageType extends EasySQL implements StorageType {
   
   @Override
   public synchronized void wipeDatabase() {
-    try (Connection connection = getConnection();
-         Statement statement = connection.createStatement()) {
-      statement.executeUpdate("DROP TABLE PLAYERDATA");
+    try (Connection connection = getConnection()) {
+      dropPlayerDataTable(connection);
       if (Configuration.areCustomCurrenciesEnabled())
-        statement.executeUpdate("DROP TABLE CURRENCIES");
+        dropCurrencyTable(connection);
       close();
       open();
     } catch (SQLException exception) {

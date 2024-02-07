@@ -2,6 +2,7 @@ package com.imnotstable.qualityeconomy.storage.accounts;
 
 import com.imnotstable.qualityeconomy.util.Number;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class Account {
     return uuid;
   }
   
-  public Account setUsername(String username) {
+  public Account setUsername(@NotNull String username) {
     this.username = username;
     return this;
   }
@@ -37,7 +38,7 @@ public class Account {
     return this;
   }
   
-  public double getCustomBalance(String currency) {
+  public double getCustomBalance(@NotNull String currency) {
     return otherBalances.getOrDefault(currency, 0.0);
   }
   
@@ -45,13 +46,13 @@ public class Account {
     return otherBalances;
   }
   
-  public Account setCustomBalances(Map<String, Double> balanceMap) {
+  public Account setCustomBalances(@NotNull Map<String, Double> balanceMap) {
     balanceMap.replaceAll((currency, balance) -> Number.round(balance));
     otherBalances.putAll(balanceMap);
     return this;
   }
   
-  public Account setCustomBalance(String currency, double balance) {
+  public Account setCustomBalance(@NotNull String currency, double balance) {
     otherBalances.put(currency, Number.round(balance));
     return this;
   }

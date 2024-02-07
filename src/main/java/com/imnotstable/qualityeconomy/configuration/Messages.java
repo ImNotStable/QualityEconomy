@@ -23,7 +23,7 @@ public class Messages {
     sender.sendMessage(MiniMessage.miniMessage().deserialize(messages.get(id.getValue())));
   }
   
-  public static void sendParsedMessage(MessageType id, String[] tags, CommandSender sender) {
+  public static void sendParsedMessage(CommandSender sender, MessageType id, String... tags) {
     int tagsReq = id.getTags().length;
     if (tags.length != tagsReq)
       throw new IllegalArgumentException("Found " + tags.length + " tags when required " + tagsReq);

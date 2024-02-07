@@ -46,16 +46,16 @@ public class BalanceCommand implements Command {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
-    Messages.sendParsedMessage(MessageType.BALANCE_OTHER_BALANCE, new String[]{
+    Messages.sendParsedMessage(sender, MessageType.BALANCE_OTHER_BALANCE,
       Number.formatCommas(QualityEconomyAPI.getBalance(target.getUniqueId())),
       target.getName()
-    }, sender);
+    );
   }
   
   private void viewOwnBalance(Player sender, CommandArguments args) {
-    Messages.sendParsedMessage(MessageType.BALANCE_OWN_BALANCE, new String[]{
+    Messages.sendParsedMessage(sender, MessageType.BALANCE_OWN_BALANCE,
       Number.formatCommas(QualityEconomyAPI.getBalance(sender.getUniqueId()))
-    }, sender);
+    );
   }
   
 }

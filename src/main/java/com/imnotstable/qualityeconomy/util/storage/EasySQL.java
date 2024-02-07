@@ -118,6 +118,10 @@ public class EasySQL extends EasyCurrencies {
     executeStatement(connection, "CREATE TABLE IF NOT EXISTS PLAYERDATA(UUID CHAR(36) PRIMARY KEY, USERNAME VARCHAR(16), BALANCE FLOAT(53) NOT NULL);");
   }
   
+  protected void dropPlayerDataTable(Connection connection) throws SQLException {
+    executeStatement(connection, "DROP TABLE PLAYERDATA;");
+  }
+  
   protected void createCurrencyTable(Connection connection) throws SQLException {
     executeStatement(connection, "CREATE TABLE IF NOT EXISTS CURRENCIES(CURRENCY VARCHAR(255) PRIMARY KEY);");
   }

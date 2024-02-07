@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class BalanceTopCommand implements Command {
   
@@ -67,28 +68,28 @@ public class BalanceTopCommand implements Command {
     int startIndex = (page - 1) * 10;
     int endIndex = Math.min(startIndex + 10, orderedPlayerList.size());
     
-    Messages.sendParsedMessage(MessageType.BALANCETOP_TITLE, new String[]{
+    Messages.sendParsedMessage(sender, MessageType.BALANCETOP_TITLE,
       String.valueOf(maxPage),
       String.valueOf(page)
-    }, sender);
-    Messages.sendParsedMessage(MessageType.BALANCETOP_SERVER_TOTAL, new String[]{
+    );
+    Messages.sendParsedMessage(sender, MessageType.BALANCETOP_SERVER_TOTAL,
       String.valueOf(serverTotal)
-    }, sender);
+    );
     
     if (!orderedPlayerList.isEmpty())
       for (int i = startIndex; i < endIndex; i++) {
         Account account = orderedPlayerList.get(i);
-        Messages.sendParsedMessage(MessageType.BALANCETOP_BALANCE_VIEW, new String[]{
+        Messages.sendParsedMessage(sender, MessageType.BALANCETOP_BALANCE_VIEW,
           Number.formatCommas(account.getBalance()),
           String.valueOf(i + 1),
           account.getUsername()
-        }, sender);
+        );
       }
     
-    Messages.sendParsedMessage(MessageType.BALANCETOP_NEXT_PAGE, new String[]{
+    Messages.sendParsedMessage(sender, MessageType.BALANCETOP_NEXT_PAGE,
       args.fullInput().split(" ")[0].substring(1),
       String.valueOf(page + 1)
-    }, sender);
+    );
   }
   
   private void updateBalanceTop() {
@@ -96,11 +97,13 @@ public class BalanceTopCommand implements Command {
     
     Collection<Account> accounts = AccountManager.getAllAccounts();
     
-    serverTotal = accounts.stream()
+    Stream<Account> accountStream = accounts.stream();
+    
+    serverTotal = accountStream
       .mapToDouble(Account::getBalance)
       .sum();
     
-    orderedPlayerList = accounts.stream()
+    orderedPlayerList = accountStream
       .sorted(Comparator.comparingDouble(Account::getBalance).reversed())
       .toList();
     

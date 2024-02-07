@@ -12,7 +12,6 @@ import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.MultiLiteralArgument;
-import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.Getter;
@@ -43,7 +42,7 @@ public class RequestCommand implements Command {
       .then(new PlayerArgument("target")
         .executesPlayer(this::answerRequest)))
     .then(new LiteralArgument("send")
-      .then(new OfflinePlayerArgument("target")
+      .then(new PlayerArgument("target")
         .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
         .then(new DoubleArgument("amount", Number.getMinimumValue())
           .executesPlayer(this::request))));
@@ -73,7 +72,7 @@ public class RequestCommand implements Command {
   }
   
   private void request(Player requester, CommandArguments args) {
-    OfflinePlayer requestee = (OfflinePlayer) args.get("target");
+    Player requestee = (Player) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(requestee.getUniqueId()), MessageType.PLAYER_NOT_FOUND, requester))
       return;
     if (CommandUtils.requirement(requestee.isOnline(), MessageType.PLAYER_NOT_ONLINE, requester))
@@ -83,14 +82,14 @@ public class RequestCommand implements Command {
     double amount = Number.roundObj(args.get("amount"));
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.OTHER_NOT_ENOUGH_MONEY, requester))
       return;
-    Messages.sendParsedMessage(MessageType.REQUEST_SEND, new String[]{
+    Messages.sendParsedMessage(requester, MessageType.REQUEST_SEND,
       Number.formatCommas(amount),
       requestee.getName()
-    }, requester);
-    Messages.sendParsedMessage(MessageType.REQUEST_RECEIVE, new String[]{
+    );
+    Messages.sendParsedMessage(requestee, MessageType.REQUEST_RECEIVE,
       Number.formatCommas(amount),
       requester.getName()
-    }, requester);
+    );
     UUID requesterUUID = requester.getUniqueId();
     UUID requesteeUUID = requestee.getUniqueId();
     requests.computeIfAbsent(requesteeUUID, uuid -> new HashMap<>()).put(requesterUUID, amount);
@@ -110,15 +109,15 @@ public class RequestCommand implements Command {
     double amount = Number.round(requests.get(requestee.getUniqueId()).get(requester.getUniqueId()));
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, requestee))
       return;
-    Messages.sendParsedMessage(MessageType.REQUEST_ACCEPT_SEND, new String[]{
+    Messages.sendParsedMessage(requestee, MessageType.REQUEST_ACCEPT_SEND,
       Number.formatCommas(amount),
       requester.getName()
-    }, requestee);
+    );
     if (requester.isOnline())
-      Messages.sendParsedMessage(MessageType.REQUEST_ACCEPT_RECEIVE, new String[]{
+      Messages.sendParsedMessage(requestee, MessageType.REQUEST_ACCEPT_RECEIVE,
         Number.formatCommas(amount),
         requestee.getName()
-      }, requestee);
+      );
     QualityEconomyAPI.transferBalance(requester.getUniqueId(), requestee.getUniqueId(), amount);
   }
   
@@ -129,15 +128,15 @@ public class RequestCommand implements Command {
     double amount = Number.roundObj(args.get("amount"));
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, requestee))
       return;
-    Messages.sendParsedMessage(MessageType.REQUEST_DENY_SEND, new String[]{
+    Messages.sendParsedMessage(requestee, MessageType.REQUEST_DENY_SEND,
       Number.formatCommas(amount),
       requester.getName()
-    }, requestee);
+    );
     if (requester.isOnline())
-      Messages.sendParsedMessage(MessageType.REQUEST_DENY_RECEIVE, new String[]{
+      Messages.sendParsedMessage(requestee, MessageType.REQUEST_DENY_RECEIVE,
         Number.formatCommas(amount),
         requestee.getName()
-      }, requestee);
+      );
   }
   
 }

@@ -19,7 +19,6 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -214,7 +213,7 @@ public class MainCommand implements Command {
     List<String> completions = new ArrayList<>(exportsFiles);
     completions.addAll(backupFiles);
     
-    if (Bukkit.getPluginManager().isPluginEnabled("Essentials")) {
+    if (new File("plugins/Essentials/userdata").isDirectory()) {
       completions.add("Essentials");
     }
     
