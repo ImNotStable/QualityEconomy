@@ -14,7 +14,7 @@ public class CommandUtils {
   
   public static boolean requirement(boolean requirement, MessageType errorMessage, CommandSender sender) {
     if (!requirement) {
-      Messages.sendParsedMessage(errorMessage, sender);
+      Messages.sendParsedMessage(sender, errorMessage);
       return true;
     }
     return false;

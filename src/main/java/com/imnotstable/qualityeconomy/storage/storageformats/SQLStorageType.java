@@ -67,10 +67,10 @@ public class SQLStorageType extends EasySQL implements StorageType {
       int affectedRows = preparedStatement.executeUpdate();
       
       if (affectedRows == 0) {
-        new Debug.QualityError("Failed to create account (" + account.getUUID().toString() + ")").log();
+        new Debug.QualityError("Failed to create account (" + account.getUniqueId().toString() + ")").log();
       }
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to create account (" + account.getUUID().toString() + ")", exception).log();
+      new Debug.QualityError("Failed to create account (" + account.getUniqueId().toString() + ")", exception).log();
     }
   }
   
@@ -148,7 +148,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
           if (Configuration.areCustomCurrenciesEnabled())
             for (String currency : currencies)
               preparedStatement.setDouble(columns.indexOf(currency), account.getCustomBalance(currency));
-          preparedStatement.setString(columns.size(), account.getUUID().toString());
+          preparedStatement.setString(columns.size(), account.getUniqueId().toString());
           preparedStatement.addBatch();
         }
         preparedStatement.executeBatch();

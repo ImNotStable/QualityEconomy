@@ -57,19 +57,19 @@ public class JsonStorageType extends EasyJson implements StorageType {
   
   @Override
   public void createAccount(@NotNull Account account) {
-    json.add(String.valueOf(account.getUUID()), serialize(account));
+    json.add(String.valueOf(account.getUniqueId()), serialize(account));
     save();
   }
   
   @Override
   public void createAccounts(@NotNull Collection<Account> accounts) {
-    accounts.forEach(account -> json.add(String.valueOf(account.getUUID()), serialize(account)));
+    accounts.forEach(account -> json.add(String.valueOf(account.getUniqueId()), serialize(account)));
     save();
   }
   
   @Override
   public void updateAccounts(@NotNull Collection<Account> accounts) {
-    accounts.forEach(account -> json.add(String.valueOf(account.getUUID()), serialize(account)));
+    accounts.forEach(account -> json.add(String.valueOf(account.getUniqueId()), serialize(account)));
     save();
   }
   

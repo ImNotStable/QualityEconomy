@@ -39,7 +39,7 @@ public class EasyMongo extends EasyCurrencies {
   }
   
   protected Document createDocument(Account account) {
-    Document document = new Document("UUID", account.getUUID());
+    Document document = new Document("UUID", account.getUniqueId());
     document.put("USERNAME", account.getUsername());
     document.put("BALANCE", account.getBalance());
     if (Configuration.isCommandEnabled("pay"))

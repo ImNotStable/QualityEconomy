@@ -9,19 +9,15 @@ import java.util.Map;
 import java.util.UUID;
 
 public class Account {
-  private final UUID uuid;
-  private final Map<String, Double> otherBalances = new HashMap<>();
+  private @Getter final UUID uniqueId;
   private @Getter String username = "";
   private double balance = 0.0;
   private @Getter boolean isPayable = true;
   private @Getter boolean isRequestable = false;
+  private final Map<String, Double> otherBalances = new HashMap<>();
   
-  public Account(UUID uuid) {
-    this.uuid = uuid;
-  }
-  
-  public UUID getUUID() {
-    return uuid;
+  public Account(UUID uniqueId) {
+    this.uniqueId = uniqueId;
   }
   
   public Account setUsername(@NotNull String username) {

@@ -15,7 +15,7 @@ public class QualityEconomyAPI {
     AccountManager.createAccount(uuid);
   }
   
-  public static Account getAccount(@NotNull UUID uuid) {
+  public static @NotNull Account getAccount(@NotNull UUID uuid) {
     return AccountManager.getAccount(uuid);
   }
   
@@ -97,7 +97,7 @@ public class QualityEconomyAPI {
     StorageManager.getActiveStorageFormat().removeCurrency(currency);
   }
   
-  public static List<String> getCustomCurrencies() {
+  public static @NotNull List<String> getCustomCurrencies() {
     return StorageManager.getActiveStorageFormat().getCurrencies();
   }
   

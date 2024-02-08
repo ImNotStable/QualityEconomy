@@ -67,8 +67,8 @@ public class RequestCommand implements Command {
   private void toggleRequests(Player sender, CommandArguments args) {
     boolean toggle = !QualityEconomyAPI.isRequestable(sender.getUniqueId());
     QualityEconomyAPI.setRequestable(sender.getUniqueId(), toggle);
-    if (toggle) Messages.sendParsedMessage(MessageType.REQUEST_TOGGLE_ON, sender);
-    else Messages.sendParsedMessage(MessageType.REQUEST_TOGGLE_OFF, sender);
+    if (toggle) Messages.sendParsedMessage(sender, MessageType.REQUEST_TOGGLE_ON);
+    else Messages.sendParsedMessage(sender, MessageType.REQUEST_TOGGLE_OFF);
   }
   
   private void request(Player requester, CommandArguments args) {

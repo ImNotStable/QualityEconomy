@@ -185,7 +185,7 @@ public class EasySQL extends EasyCurrencies {
   }
   
   protected void createAccountSetter(PreparedStatement preparedStatement, Account account) throws SQLException {
-    UUID uuid = account.getUUID();
+    UUID uuid = account.getUniqueId();
     preparedStatement.setString(1, uuid.toString());
     preparedStatement.setString(2, account.getUsername());
     preparedStatement.setDouble(3, account.getBalance());

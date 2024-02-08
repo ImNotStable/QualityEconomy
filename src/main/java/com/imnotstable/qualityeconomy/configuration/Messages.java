@@ -19,7 +19,7 @@ public class Messages {
   private static final File file = new File(QualityEconomy.getInstance().getDataFolder(), "messages.yml");
   private static final HashMap<String, String> messages = new HashMap<>();
   
-  public static void sendParsedMessage(MessageType id, CommandSender sender) {
+  public static void sendParsedMessage(CommandSender sender, MessageType id) {
     sender.sendMessage(MiniMessage.miniMessage().deserialize(messages.get(id.getValue())));
   }
   

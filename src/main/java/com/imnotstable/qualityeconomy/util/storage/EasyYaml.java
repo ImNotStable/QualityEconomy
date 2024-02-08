@@ -16,7 +16,7 @@ public class EasyYaml extends EasyCurrencies {
   protected YamlConfiguration yaml;
   
   protected void setAccount(Account account) {
-    UUID uuid = account.getUUID();
+    UUID uuid = account.getUniqueId();
     yaml.set(uuid + ".USERNAME", account.getUsername());
     yaml.set(uuid + ".BALANCE", account.getBalance());
     if (Configuration.isCommandEnabled("pay"))

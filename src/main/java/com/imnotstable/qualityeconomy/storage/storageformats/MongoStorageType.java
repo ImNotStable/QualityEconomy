@@ -66,7 +66,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   public synchronized void createAccount(@NotNull Account account) {
     Document document = createDocument(account);
     if (!playerdata.insertOne(document).wasAcknowledged())
-      new Debug.QualityError("Failed to create account (" + account.getUUID() + ")").log();
+      new Debug.QualityError("Failed to create account (" + account.getUniqueId() + ")").log();
   }
   
   @Override
@@ -82,7 +82,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     List<WriteModel<Document>> updates = new ArrayList<>();
     
     for (Account account : accounts) {
-      Document query = new Document("UUID", account.getUUID());
+      Document query = new Document("UUID", account.getUniqueId());
       Document update = new Document();
       update.append("$set", new Document("USERNAME", account.getUsername()));
       update.append("$set", new Document("BALANCE", account.getBalance()));

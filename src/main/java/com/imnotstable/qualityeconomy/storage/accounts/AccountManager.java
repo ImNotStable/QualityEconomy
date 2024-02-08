@@ -64,7 +64,7 @@ public class AccountManager {
   
   public static void updateAccount(Account account) {
     Debug.Timer timer = new Debug.Timer("updateAccount()");
-    accounts.put(account.getUUID(), account);
+    accounts.put(account.getUniqueId(), account);
     timer.end();
   }
   

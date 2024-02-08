@@ -82,7 +82,7 @@ public class YamlStorageType extends EasyYaml implements StorageType {
       if (Configuration.areCustomCurrenciesEnabled())
         for (String currency : getCurrencies())
           account.setCustomBalance(currency, yaml.getDouble(uuid + "." + currency));
-      accounts.put(account.getUUID(), account);
+      accounts.put(account.getUniqueId(), account);
     }
     return accounts;
   }

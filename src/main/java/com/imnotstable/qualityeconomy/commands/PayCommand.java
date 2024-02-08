@@ -48,9 +48,9 @@ public class PayCommand implements Command {
     boolean toggle = !QualityEconomyAPI.isPayable(sender.getUniqueId());
     QualityEconomyAPI.setPayable(sender.getUniqueId(), toggle);
     if (toggle) {
-      Messages.sendParsedMessage(MessageType.PAY_TOGGLE_ON, sender);
+      Messages.sendParsedMessage(sender, MessageType.PAY_TOGGLE_ON);
     } else {
-      Messages.sendParsedMessage(MessageType.PAY_TOGGLE_OFF, sender);
+      Messages.sendParsedMessage(sender, MessageType.PAY_TOGGLE_OFF);
     }
   }
   
@@ -59,7 +59,7 @@ public class PayCommand implements Command {
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
     if (!QualityEconomyAPI.isPayable(target.getUniqueId())) {
-      Messages.sendParsedMessage(MessageType.NOT_ACCEPTING_PAYMENTS, sender);
+      Messages.sendParsedMessage(sender, MessageType.NOT_ACCEPTING_PAYMENTS);
       return;
     }
     double amount = Number.roundObj(args.get("amount"));
