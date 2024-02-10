@@ -2,6 +2,8 @@ package com.imnotstable.qualityeconomy.util.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
@@ -11,6 +13,9 @@ import com.imnotstable.qualityeconomy.util.Debug;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class EasyJson extends EasyCurrencies {
   
@@ -28,6 +33,23 @@ public class EasyJson extends EasyCurrencies {
     if (Configuration.areCustomCurrenciesEnabled())
       account.getCustomBalances().forEach(json::addProperty);
     return json;
+  }
+  
+  protected void toggleCustomCurrencies() {
+    if (Configuration.areCustomCurrenciesEnabled()) {
+      if (!json.has("custom-currencies"))
+        json.add("custom-currencies", new JsonArray());
+      json.getAsJsonArray("custom-currencies").forEach(currency -> currencies.add(currency.getAsString()));
+    } else {
+      json.remove("custom-currencies");
+    }
+  }
+  
+  
+  protected Set<Map.Entry<String, JsonElement>> getEntrySet() {
+    Set<Map.Entry<String, JsonElement>> entrySet = new HashSet<>(json.entrySet());
+    entrySet.removeIf(entry -> entry.getKey().equals("custom-currencies"));
+    return entrySet;
   }
   
   protected void save() {

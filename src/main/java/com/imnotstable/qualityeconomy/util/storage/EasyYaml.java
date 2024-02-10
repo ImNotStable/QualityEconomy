@@ -8,6 +8,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.UUID;
 
 public class EasyYaml extends EasyCurrencies {
@@ -25,6 +27,22 @@ public class EasyYaml extends EasyCurrencies {
       yaml.set(uuid + ".REQUESTABLE", account.isRequestable());
     if (Configuration.areCustomCurrenciesEnabled())
       account.getCustomBalances().forEach((currency, balance) -> yaml.set(uuid + "." + currency, balance));
+  }
+  
+  protected void toggleCustomCurrencies() {
+    if (Configuration.areCustomCurrenciesEnabled()) {
+      if (!yaml.contains("custom-currencies"))
+        yaml.set("custom-currencies", new ArrayList<String>());
+      currencies.addAll(yaml.getStringList("custom-currencies"));
+    } else {
+      yaml.set("custom-currencies", null);
+    }
+  }
+  
+  protected Set<String> getAllUniqueIds() {
+    Set<String> keys = yaml.getKeys(false);
+    keys.remove("custom-currencies");
+    return keys;
   }
   
   protected void save() {

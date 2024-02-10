@@ -32,7 +32,8 @@ public class JsonStorageType extends EasyJson implements StorageType {
           json = new Gson().fromJson(reader, JsonObject.class);
         }
       }
-      json.getAsJsonArray("custom-currencies").forEach(currency -> currencies.add(currency.getAsString()));
+      toggleCustomCurrencies();
+      save();
     } catch (IOException exception) {
       new Debug.QualityError("Failed to initiate storage processes", exception).log();
       return false;
@@ -76,9 +77,7 @@ public class JsonStorageType extends EasyJson implements StorageType {
   @Override
   public @NotNull Map<UUID, Account> getAllAccounts() {
     HashMap<UUID, Account> accounts = new HashMap<>();
-    for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-      if (entry.getKey().equals("custom-currencies"))
-        continue;
+    for (Map.Entry<String, JsonElement> entry : getEntrySet()) {
       UUID uuid = UUID.fromString(entry.getKey());
       JsonObject accountJson = entry.getValue().getAsJsonObject();
       Account account = new Account(uuid)
@@ -104,6 +103,10 @@ public class JsonStorageType extends EasyJson implements StorageType {
       currencies = new JsonArray();
     currencies.add(currency);
     json.add("custom-currencies", currencies);
+    for (Map.Entry<String, JsonElement> entry : getEntrySet()) {
+      JsonObject accountJson = entry.getValue().getAsJsonObject();
+      accountJson.addProperty(currency, 0);
+    }
     addCurrencySuccess(currency);
     save();
   }
@@ -114,6 +117,10 @@ public class JsonStorageType extends EasyJson implements StorageType {
     JsonArray currencies = json.getAsJsonArray("custom-currencies");
     currencies.remove(new Gson().toJsonTree(currency));
     json.add("custom-currencies", currencies);
+    for (Map.Entry<String, JsonElement> entry : getEntrySet()) {
+      JsonObject accountJson = entry.getValue().getAsJsonObject();
+      accountJson.remove(currency);
+    }
     removeCurrencySuccess(currency);
     save();
   }

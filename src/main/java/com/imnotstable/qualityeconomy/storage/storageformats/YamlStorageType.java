@@ -24,8 +24,11 @@ public class YamlStorageType extends EasyYaml implements StorageType {
         if (!file.createNewFile())
           return false;
         yaml = new YamlConfiguration();
-      } else
+      } else {
         yaml = YamlConfiguration.loadConfiguration(file);
+      }
+      toggleCustomCurrencies();
+      save();
     } catch (IOException exception) {
       new Debug.QualityError("Failed to initiate storage processes", exception).log();
       return false;
@@ -69,9 +72,7 @@ public class YamlStorageType extends EasyYaml implements StorageType {
   @Override
   public @NotNull Map<UUID, Account> getAllAccounts() {
     Map<UUID, Account> accounts = new HashMap<>();
-    for (String uuid : yaml.getKeys(false)) {
-      if (uuid.equals("custom-currencies"))
-        continue;
+    for (String uuid : getAllUniqueIds()) {
       Account account = new Account(UUID.fromString(uuid));
       account.setUsername(yaml.getString(uuid + ".USERNAME"));
       account.setBalance(yaml.getDouble(uuid + ".BALANCE"));
@@ -93,6 +94,8 @@ public class YamlStorageType extends EasyYaml implements StorageType {
     List<String> currencies = yaml.getStringList("custom-currencies");
     currencies.add(currency);
     yaml.set("custom-currencies", currencies);
+    for (String uuid : getAllUniqueIds())
+      yaml.set(uuid + "." + currency, 0);
     addCurrencySuccess(currency);
     save();
   }
@@ -103,6 +106,8 @@ public class YamlStorageType extends EasyYaml implements StorageType {
     List<String> currencies = yaml.getStringList("custom-currencies");
     currencies.remove(currency);
     yaml.set("custom-currencies", currencies);
+    for (String uuid : getAllUniqueIds())
+      yaml.set(uuid + "." + currency, null);
     removeCurrencySuccess(currency);
     save();
   }
