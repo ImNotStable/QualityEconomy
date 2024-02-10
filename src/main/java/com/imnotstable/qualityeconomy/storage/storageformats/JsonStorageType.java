@@ -74,7 +74,7 @@ public class JsonStorageType extends EasyJson implements StorageType {
   }
   
   @Override
-  public Map<UUID, Account> getAllAccounts() {
+  public @NotNull Map<UUID, Account> getAllAccounts() {
     HashMap<UUID, Account> accounts = new HashMap<>();
     for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
       if (entry.getKey().equals("custom-currencies"))

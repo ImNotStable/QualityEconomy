@@ -22,9 +22,9 @@ public interface StorageType {
   
   void updateAccounts(@NotNull Collection<Account> accounts);
   
-  Map<UUID, Account> getAllAccounts();
+  @NotNull Map<UUID, Account> getAllAccounts();
   
-  List<String> getCurrencies();
+  @NotNull List<String> getCurrencies();
   
   void addCurrency(@NotNull String currency);
   

@@ -14,7 +14,6 @@ import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.MultiLiteralArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -25,13 +24,10 @@ import java.util.UUID;
 
 public class RequestCommand implements Command {
   
-  @Getter
-  private final String name = "request";
-  
   //<Requestee, <Requester, Amount>>
   private Map<UUID, Map<UUID, Double>> requests;
   
-  private final CommandTree command = new CommandTree(name)
+  private final CommandTree command = new CommandTree("request")
     .then(new LiteralArgument("toggle")
       .executesPlayer(this::toggleRequests))
     .then(new MultiLiteralArgument("answer", "accept", "deny")
@@ -59,7 +55,7 @@ public class RequestCommand implements Command {
   public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister(name, true);
+    CommandAPI.unregister(command.getName(), true);
     requests = null;
     isRegistered = false;
   }

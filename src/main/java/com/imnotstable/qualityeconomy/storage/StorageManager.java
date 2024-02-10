@@ -14,6 +14,7 @@ import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.YamlStorageType;
 import com.imnotstable.qualityeconomy.util.Debug;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,13 +36,10 @@ import java.util.Map;
 import java.util.UUID;
 
 public class StorageManager implements Listener {
-  private static StorageType activeStorageType;
+  
+  private static @Getter StorageType activeStorageType;
   private static Integer backupSchedulerID = null;
   private static Integer accountSchedulerID = null;
-  
-  public static StorageType getActiveStorageFormat() {
-    return activeStorageType;
-  }
   
   public static void initStorageProcesses() {
     if (activeStorageType != null)
@@ -109,7 +107,7 @@ public class StorageManager implements Listener {
       public void run() {
         Debug.Timer timer = new Debug.Timer("importDatabase()");
         AccountManager.clearAccounts();
-        getActiveStorageFormat().wipeDatabase();
+        getActiveStorageType().wipeDatabase();
         Collection<Account> accounts = new ArrayList<>();
         try {
           String content = new String(Files.readAllBytes(Paths.get(String.format("plugins/QualityEconomy/%s", fileName))));
@@ -121,7 +119,7 @@ public class StorageManager implements Listener {
             for (JsonElement currencyJSON : currenciesJSON) {
               String currency = currencyJSON.getAsString();
               customCurrencies.add(currency);
-              getActiveStorageFormat().addCurrency(currency);
+              getActiveStorageType().addCurrency(currency);
             }
           }
           rootJson.entrySet().stream()
@@ -139,7 +137,7 @@ public class StorageManager implements Listener {
               }
               accounts.add(new Account(uuid).setUsername(name).setBalance(balance).setPayable(payable).setRequestable(requestable).setCustomBalances(balanceMap));
             });
-          getActiveStorageFormat().createAccounts(accounts);
+          getActiveStorageType().createAccounts(accounts);
           AccountManager.setupAccounts();
         } catch (IOException exception) {
           new Debug.QualityError("Error while importing playerdata", exception).log();
@@ -164,8 +162,8 @@ public class StorageManager implements Listener {
         Gson gson = new Gson();
         JsonObject root = new JsonObject();
         if (Configuration.areCustomCurrenciesEnabled())
-          root.add("CUSTOM-CURRENCIES", gson.toJsonTree(getActiveStorageFormat().getCurrencies()));
-        getActiveStorageFormat().getAllAccounts().forEach((uuid, account) -> {
+          root.add("CUSTOM-CURRENCIES", gson.toJsonTree(getActiveStorageType().getCurrencies()));
+        getActiveStorageType().getAllAccounts().forEach((uuid, account) -> {
           JsonObject accountJson = new JsonObject();
           accountJson.addProperty("NAME", account.getUsername());
           accountJson.addProperty("BALANCE", account.getBalance());

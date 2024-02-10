@@ -110,7 +110,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
         }
         if (uuid == null)
           return null;
-        if (!StorageManager.getActiveStorageFormat().getCurrencies().contains(elements[1]))
+        if (!StorageManager.getActiveStorageType().getCurrencies().contains(elements[1]))
           return null;
         return String.valueOf(QualityEconomyAPI.getCustomBalance(uuid, elements[1]));
       }

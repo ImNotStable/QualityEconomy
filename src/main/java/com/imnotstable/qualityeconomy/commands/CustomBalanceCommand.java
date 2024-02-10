@@ -13,20 +13,16 @@ import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CustomBalanceCommand implements Command {
   
-  @Getter
-  private final String name = "custombalance";
-  
-  private final CommandTree command = new CommandTree(name)
+  private final CommandTree command = new CommandTree("custombalance")
     .withAliases("cbalance", "custombal", "cbal")
     .then(new StringArgument("currency")
-      .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageFormat().getCurrencies().toArray(new String[0])))
+      .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0])))
       .then(new OfflinePlayerArgument("target")
         .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
         .executes(this::viewOtherBalance))
@@ -34,7 +30,7 @@ public class CustomBalanceCommand implements Command {
   private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isCommandEnabled("custombalance") || StorageManager.getActiveStorageFormat().getCurrencies().isEmpty())
+    if (isRegistered || !Configuration.isCommandEnabled("custombalance") || StorageManager.getActiveStorageType().getCurrencies().isEmpty())
       return;
     command.register();
     isRegistered = true;
@@ -43,13 +39,13 @@ public class CustomBalanceCommand implements Command {
   public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister(name, true);
+    CommandAPI.unregister(command.getName(), true);
     isRegistered = false;
   }
   
   private void viewOtherBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
-    if (CommandUtils.requirement(StorageManager.getActiveStorageFormat().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
+    if (CommandUtils.requirement(StorageManager.getActiveStorageType().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
       return;
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
@@ -62,7 +58,7 @@ public class CustomBalanceCommand implements Command {
   
   private void viewOwnBalance(Player sender, CommandArguments args) {
     String currency = (String) args.get("currency");
-    if (CommandUtils.requirement(StorageManager.getActiveStorageFormat().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
+    if (CommandUtils.requirement(StorageManager.getActiveStorageType().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
       return;
     Messages.sendParsedMessage(sender, MessageType.BALANCE_OWN_BALANCE,
       Number.formatCommas(QualityEconomyAPI.getCustomBalance(sender.getUniqueId(), currency))

@@ -22,14 +22,11 @@ import org.bukkit.command.CommandSender;
 @Getter
 public class CustomEconomyCommand implements Command {
   
-  @Getter
-  private final String name = "customeconomy";
-  
-  private final CommandTree command = new CommandTree(name)
+  private final CommandTree command = new CommandTree("customeconomy")
     .withAliases("ceconomy", "customeco", "ceco")
     .withPermission("qualityeconomy.customeconomy")
     .then(new StringArgument("currency")
-      .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageFormat().getCurrencies().toArray(new String[0])))
+      .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0])))
       .then(new OfflinePlayerArgument("target")
         .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
         .then(new LiteralArgument("reset").executes(this::resetBalance))
@@ -39,7 +36,7 @@ public class CustomEconomyCommand implements Command {
   private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isCommandEnabled("customeconomy") || StorageManager.getActiveStorageFormat().getCurrencies().isEmpty())
+    if (isRegistered || !Configuration.isCommandEnabled("customeconomy") || StorageManager.getActiveStorageType().getCurrencies().isEmpty())
       return;
     command.register();
     isRegistered = true;
@@ -48,13 +45,13 @@ public class CustomEconomyCommand implements Command {
   public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister(name, true);
+    CommandAPI.unregister(command.getName(), true);
     isRegistered = false;
   }
   
   private void resetBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
-    if (CommandUtils.requirement(StorageManager.getActiveStorageFormat().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
+    if (CommandUtils.requirement(StorageManager.getActiveStorageType().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
       return;
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
@@ -67,7 +64,7 @@ public class CustomEconomyCommand implements Command {
   
   private void setBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
-    if (CommandUtils.requirement(StorageManager.getActiveStorageFormat().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
+    if (CommandUtils.requirement(StorageManager.getActiveStorageType().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
       return;
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
@@ -82,7 +79,7 @@ public class CustomEconomyCommand implements Command {
   
   private void addBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
-    if (CommandUtils.requirement(StorageManager.getActiveStorageFormat().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
+    if (CommandUtils.requirement(StorageManager.getActiveStorageType().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
       return;
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
@@ -97,7 +94,7 @@ public class CustomEconomyCommand implements Command {
   
   private void removeBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
-    if (CommandUtils.requirement(StorageManager.getActiveStorageFormat().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
+    if (CommandUtils.requirement(StorageManager.getActiveStorageType().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
       return;
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))

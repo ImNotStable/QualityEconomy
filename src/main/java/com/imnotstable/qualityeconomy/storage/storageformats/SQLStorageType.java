@@ -100,7 +100,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public synchronized Map<UUID, Account> getAllAccounts() {
+  public synchronized @NotNull Map<UUID, Account> getAllAccounts() {
     Map<UUID, Account> accounts = new HashMap<>();
     
     try (Connection connection = getConnection();

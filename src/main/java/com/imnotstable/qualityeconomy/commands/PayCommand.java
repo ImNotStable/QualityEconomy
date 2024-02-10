@@ -12,16 +12,12 @@ import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public class PayCommand implements Command {
   
-  @Getter
-  private final String name = "pay";
-  
-  private final CommandTree command = new CommandTree(name)
+  private final CommandTree command = new CommandTree("pay")
     .then(new LiteralArgument("toggle")
       .executesPlayer(this::togglePay))
     .then(new OfflinePlayerArgument("target")
@@ -40,7 +36,7 @@ public class PayCommand implements Command {
   public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister(name, true);
+    CommandAPI.unregister(command.getName(), true);
     isRegistered = false;
   }
   

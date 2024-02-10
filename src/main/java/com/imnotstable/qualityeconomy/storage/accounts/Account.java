@@ -43,8 +43,7 @@ public class Account {
   }
   
   public Account setCustomBalances(@NotNull Map<String, Double> balanceMap) {
-    balanceMap.replaceAll((currency, balance) -> Number.round(balance));
-    otherBalances.putAll(balanceMap);
+    balanceMap.forEach(this::setCustomBalance);
     return this;
   }
   

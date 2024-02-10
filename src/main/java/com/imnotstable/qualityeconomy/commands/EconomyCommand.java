@@ -12,16 +12,12 @@ import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 public class EconomyCommand implements Command {
   
-  @Getter
-  private final String name = "economy";
-  
-  private final CommandTree command = new CommandTree(name)
+  private final CommandTree command = new CommandTree("economy")
     .withPermission("qualityeconomy.economy")
     .withAliases("eco")
     .then(new OfflinePlayerArgument("target")
@@ -42,7 +38,7 @@ public class EconomyCommand implements Command {
   public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister(name, true);
+    CommandAPI.unregister(command.getName(), true);
     isRegistered = false;
   }
   

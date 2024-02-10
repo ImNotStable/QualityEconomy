@@ -67,7 +67,7 @@ public class YamlStorageType extends EasyYaml implements StorageType {
   }
   
   @Override
-  public Map<UUID, Account> getAllAccounts() {
+  public @NotNull Map<UUID, Account> getAllAccounts() {
     Map<UUID, Account> accounts = new HashMap<>();
     for (String uuid : yaml.getKeys(false)) {
       if (uuid.equals("custom-currencies"))

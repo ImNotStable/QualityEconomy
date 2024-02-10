@@ -11,7 +11,6 @@ import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -29,10 +28,7 @@ import java.util.List;
 
 public class WithdrawCommand implements Listener, Command {
   
-  @Getter
-  private final String name = "withdraw";
-  
-  private final CommandAPICommand command = new CommandAPICommand(name)
+  private final CommandAPICommand command = new CommandAPICommand("withdraw")
     .withArguments(new DoubleArgument("amount", Number.getMinimumValue()))
     .executesPlayer(this::withdraw);
   private boolean isRegistered = false;
@@ -47,7 +43,7 @@ public class WithdrawCommand implements Listener, Command {
   public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister(name, true);
+    CommandAPI.unregister(command.getName(), true);
     isRegistered = true;
   }
   

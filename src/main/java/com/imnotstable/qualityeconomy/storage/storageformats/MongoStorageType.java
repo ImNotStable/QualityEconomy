@@ -102,7 +102,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
 
   
   @Override
-  public synchronized Map<UUID, Account> getAllAccounts() {
+  public synchronized @NotNull Map<UUID, Account> getAllAccounts() {
     Map<UUID, Account> accounts = new HashMap<>();
     playerdata.find().forEach(document -> {
       UUID uuid = document.get("UUID", UUID.class);

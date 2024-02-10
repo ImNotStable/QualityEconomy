@@ -36,7 +36,7 @@ public class AccountManager {
     Account account;
     if (!accountExists(uuid)) {
       account = new Account(uuid).setUsername(username);
-      StorageManager.getActiveStorageFormat().createAccount(account);
+      StorageManager.getActiveStorageType().createAccount(account);
     } else
       account = getAccount(uuid).setUsername(username);
     accounts.put(uuid, account);
@@ -74,7 +74,7 @@ public class AccountManager {
         public void run() {
         Debug.Timer timer = new Debug.Timer("setupAccounts()");
         clearAccounts();
-        accounts.putAll(StorageManager.getActiveStorageFormat().getAllAccounts());
+        accounts.putAll(StorageManager.getActiveStorageType().getAllAccounts());
         timer.end();
       }
     }.runTaskAsynchronously(QualityEconomy.getInstance());
@@ -82,7 +82,7 @@ public class AccountManager {
   
   public static void saveAllAccounts() {
     Debug.Timer timer = new Debug.Timer("saveAllAccounts()");
-    StorageManager.getActiveStorageFormat().updateAccounts(AccountManager.accounts.values());
+    StorageManager.getActiveStorageType().updateAccounts(AccountManager.accounts.values());
     timer.end();
   }
   
@@ -99,7 +99,7 @@ public class AccountManager {
         Debug.Timer timer = new Debug.Timer(String.format("createFakeAccounts(%d)", entries));
         Collection<Account> accounts = new ArrayList<>();
         Random random = new Random();
-        Collection<String> currencies = Configuration.areCustomCurrenciesEnabled() ? StorageManager.getActiveStorageFormat().getCurrencies() : new ArrayList<>();
+        Collection<String> currencies = Configuration.areCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
         for (int i = 0; i < entries; ++i) {
           UUID uuid = UUID.randomUUID();
           HashMap<String, Double> customBalances = new HashMap<>();
@@ -111,7 +111,7 @@ public class AccountManager {
             .setCustomBalances(customBalances).setPayable(false)
           );
         }
-        StorageManager.getActiveStorageFormat().createAccounts(accounts);
+        StorageManager.getActiveStorageType().createAccounts(accounts);
         setupAccounts();
         timer.end();
       }
@@ -124,7 +124,7 @@ public class AccountManager {
       public void run() {
         Debug.Timer timer = new Debug.Timer("changeAllAccounts()");
         Random random = new Random();
-        Collection<String> currencies = Configuration.areCustomCurrenciesEnabled() ? StorageManager.getActiveStorageFormat().getCurrencies() : new ArrayList<>();
+        Collection<String> currencies = Configuration.areCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
         accounts.values().forEach(account -> {
           HashMap<String, Double> customBalances = new HashMap<>();
           for (String currency : currencies) {
@@ -132,7 +132,7 @@ public class AccountManager {
           }
           account.setBalance(random.nextDouble(1_000_000_000_000_000.0)).setCustomBalances(customBalances);
         });
-        StorageManager.getActiveStorageFormat().updateAccounts(accounts.values());
+        StorageManager.getActiveStorageType().updateAccounts(accounts.values());
         setupAccounts();
         timer.end();
       }

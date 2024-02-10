@@ -90,15 +90,15 @@ public class QualityEconomyAPI {
   }
   
   public static void createCustomCurrency(@NotNull String currency) {
-    StorageManager.getActiveStorageFormat().addCurrency(currency);
+    StorageManager.getActiveStorageType().addCurrency(currency);
   }
   
   public static void deleteCustomCurrency(@NotNull String currency) {
-    StorageManager.getActiveStorageFormat().removeCurrency(currency);
+    StorageManager.getActiveStorageType().removeCurrency(currency);
   }
   
   public static @NotNull List<String> getCustomCurrencies() {
-    return StorageManager.getActiveStorageFormat().getCurrencies();
+    return StorageManager.getActiveStorageType().getCurrencies();
   }
   
 }

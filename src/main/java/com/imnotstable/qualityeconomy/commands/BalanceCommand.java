@@ -10,17 +10,13 @@ import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class BalanceCommand implements Command {
   
-  @Getter
-  private final String name = "balance";
-  
-  private final CommandTree command = new CommandTree(name)
+  private final CommandTree command = new CommandTree("balance")
     .withAliases("bal")
     .then(new OfflinePlayerArgument("target")
       .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
@@ -38,7 +34,7 @@ public class BalanceCommand implements Command {
   public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister(name, true);
+    CommandAPI.unregister(command.getName(), true);
     isRegistered = false;
   }
   

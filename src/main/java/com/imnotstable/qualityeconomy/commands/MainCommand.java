@@ -16,7 +16,6 @@ import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
@@ -37,11 +36,8 @@ import java.util.regex.Pattern;
 
 public class MainCommand implements Command {
   
-  @Getter
-  private final String name = "qualityeconomy";
-  
   private final Pattern IMPORT_FILE_PATTERN = Pattern.compile("^QualityEconomy \\d{4}.\\d{2}.\\d{2} \\d{2}-\\d{2}\\.json$");
-  private final CommandTree command = new CommandTree(name)
+  private final CommandTree command = new CommandTree("qualityeconomy")
     .withAliases("qe")
     .withPermission("qualityeconomy.admin")
     .then(new LiteralArgument("reload")
@@ -72,7 +68,7 @@ public class MainCommand implements Command {
           .executes(this::createCustomCurrency)))
       .then(new LiteralArgument("deleteCustomCurrency")
         .then(new StringArgument("name")
-          .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageFormat().getCurrencies().toArray(new String[0])))
+          .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0])))
           .executes(this::deleteCustomCurrency)
         )));
   private boolean isRegistered;
@@ -87,7 +83,7 @@ public class MainCommand implements Command {
   public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister(name, true);
+    CommandAPI.unregister(command.getName(), true);
     isRegistered = false;
   }
   
@@ -109,7 +105,7 @@ public class MainCommand implements Command {
   }
   
   private void resetDatabase(ConsoleCommandSender sender, CommandArguments args) {
-    StorageManager.getActiveStorageFormat().wipeDatabase();
+    StorageManager.getActiveStorageType().wipeDatabase();
     sender.sendMessage(Component.text("Resetting database...", NamedTextColor.RED));
   }
   
@@ -124,32 +120,32 @@ public class MainCommand implements Command {
   }
   
   private void transferPluginData(String plugin, CommandSender sender) {
-      new BukkitRunnable() {
-        @Override
-        public void run() {
-          Debug.Timer timer = new Debug.Timer("transferPluginData()");
-          Collection<Account> accounts = new ArrayList<>();
-          if (plugin.equals("Essentials")) {
-            File[] userdata = new File("plugins/Essentials/userdata").listFiles((dir, name) -> Misc.isUUID(name.split("\\.")[0]));
-            if (userdata == null || userdata.length == 0) {
-              sender.sendMessage(Component.text("Failed to import Database", NamedTextColor.RED));
-              return;
-            }
-            for (File userfile : userdata) {
-              YamlConfiguration user = YamlConfiguration.loadConfiguration(userfile);
-              UUID uuid = UUID.fromString(userfile.getName().split("\\.")[0]);
-              String username = user.getString("last-account-name");
-              double balance = Double.parseDouble(user.getString("money"));
-              accounts.add(new Account(uuid).setUsername(username).setBalance(balance));
-            }
+    new BukkitRunnable() {
+      @Override
+      public void run() {
+        Debug.Timer timer = new Debug.Timer("transferPluginData()");
+        Collection<Account> accounts = new ArrayList<>();
+        if (plugin.equals("Essentials")) {
+          File[] userdata = new File("plugins/Essentials/userdata").listFiles((dir, name) -> Misc.isUUID(name.split("\\.")[0]));
+          if (userdata == null || userdata.length == 0) {
+            sender.sendMessage(Component.text("Failed to import Database", NamedTextColor.RED));
+            return;
           }
-          StorageManager.getActiveStorageFormat().wipeDatabase();
-          StorageManager.getActiveStorageFormat().createAccounts(accounts);
-          AccountManager.setupAccounts();
-          sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
-          timer.end();
+          for (File userfile : userdata) {
+            YamlConfiguration user = YamlConfiguration.loadConfiguration(userfile);
+            UUID uuid = UUID.fromString(userfile.getName().split("\\.")[0]);
+            String username = user.getString("last-account-name");
+            double balance = Double.parseDouble(user.getString("money"));
+            accounts.add(new Account(uuid).setUsername(username).setBalance(balance));
+          }
         }
-      }.runTaskAsynchronously(QualityEconomy.getInstance());
+        StorageManager.getActiveStorageType().wipeDatabase();
+        StorageManager.getActiveStorageType().createAccounts(accounts);
+        AccountManager.setupAccounts();
+        sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
+        timer.end();
+      }
+    }.runTaskAsynchronously(QualityEconomy.getInstance());
   }
   
   private void exportDatabase(CommandSender sender, CommandArguments args) {
@@ -168,22 +164,22 @@ public class MainCommand implements Command {
   
   private void createCustomCurrency(CommandSender sender, CommandArguments args) {
     String currency = args.get("name").toString().toUpperCase();
-    if (StorageManager.getActiveStorageFormat().getCurrencies().contains(currency)) {
+    if (StorageManager.getActiveStorageType().getCurrencies().contains(currency)) {
       sender.sendMessage(Component.text("That currency already exists", NamedTextColor.RED));
       return;
     }
     sender.sendMessage(Component.text("Creating custom currency \"" + currency + "\"", NamedTextColor.GRAY));
-    StorageManager.getActiveStorageFormat().addCurrency(currency);
+    StorageManager.getActiveStorageType().addCurrency(currency);
   }
   
   private void deleteCustomCurrency(CommandSender sender, CommandArguments args) {
     String currency = args.get("name").toString().toUpperCase();
-    if (!StorageManager.getActiveStorageFormat().getCurrencies().contains(currency)) {
+    if (!StorageManager.getActiveStorageType().getCurrencies().contains(currency)) {
       sender.sendMessage(Component.text("That currency does not exist", NamedTextColor.RED));
       return;
     }
     sender.sendMessage(Component.text("Deleting custom currency \"" + currency + "\"", NamedTextColor.GRAY));
-    StorageManager.getActiveStorageFormat().removeCurrency(currency);
+    StorageManager.getActiveStorageType().removeCurrency(currency);
   }
   
   private String[] getImportableFiles() {
@@ -219,7 +215,6 @@ public class MainCommand implements Command {
     
     return completions.toArray(new String[0]);
   }
-
-
+  
   
 }

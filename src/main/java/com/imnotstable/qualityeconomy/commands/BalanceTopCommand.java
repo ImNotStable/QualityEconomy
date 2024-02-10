@@ -13,7 +13,6 @@ import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
@@ -21,17 +20,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class BalanceTopCommand implements Command {
   
   public static List<Account> orderedPlayerList = new ArrayList<>();
-  @Getter
-  private final String name = "balancetop";
   private boolean isRegistered = false;
   private double serverTotal = 0;
   private int maxPage;
-  private final CommandTree command = new CommandTree(name)
+  private final CommandTree command = new CommandTree("balancetop")
     .withAliases("baltop")
     .then(new LiteralArgument("update")
       .withPermission("qualityeconomy.balancetop.update")
@@ -55,7 +51,7 @@ public class BalanceTopCommand implements Command {
   public void unregister() {
     if (!isRegistered)
       return;
-    CommandAPI.unregister(name, true);
+    CommandAPI.unregister(command.getName(), true);
     if (taskID != null) {
       Bukkit.getScheduler().cancelTask(taskID);
       taskID = null;
@@ -97,13 +93,10 @@ public class BalanceTopCommand implements Command {
     
     Collection<Account> accounts = AccountManager.getAllAccounts();
     
-    Stream<Account> accountStream = accounts.stream();
-    
-    serverTotal = accountStream
+    serverTotal = accounts.stream()
       .mapToDouble(Account::getBalance)
       .sum();
-    
-    orderedPlayerList = accountStream
+    orderedPlayerList = accounts.stream()
       .sorted(Comparator.comparingDouble(Account::getBalance).reversed())
       .toList();
     

@@ -3,6 +3,7 @@ package com.imnotstable.qualityeconomy.util.storage;
 import com.imnotstable.qualityeconomy.commands.CommandManager;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.util.Debug;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ public class EasyCurrencies {
   
   protected final List<String> currencies = new ArrayList<>();
   
-  public List<String> getCurrencies() {
+  public @NotNull List<String> getCurrencies() {
     if (!Configuration.areCustomCurrenciesEnabled()) {
       new Debug.QualityError("This feature is disabled within QualityEconomy's configuration").log();
       return new ArrayList<>();
