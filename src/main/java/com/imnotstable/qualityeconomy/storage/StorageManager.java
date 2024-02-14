@@ -38,7 +38,8 @@ import java.util.UUID;
 
 public class StorageManager implements Listener {
   
-  private static @Getter StorageType activeStorageType;
+  @Getter
+  private static StorageType activeStorageType;
   private static Integer backupSchedulerID = null;
   private static Integer accountSchedulerID = null;
   

@@ -204,30 +204,29 @@ public class SQLStorageType extends EasySQL implements StorageType {
   
   private void toggleCurrencyTable(Connection connection) throws SQLException {
     boolean tableExists = currencyTableExists(getMetaData(connection));
-    if (Configuration.areCustomCurrenciesEnabled() && !tableExists)
-      createCurrencyTable(connection);
-    else if (!Configuration.areCustomCurrenciesEnabled() && tableExists)
-      dropCurrencyTable(connection);
-    
     if (tableExists) {
       try (ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM CURRENCIES")) {
         while (resultSet.next())
           currencies.add(resultSet.getString(1));
       }
-      if (!currencies.isEmpty()) {
-        CommandManager.getCommand("custombalance").register();
-        CommandManager.getCommand("customeconomy").register();
-      }
     }
+    if (Configuration.areCustomCurrenciesEnabled() && !tableExists)
+      createCurrencyTable(connection);
+    else if (!Configuration.areCustomCurrenciesEnabled() && tableExists)
+      dropCurrencyTable(connection);
   }
   
   private void toggleColumns(Connection connection) throws SQLException {
     DatabaseMetaData metaData = getMetaData(connection);
     if (Configuration.areCustomCurrenciesEnabled()) {
+      CommandManager.getCommand("custombalance").register();
+      CommandManager.getCommand("customeconomy").register();
       for (String currency : currencies)
         if (!columnExists(metaData, currency))
           addColumn(connection, currency, "FLOAT(53)", "0.0");
     } else {
+      CommandManager.getCommand("custombalance").unregister();
+      CommandManager.getCommand("customeconomy").unregister();
       for (String currency : currencies)
         if (columnExists(metaData, currency))
           dropColumn(connection, currency);

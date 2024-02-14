@@ -90,12 +90,11 @@ public class Configuration {
       return;
     }
     
-    for (String key : internalConfig.getKeys(true)) {
+    for (String key : internalConfig.getKeys(true))
       if (!config.contains(key)) {
         config.set(key, internalConfig.get(key));
         save = true;
       }
-    }
     
     for (String key : config.getKeys(true)) {
       if (!internalConfig.contains(key)) {

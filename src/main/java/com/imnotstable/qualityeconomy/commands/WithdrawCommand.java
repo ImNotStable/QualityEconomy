@@ -27,11 +27,11 @@ import java.util.Collections;
 
 public class WithdrawCommand implements Listener, Command {
   
+  private final NamespacedKey amountKey = new NamespacedKey(QualityEconomy.getInstance(), "amount");
+  private final NamespacedKey ownerKey = new NamespacedKey(QualityEconomy.getInstance(), "owner");
   private final CommandAPICommand command = new CommandAPICommand("withdraw")
     .withArguments(new DoubleArgument("amount", Number.getMinimumValue()))
     .executesPlayer(this::withdraw);
-  private final NamespacedKey amountKey = new NamespacedKey(QualityEconomy.getInstance(), "amount");
-  private final NamespacedKey ownerKey = new NamespacedKey(QualityEconomy.getInstance(), "owner");
   private boolean isRegistered = false;
   
   public void register() {
@@ -55,7 +55,7 @@ public class WithdrawCommand implements Listener, Command {
     QualityEconomyAPI.removeBalance(sender.getUniqueId(), amount);
     sender.getInventory().addItem(getBankNote(amount, sender));
     Messages.sendParsedMessage(sender, MessageType.WITHDRAW_MESSAGE,
-      Number.formatCommas(amount)
+      Number.format(amount, Number.FormatType.COMMAS)
     );
   }
   
@@ -63,9 +63,9 @@ public class WithdrawCommand implements Listener, Command {
     ItemStack item = new ItemStack(Material.PAPER);
     ItemMeta meta = item.getItemMeta();
     meta.displayName(Messages.getParsedMessage(MessageType.WITHDRAW_BANKNOTE_DISPLAYNAME,
-      Number.formatCommas(amount), player.getName()));
+      Number.format(amount, Number.FormatType.COMMAS), player.getName()));
     meta.lore(Collections.singletonList(Messages.getParsedMessage(MessageType.WITHDRAW_BANKNOTE_LORE,
-      Number.formatCommas(amount), player.getName())));
+      Number.format(amount, Number.FormatType.COMMAS), player.getName())));
     meta.getPersistentDataContainer().set(amountKey, PersistentDataType.DOUBLE, amount);
     meta.getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, player.getName());
     item.setItemMeta(meta);
@@ -88,7 +88,7 @@ public class WithdrawCommand implements Listener, Command {
     inventory.getItem(inventory.getHeldItemSlot()).subtract();
     
     Messages.sendParsedMessage(player, MessageType.WITHDRAW_CLAIM,
-      Number.formatCommas(amount), persistentDataContainer.get(ownerKey, PersistentDataType.STRING));
+      Number.format(amount, Number.FormatType.COMMAS), persistentDataContainer.get(ownerKey, PersistentDataType.STRING));
   }
   
 }

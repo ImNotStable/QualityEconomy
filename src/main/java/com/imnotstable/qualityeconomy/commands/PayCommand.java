@@ -62,12 +62,12 @@ public class PayCommand implements Command {
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
       return;
     Messages.sendParsedMessage(sender, MessageType.PAY_SEND,
-      Number.formatCommas(amount),
+      Number.format(amount, Number.FormatType.COMMAS),
       target.getName()
     );
     if (target.isOnline())
       Messages.sendParsedMessage(target.getPlayer(), MessageType.PAY_RECEIVE,
-        Number.formatCommas(amount), sender.getName());
+        Number.format(amount, Number.FormatType.COMMAS), sender.getName());
     QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), amount);
   }
   

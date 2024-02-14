@@ -8,6 +8,7 @@ import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.Misc;
+import com.imnotstable.qualityeconomy.util.Number;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -57,7 +58,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
   @Override
   public @NotNull List<String> getPlaceholders() {
     return List.of(
-      "balancetop_#<integer>",
+      "balancetop_#<integer>", "balancetop_balance_#<integer>",
       "balance", "balance_<uuid>", "balance_<player>",
       "cbalance_<currency>", "cbalance_<currency>_<uuid>", "cbalance_<currency>_<player>",
       "isPayable", "isPayable_<uuid>", "isPayable_<player>",
@@ -78,6 +79,13 @@ public class PlaceholderHook extends PlaceholderExpansion {
           } catch (NumberFormatException exception) {
             new Debug.QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
           }
+        } else if (elements.length == 3 && elements[1].equals("balance")) {
+          try {
+            int place = Integer.parseInt(elements[2].substring(1)) - 1;
+            return Number.format(BalanceTopCommand.orderedPlayerList.get(place).getBalance(), Number.FormatType.NORMAL);
+          } catch (NumberFormatException exception) {
+            new Debug.QualityError("Invalid input for \"balancetop_balance_#<integer>\": " + input, exception).log();
+          }
         }
       }
       case "balance" -> {
@@ -93,7 +101,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
         }
         if (uuid == null)
           return null;
-        return String.valueOf(QualityEconomyAPI.getBalance(uuid));
+        return Number.format(QualityEconomyAPI.getBalance(uuid), Number.FormatType.NORMAL);
       }
       case "cbalance" -> {
         if (Configuration.areCustomCurrenciesEnabled())
@@ -112,7 +120,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
           return null;
         if (!StorageManager.getActiveStorageType().getCurrencies().contains(elements[1]))
           return null;
-        return String.valueOf(QualityEconomyAPI.getCustomBalance(uuid, elements[1]));
+        return Number.format(QualityEconomyAPI.getCustomBalance(uuid, elements[1]), Number.FormatType.NORMAL);
       }
       case "isPayable" -> {
         UUID uuid = null;

@@ -33,7 +33,6 @@ public final class QualityEconomy extends JavaPlugin {
     CommandAPI.onLoad(new CommandAPIBukkitConfig(this)
       .verboseOutput(Debug.DEBUG_MODE)
       .silentLogs(!Debug.DEBUG_MODE)
-      //.initializeNBTAPI(NBTContainer.class, NBTContainer::new)
     );
   }
   

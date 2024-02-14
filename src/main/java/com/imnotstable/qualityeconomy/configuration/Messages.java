@@ -59,7 +59,7 @@ public class Messages {
     YamlConfiguration internalMessages;
     YamlConfiguration messages;
     try (InputStream inputStream = QualityEconomy.getInstance().getResource(file.getName());
-      InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
+         InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
       internalMessages = YamlConfiguration.loadConfiguration(inputStreamReader);
       messages = YamlConfiguration.loadConfiguration(file);
     } catch (IOException exception) {
@@ -67,12 +67,11 @@ public class Messages {
       return;
     }
     
-    for (String key : internalMessages.getKeys(true)) {
+    for (String key : internalMessages.getKeys(true))
       if (!messages.contains(key)) {
         messages.set(key, internalMessages.get(key));
         save = true;
       }
-    }
     
     for (String key : messages.getKeys(true)) {
       if (!internalMessages.contains(key)) {

@@ -73,7 +73,7 @@ public class BalanceTopCommand implements Command {
       for (int i = startIndex; i < endIndex; i++) {
         Account account = orderedPlayerList.get(i);
         Messages.sendParsedMessage(sender, MessageType.BALANCETOP_BALANCE_VIEW,
-          Number.formatCommas(account.getBalance()), String.valueOf(i + 1), account.getUsername());
+          Number.format(account.getBalance(), Number.FormatType.COMMAS), String.valueOf(i + 1), account.getUsername());
       }
     
     Messages.sendParsedMessage(sender, MessageType.BALANCETOP_NEXT_PAGE,

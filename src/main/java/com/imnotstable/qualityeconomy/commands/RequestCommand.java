@@ -79,9 +79,9 @@ public class RequestCommand implements Command {
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.OTHER_NOT_ENOUGH_MONEY, requester))
       return;
     Messages.sendParsedMessage(requester, MessageType.REQUEST_SEND,
-      Number.formatCommas(amount), requestee.getName());
+      Number.format(amount, Number.FormatType.COMMAS), requestee.getName());
     Messages.sendParsedMessage(requestee, MessageType.REQUEST_RECEIVE,
-      Number.formatCommas(amount), requester.getName());
+      Number.format(amount, Number.FormatType.COMMAS), requester.getName());
     UUID requesterUUID = requester.getUniqueId();
     UUID requesteeUUID = requestee.getUniqueId();
     requests.computeIfAbsent(requesteeUUID, uuid -> new HashMap<>()).put(requesterUUID, amount);
@@ -102,12 +102,12 @@ public class RequestCommand implements Command {
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, requestee))
       return;
     Messages.sendParsedMessage(requestee, MessageType.REQUEST_ACCEPT_SEND,
-      Number.formatCommas(amount),
+      Number.format(amount, Number.FormatType.COMMAS),
       requester.getName()
     );
     if (requester.isOnline())
       Messages.sendParsedMessage(requestee, MessageType.REQUEST_ACCEPT_RECEIVE,
-        Number.formatCommas(amount), requestee.getName());
+        Number.format(amount, Number.FormatType.COMMAS), requestee.getName());
     QualityEconomyAPI.transferBalance(requester.getUniqueId(), requestee.getUniqueId(), amount);
   }
   
@@ -119,10 +119,10 @@ public class RequestCommand implements Command {
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, requestee))
       return;
     Messages.sendParsedMessage(requestee, MessageType.REQUEST_DENY_SEND,
-      Number.formatCommas(amount), requester.getName());
+      Number.format(amount, Number.FormatType.COMMAS), requester.getName());
     if (requester.isOnline())
       Messages.sendParsedMessage(requestee, MessageType.REQUEST_DENY_RECEIVE,
-        Number.formatCommas(amount), requestee.getName());
+        Number.format(amount, Number.FormatType.COMMAS), requestee.getName());
   }
   
 }

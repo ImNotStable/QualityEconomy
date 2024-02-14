@@ -43,12 +43,12 @@ public class BalanceCommand implements Command {
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
     Messages.sendParsedMessage(sender, MessageType.BALANCE_OTHER_BALANCE,
-      Number.formatCommas(QualityEconomyAPI.getBalance(target.getUniqueId())), target.getName());
+      Number.format(QualityEconomyAPI.getBalance(target.getUniqueId()), Number.FormatType.COMMAS), target.getName());
   }
   
   private void viewOwnBalance(Player sender, CommandArguments args) {
     Messages.sendParsedMessage(sender, MessageType.BALANCE_OWN_BALANCE,
-      Number.formatCommas(QualityEconomyAPI.getBalance(sender.getUniqueId())));
+      Number.format(QualityEconomyAPI.getBalance(sender.getUniqueId()), Number.FormatType.COMMAS));
   }
   
 }

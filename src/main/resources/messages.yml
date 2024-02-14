@@ -40,3 +40,4 @@ errors:
     other: "<red>They do not have enough money"
   not-accepting-payments: "<red>This player is not accepting payments"
   not-accepting-requests: "<red>This player is not accepting requests"
+  invalid-number: "<red>Invalid number inputted"

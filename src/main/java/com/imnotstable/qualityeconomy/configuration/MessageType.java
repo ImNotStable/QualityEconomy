@@ -38,7 +38,8 @@ public enum MessageType {
   SELF_NOT_ENOUGH_MONEY("errors.not-enough-money.self"),
   OTHER_NOT_ENOUGH_MONEY("errors.not-enough-money.other"),
   NOT_ACCEPTING_PAYMENTS("errors.not-accepting-payments"),
-  NOT_ACCEPTING_REQUESTS("errors.not-accepting-requests");
+  NOT_ACCEPTING_REQUESTS("errors.not-accepting-requests"),
+  INVALID_NUMBER("errors.invalid-number");
   
   private final String value;
   private final String[] tags;
