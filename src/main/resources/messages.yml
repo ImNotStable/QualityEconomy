@@ -18,6 +18,10 @@ pay:
   receive: "<gray>Received <yellow>$<amount> <gray>from <yellow><sender>"
 withdraw:
   message: "<gray>You withdrew <yellow>$<amount>"
+  claim: "<gray>You claimed <yellow>$<amount>"
+  banknote-item:
+    displayname: "<reset><yellow>$<amount> <gray>Banknote"
+    lore: "<gray>From: <yellow><player>"
 request:
   toggle-on: "<gray>Requests are now <green>enabled <gray>from other players"
   toggle-off: "<gray>Requests are now <red>disabled <gray>from other players"
