@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.commands.CommandManager;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
@@ -119,7 +120,7 @@ public class StorageManager implements Listener {
             for (JsonElement currencyJSON : currenciesJSON) {
               String currency = currencyJSON.getAsString();
               customCurrencies.add(currency);
-              getActiveStorageType().addCurrency(currency);
+              addCurrency(currency);
             }
           }
           rootJson.entrySet().stream()
@@ -181,6 +182,43 @@ public class StorageManager implements Listener {
         timer.end();
       }
     }.runTaskAsynchronously(QualityEconomy.getInstance());
+  }
+  
+  public static void addCurrency(String currency) {
+    currency = currency.toUpperCase();
+    if (!Configuration.areCustomCurrenciesEnabled()) {
+      new Debug.QualityError("This feature is disabled within QualityEconomy's configuration").log();
+      return;
+    }
+    if (List.of("UUID", "NAME", "BALANCE", "PAYABLE", "REQUESTABLE").contains(currency)) {
+      new Debug.QualityError("Failed to create currency \"" + currency + "\"", "Name cannot be \"UUID\", \"NAME\", \"BALANCE\", \"PAYABLE\", \"REQUESTABLE\"").log();
+      return;
+    }
+    if (getActiveStorageType().getCurrencies().contains(currency)) {
+      new Debug.QualityError("Failed to create currency \"" + currency + "\"", "Currency already exists").log();
+      return;
+    }
+    if (getActiveStorageType().addCurrency(currency)) {
+      CommandManager.getCommand("custombalance").register();
+      CommandManager.getCommand("customeconomy").register();
+    }
+  }
+  
+  public static void removeCurrency(String currency) {
+    currency = currency.toUpperCase();
+    if (!Configuration.areCustomCurrenciesEnabled()) {
+      new Debug.QualityError("This feature is disabled within QualityEconomy's configuration").log();
+      return;
+    }
+    if (!getActiveStorageType().getCurrencies().contains(currency)) {
+      new Debug.QualityError("Failed to delete currency \"" + currency + "\"", "Currency doesn't exist").log();
+      return;
+    }
+    if (getActiveStorageType().removeCurrency(currency))
+      if (getActiveStorageType().getCurrencies().isEmpty()) {
+        CommandManager.getCommand("custombalance").unregister();
+        CommandManager.getCommand("customeconomy").unregister();
+      }
   }
   
   @EventHandler

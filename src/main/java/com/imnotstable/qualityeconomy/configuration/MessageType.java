@@ -29,6 +29,9 @@ public enum MessageType {
   REQUEST_DENY_SEND("request.deny-send", new String[]{"amount", "requestee"}),
   REQUEST_DENY_RECEIVE("request.deny-receive", new String[]{"amount", "requester"}),
   WITHDRAW_MESSAGE("withdraw.message", new String[]{"amount"}),
+  WITHDRAW_CLAIM("withdraw.claim", new String[]{"amount"}),
+  WITHDRAW_BANKNOTE_DISPLAYNAME("withdraw.banknote-item.displayname", new String[]{"amount", "player"}),
+  WITHDRAW_BANKNOTE_LORE("withdraw.banknote-item.lore", new String[]{"amount", "player"}),
   PLAYER_NOT_FOUND("errors.player-not-found"),
   PLAYER_NOT_ONLINE("errors.player-not-online"),
   CURRENCY_NOT_FOUND("errors.currency-not-found"),
@@ -37,11 +40,11 @@ public enum MessageType {
   NOT_ACCEPTING_PAYMENTS("errors.not-accepting-payments"),
   NOT_ACCEPTING_REQUESTS("errors.not-accepting-requests");
   
+  private final String value;
+  private final String[] tags;
+  
   MessageType(String value) {
     this(value, new String[0]);
   }
-  
-  private final String value;
-  private final String[] tags;
   
 }

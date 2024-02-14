@@ -26,15 +26,19 @@ public final class QualityEconomy extends JavaPlugin {
   
   @Override
   public void onLoad() {
-    CommandAPI.onLoad(new CommandAPIBukkitConfig(this).verboseOutput(false).silentLogs(true));
-  }
-  
-  @Override
-  public void onEnable() {
     if (new File(getDataFolder(), "debug_mode").exists()) {
       Debug.DEBUG_MODE = true;
       Logger.log(Component.text("Enabled DEBUG_MODE", NamedTextColor.GRAY));
     }
+    CommandAPI.onLoad(new CommandAPIBukkitConfig(this)
+      .verboseOutput(Debug.DEBUG_MODE)
+      .silentLogs(!Debug.DEBUG_MODE)
+      //.initializeNBTAPI(NBTContainer.class, NBTContainer::new)
+    );
+  }
+  
+  @Override
+  public void onEnable() {
     Debug.Timer timer = new Debug.Timer("onEnable()");
     new Debug.QualityLogger("This is a warning", "Please export your database before updating to any version", "Once this message no longer exists, doing so will no longer be required.").log();
     instance = this;

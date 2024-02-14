@@ -48,8 +48,7 @@ public class EconomyCommand implements Command {
       return;
     QualityEconomyAPI.setBalance(target.getUniqueId(), 0);
     Messages.sendParsedMessage(sender, MessageType.ECONOMY_RESET,
-      target.getName()
-    );
+      target.getName());
   }
   
   private void setBalance(CommandSender sender, CommandArguments args) {
@@ -59,9 +58,7 @@ public class EconomyCommand implements Command {
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.setBalance(target.getUniqueId(), balance);
     Messages.sendParsedMessage(sender, MessageType.ECONOMY_SET,
-      Number.formatCommas(balance),
-      target.getName()
-    );
+      Number.formatCommas(balance), target.getName());
   }
   
   private void addBalance(CommandSender sender, CommandArguments args) {
@@ -71,9 +68,7 @@ public class EconomyCommand implements Command {
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.addBalance(target.getUniqueId(), balance);
     Messages.sendParsedMessage(sender, MessageType.ECONOMY_ADD,
-      Number.formatCommas(balance),
-      target.getName()
-    );
+      Number.formatCommas(balance), target.getName());
   }
   
   private void removeBalance(CommandSender sender, CommandArguments args) {
@@ -83,9 +78,7 @@ public class EconomyCommand implements Command {
     double balance = Number.roundObj(args.get("amount"));
     QualityEconomyAPI.removeBalance(target.getUniqueId(), balance);
     Messages.sendParsedMessage(sender, MessageType.ECONOMY_REMOVE,
-      Number.formatCommas(balance),
-      target.getName()
-    );
+      Number.formatCommas(balance), target.getName());
   }
   
 }

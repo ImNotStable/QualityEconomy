@@ -4,8 +4,8 @@ import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public interface StorageType {
@@ -24,10 +24,10 @@ public interface StorageType {
   
   @NotNull Map<UUID, Account> getAllAccounts();
   
-  @NotNull List<String> getCurrencies();
+  @NotNull Set<String> getCurrencies();
   
-  void addCurrency(@NotNull String currency);
+  boolean addCurrency(@NotNull String currency);
   
-  void removeCurrency(@NotNull String currency);
+  boolean removeCurrency(@NotNull String currency);
   
 }

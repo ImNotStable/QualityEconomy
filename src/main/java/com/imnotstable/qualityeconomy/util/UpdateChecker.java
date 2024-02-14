@@ -23,7 +23,7 @@ public class UpdateChecker {
     String latestVersion = getLatestVersion();
     if (latestVersion == null)
       return;
-    if (!Version.requiresUpdate(new Version(latestVersion))) {
+    if (Version.compare(Version.getPluginVersion(), new Version(latestVersion)) == -1) {
       new Debug.QualityLogger("QualityEconomy is out of date. Please update it at the link below.", "https://github.com/ImNotStable/QualityEconomy/releases/latest").log();
       Bukkit.getPluginManager().registerEvents(new Listener() {
         @EventHandler

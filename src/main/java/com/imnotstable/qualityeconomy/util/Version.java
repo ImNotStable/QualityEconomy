@@ -2,36 +2,43 @@ package com.imnotstable.qualityeconomy.util;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import lombok.Getter;
+import org.jetbrains.annotations.Range;
 
 public class Version {
   
-  private static final Version pluginVersion = new Version(QualityEconomy.getInstance().getDescription().getVersion());
-  
-  public static boolean requiresUpdate(Version version) {
-    if (pluginVersion.getMajor() < version.getMajor())
-      return true;
-    if (pluginVersion.getMajor() < version.getMinor())
-      return true;
-    return pluginVersion.getPatch() < version.getPatch();
-  }
-  
-  private final @Getter int major;
-  private final @Getter int minor;
-  private final @Getter int patch;
+  private static final @Getter Version pluginVersion = new Version(QualityEconomy.getInstance().getDescription().getVersion());
+  private final int[] version = new int[3];
   
   public Version(String version) {
     if (version.contains("-"))
       version = version.split("-")[0];
     String[] split = version.split("\\.");
-    this.major = Integer.parseInt(split[0]);
-    this.minor = Integer.parseInt(split[1]);
-    this.patch = Integer.parseInt(split[2]);
+    if (split.length != 3)
+      throw new IllegalArgumentException("Invalid version format.");
+    this.version[0] = Integer.parseInt(split[0]);
+    this.version[1] = Integer.parseInt(split[1]);
+    this.version[2] = Integer.parseInt(split[2]);
   }
   
-  public Version(int major, int minor, int patch) {
-    this.major = major;
-    this.minor = minor;
-    this.patch = patch;
+  public static @Range(from = -1, to = 1) int compare(Version version1, Version version2) {
+    return version1.compareTo(version2);
+  }
+  
+  public int compareTo(Version other) {
+    if (this.version[0] > other.version[0])
+      return 1;
+    else if (this.version[0] < other.version[0])
+      return -1;
+    if (this.version[1] > other.version[1])
+      return 1;
+    else if (this.version[1] < other.version[1])
+      return -1;
+    return Integer.compare(this.version[2], other.version[2]);
+  }
+  
+  @Override
+  public String toString() {
+    return this.version[0] + "." + this.version[1] + "." + this.version[2];
   }
   
 }

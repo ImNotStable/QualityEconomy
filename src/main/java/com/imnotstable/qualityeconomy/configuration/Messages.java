@@ -11,8 +11,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Messages {
   
@@ -24,14 +25,18 @@ public class Messages {
   }
   
   public static void sendParsedMessage(CommandSender sender, MessageType id, String... tags) {
-    int tagsReq = id.getTags().length;
-    if (tags.length != tagsReq)
-      throw new IllegalArgumentException("Found " + tags.length + " tags when required " + tagsReq);
-    TagResolver[] tagResolvers = new TagResolver[tagsReq];
-    for (int i = 0; i < tagsReq; i++) {
+    sender.sendMessage(getParsedMessage(id, tags));
+  }
+  
+  public static Component getParsedMessage(MessageType id, String... tags) {
+    int tagsRequirement = id.getTags().length;
+    if (tags.length != tagsRequirement)
+      throw new IllegalArgumentException("Found " + tags.length + " tags when required " + tagsRequirement);
+    TagResolver[] tagResolvers = new TagResolver[tagsRequirement];
+    for (int i = 0; i < tagsRequirement; i++) {
       tagResolvers[i] = TagResolver.resolver(id.getTags()[i], Tag.selfClosingInserting(Component.text(tags[i])));
     }
-    sender.sendMessage(MiniMessage.miniMessage().deserialize(messages.get(id.getValue()), tagResolvers));
+    return MiniMessage.miniMessage().deserialize(messages.get(id.getValue()), tagResolvers);
   }
   
   public static void load() {
@@ -50,19 +55,37 @@ public class Messages {
   }
   
   public static void update() {
-    YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-    Map<String, Object> values = new HashMap<>();
-    configuration.getKeys(true).forEach(key -> values.putIfAbsent(key, configuration.get(key)));
-    QualityEconomy.getInstance().saveResource("messages.yml", true);
-    YamlConfiguration finalConfiguration = YamlConfiguration.loadConfiguration(file);
-    values.forEach((key, value) -> {
-      if (finalConfiguration.contains(key))
-        finalConfiguration.set(key, value);
-    });
-    try {
-      finalConfiguration.save(file);
+    boolean save = false;
+    YamlConfiguration internalMessages;
+    YamlConfiguration messages;
+    try (InputStream inputStream = QualityEconomy.getInstance().getResource(file.getName());
+      InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
+      internalMessages = YamlConfiguration.loadConfiguration(inputStreamReader);
+      messages = YamlConfiguration.loadConfiguration(file);
     } catch (IOException exception) {
-      new Debug.QualityError("Failed to update messages.yml", exception).log();
+      new Debug.QualityError("Failed to load internal messages.yml", exception).log();
+      return;
+    }
+    
+    for (String key : internalMessages.getKeys(true)) {
+      if (!messages.contains(key)) {
+        messages.set(key, internalMessages.get(key));
+        save = true;
+      }
+    }
+    
+    for (String key : messages.getKeys(true)) {
+      if (!internalMessages.contains(key)) {
+        messages.set(key, null);
+        save = true;
+      }
+      
+      if (save)
+        try {
+          messages.save(file);
+        } catch (IOException exception) {
+          new Debug.QualityError("Failed to update messages.yml", exception).log();
+        }
     }
   }
   

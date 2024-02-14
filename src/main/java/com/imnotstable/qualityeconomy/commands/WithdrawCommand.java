@@ -1,36 +1,37 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
-import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
-import java.util.List;
+import java.util.Collections;
 
 public class WithdrawCommand implements Listener, Command {
   
   private final CommandAPICommand command = new CommandAPICommand("withdraw")
     .withArguments(new DoubleArgument("amount", Number.getMinimumValue()))
     .executesPlayer(this::withdraw);
+  private final NamespacedKey amountKey = new NamespacedKey(QualityEconomy.getInstance(), "amount");
+  private final NamespacedKey ownerKey = new NamespacedKey(QualityEconomy.getInstance(), "owner");
   private boolean isRegistered = false;
   
   public void register() {
@@ -61,12 +62,12 @@ public class WithdrawCommand implements Listener, Command {
   public ItemStack getBankNote(double amount, Player player) {
     ItemStack item = new ItemStack(Material.PAPER);
     ItemMeta meta = item.getItemMeta();
-    meta.displayName(
-      Component.text().append(Component.text("$" + amount, NamedTextColor.GREEN), Component.text(" Banknote", NamedTextColor.GRAY)).build()
-        .decoration(TextDecoration.ITALIC, false)
-    );
-    meta.lore(List.of(Component.text(""), Component.text("From: " + player.getName(), NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)));
-    meta.setCustomModelData(1234567890);
+    meta.displayName(Messages.getParsedMessage(MessageType.WITHDRAW_BANKNOTE_DISPLAYNAME,
+      Number.formatCommas(amount), player.getName()));
+    meta.lore(Collections.singletonList(Messages.getParsedMessage(MessageType.WITHDRAW_BANKNOTE_LORE,
+      Number.formatCommas(amount), player.getName())));
+    meta.getPersistentDataContainer().set(amountKey, PersistentDataType.DOUBLE, amount);
+    meta.getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, player.getName());
     item.setItemMeta(meta);
     return item;
   }
@@ -75,21 +76,19 @@ public class WithdrawCommand implements Listener, Command {
   public void on(PlayerInteractEvent event) {
     if (!Configuration.areBanknotesEnabled() || event.getItem() == null || !event.getItem().getType().equals(Material.PAPER) || !event.getAction().isRightClick())
       return;
-    ItemMeta meta = event.getItem().getItemMeta();
-    if (!meta.hasCustomModelData() || meta.getCustomModelData() != 1234567890)
+    PersistentDataContainer persistentDataContainer = event.getItem().getItemMeta().getPersistentDataContainer();
+    if (!persistentDataContainer.has(amountKey) || !persistentDataContainer.has(ownerKey))
       return;
-    double amount;
-    try {
-      amount = Double.parseDouble(LegacyComponentSerializer.legacyAmpersand().serialize(meta.displayName()).substring(3).split("&7 ")[0]);
-    } catch (NumberFormatException exception) {
-      new Debug.QualityError("Failed to format number", exception).log();
-      return;
-    }
-    Inventory inventory = event.getPlayer().getInventory();
-    int i = inventory.first(event.getItem());
-    ItemStack item = inventory.getItem(i);
-    item.setAmount(item.getAmount() - 1);
-    QualityEconomyAPI.addBalance(event.getPlayer().getUniqueId(), amount);
+    
+    Player player = event.getPlayer();
+    double amount = persistentDataContainer.get(amountKey, PersistentDataType.DOUBLE);
+    QualityEconomyAPI.addBalance(player.getUniqueId(), amount);
+    
+    PlayerInventory inventory = player.getInventory();
+    inventory.getItem(inventory.getHeldItemSlot()).subtract();
+    
+    Messages.sendParsedMessage(player, MessageType.WITHDRAW_CLAIM,
+      Number.formatCommas(amount), persistentDataContainer.get(ownerKey, PersistentDataType.STRING));
   }
   
 }

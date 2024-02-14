@@ -99,7 +99,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     if (!updates.isEmpty())
       playerdata.bulkWrite(updates);
   }
-
+  
   
   @Override
   public synchronized @NotNull Map<UUID, Account> getAllAccounts() {
@@ -120,28 +120,26 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   }
   
   @Override
-  public void addCurrency(@NotNull String currency) {
-    currency = addCurrencyAttempt(currency);
-    if (currency == null)
-      return;
+  public boolean addCurrency(@NotNull String currency) {
     if (customCurrencies == null) {
       new Debug.QualityError("currencies database not found.").log();
-      return;
+      return false;
     }
     customCurrencies.insertOne(new Document("CURRENCY", currency));
+    super.currencies.add(currency);
+    return true;
   }
   
   @Override
-  public void removeCurrency(@NotNull String currency) {
-    currency = removeCurrencyAttempt(currency);
-    if (currency == null)
-      return;
+  public boolean removeCurrency(@NotNull String currency) {
     if (customCurrencies == null) {
       new Debug.QualityError("currencies database not found.").log();
-      return;
+      return false;
     }
     wipeEntry(currency);
     customCurrencies.findOneAndDelete(new Document("CURRENCY", currency));
+    super.currencies.remove(currency);
+    return true;
   }
   
   private void toggleCurrencyCollection() {
@@ -178,6 +176,6 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     else
       wipeEntry("REQUETABLE");
   }
-
+  
   
 }

@@ -71,7 +71,7 @@ public class AccountManager {
   public static void setupAccounts() {
     new BukkitRunnable() {
       @Override
-        public void run() {
+      public void run() {
         Debug.Timer timer = new Debug.Timer("setupAccounts()");
         clearAccounts();
         accounts.putAll(StorageManager.getActiveStorageType().getAllAccounts());

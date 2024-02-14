@@ -10,11 +10,11 @@ import java.util.UUID;
 
 public class Account {
   private @Getter final UUID uniqueId;
+  private final Map<String, Double> otherBalances = new HashMap<>();
   private @Getter String username = "";
   private double balance = 0.0;
   private @Getter boolean isPayable = true;
   private @Getter boolean isRequestable = false;
-  private final Map<String, Double> otherBalances = new HashMap<>();
   
   public Account(UUID uniqueId) {
     this.uniqueId = uniqueId;

@@ -51,9 +51,7 @@ public class CustomBalanceCommand implements Command {
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
     Messages.sendParsedMessage(sender, MessageType.BALANCE_OTHER_BALANCE,
-      Number.formatCommas(QualityEconomyAPI.getCustomBalance(target.getUniqueId(), currency)),
-      target.getName()
-    );
+      Number.formatCommas(QualityEconomyAPI.getCustomBalance(target.getUniqueId(), currency)), target.getName());
   }
   
   private void viewOwnBalance(Player sender, CommandArguments args) {
@@ -61,8 +59,7 @@ public class CustomBalanceCommand implements Command {
     if (CommandUtils.requirement(StorageManager.getActiveStorageType().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
       return;
     Messages.sendParsedMessage(sender, MessageType.BALANCE_OWN_BALANCE,
-      Number.formatCommas(QualityEconomyAPI.getCustomBalance(sender.getUniqueId(), currency))
-    );
+      Number.formatCommas(QualityEconomyAPI.getCustomBalance(sender.getUniqueId(), currency)));
   }
   
 }

@@ -5,7 +5,7 @@ import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
@@ -90,14 +90,18 @@ public class QualityEconomyAPI {
   }
   
   public static void createCustomCurrency(@NotNull String currency) {
-    StorageManager.getActiveStorageType().addCurrency(currency);
+    StorageManager.addCurrency(currency);
   }
   
   public static void deleteCustomCurrency(@NotNull String currency) {
-    StorageManager.getActiveStorageType().removeCurrency(currency);
+    StorageManager.removeCurrency(currency);
   }
   
-  public static @NotNull List<String> getCustomCurrencies() {
+  public static boolean doesCustomCurrencyExist(@NotNull String currency) {
+    return getCustomCurrencies().contains(currency);
+  }
+  
+  public static @NotNull Set<String> getCustomCurrencies() {
     return StorageManager.getActiveStorageType().getCurrencies();
   }
   

@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +21,8 @@ public class Configuration {
   
   private static final File file = new File(QualityEconomy.getInstance().getDataFolder(), "config.yml");
   private static final Set<String> enabledCommands = new HashSet<>();
+  @Getter
+  private static final Map<String, Integer> advancedSettings = new HashMap<>();
   @Getter
   private static String storageType;
   @Getter
@@ -32,8 +36,6 @@ public class Configuration {
   @Getter
   private static long autoSaveAccountsInterval;
   private static List<String> databaseInfo;
-  @Getter
-  private static final Map<String, Integer> advancedSettings = new HashMap<>();
   
   public static void load() {
     if (!file.exists())
@@ -76,19 +78,37 @@ public class Configuration {
   }
   
   public static void update() {
-    YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-    Map<String, Object> values = new HashMap<>();
-    configuration.getKeys(true).forEach(key -> values.putIfAbsent(key, configuration.get(key)));
-    QualityEconomy.getInstance().saveResource("config.yml", true);
-    YamlConfiguration finalConfiguration = YamlConfiguration.loadConfiguration(file);
-    values.forEach((key, value) -> {
-      if (finalConfiguration.contains(key))
-        finalConfiguration.set(key, value);
-    });
-    try {
-      finalConfiguration.save(file);
+    boolean save = false;
+    YamlConfiguration internalConfig;
+    YamlConfiguration config;
+    try (InputStream inputStream = QualityEconomy.getInstance().getResource(file.getName());
+         InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
+      internalConfig = YamlConfiguration.loadConfiguration(inputStreamReader);
+      config = YamlConfiguration.loadConfiguration(file);
     } catch (IOException exception) {
-      new Debug.QualityError("Failed to update config.yml", exception).log();
+      new Debug.QualityError("Failed to load internal config.yml", exception).log();
+      return;
+    }
+    
+    for (String key : internalConfig.getKeys(true)) {
+      if (!config.contains(key)) {
+        config.set(key, internalConfig.get(key));
+        save = true;
+      }
+    }
+    
+    for (String key : config.getKeys(true)) {
+      if (!internalConfig.contains(key)) {
+        config.set(key, null);
+        save = true;
+      }
+      
+      if (save)
+        try {
+          config.save(file);
+        } catch (IOException exception) {
+          new Debug.QualityError("Failed to update config.yml", exception).log();
+        }
     }
   }
   

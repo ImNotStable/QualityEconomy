@@ -67,8 +67,7 @@ public class PayCommand implements Command {
     );
     if (target.isOnline())
       Messages.sendParsedMessage(target.getPlayer(), MessageType.PAY_RECEIVE,
-        Number.formatCommas(amount),
-        sender.getName());
+        Number.formatCommas(amount), sender.getName());
     QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), amount);
   }
   

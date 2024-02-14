@@ -155,7 +155,7 @@ public class MainCommand implements Command {
   
   private void createFakeEntries(CommandSender sender, CommandArguments args) {
     int entries = (int) args.get("entries");
-    AccountManager.createFakeAccounts(entries != 0 ? entries : 10);
+    AccountManager.createFakeAccounts(entries);
   }
   
   private void changeAllEntries(CommandSender sender, CommandArguments args) {
@@ -169,7 +169,7 @@ public class MainCommand implements Command {
       return;
     }
     sender.sendMessage(Component.text("Creating custom currency \"" + currency + "\"", NamedTextColor.GRAY));
-    StorageManager.getActiveStorageType().addCurrency(currency);
+    StorageManager.addCurrency(currency);
   }
   
   private void deleteCustomCurrency(CommandSender sender, CommandArguments args) {
@@ -179,7 +179,7 @@ public class MainCommand implements Command {
       return;
     }
     sender.sendMessage(Component.text("Deleting custom currency \"" + currency + "\"", NamedTextColor.GRAY));
-    StorageManager.getActiveStorageType().removeCurrency(currency);
+    StorageManager.removeCurrency(currency);
   }
   
   private String[] getImportableFiles() {

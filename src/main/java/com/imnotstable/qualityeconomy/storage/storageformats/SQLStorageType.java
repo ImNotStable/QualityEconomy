@@ -163,39 +163,43 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public void addCurrency(@NotNull String currency) {
-    currency = addCurrencyAttempt(currency);
+  public boolean addCurrency(@NotNull String currency) {
     try (Connection connection = getConnection()) {
       try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO CURRENCIES(CURRENCY) VALUES(?)")) {
         preparedStatement.setString(1, currency);
         preparedStatement.executeUpdate();
         addColumn(connection, currency, "FLOAT(53)", "0.0");
-        addCurrencySuccess(currency);
       } catch (SQLException exception) {
         new Debug.QualityError("Failed to add currency to database (" + currency + ")", exception).log();
         connection.rollback();
+        return false;
       }
     } catch (SQLException exception) {
       new Debug.QualityError("Failed to retrieve connection to database or rollback", exception).log();
+      return false;
     }
+    super.currencies.add(currency);
+    return true;
   }
   
   @Override
-  public void removeCurrency(@NotNull String currency) {
-    currency = removeCurrencyAttempt(currency);
+  public boolean removeCurrency(@NotNull String currency) {
     try (Connection connection = getConnection()) {
       try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM CURRENCIES WHERE CURRENCY = ?")) {
         preparedStatement.setString(1, currency);
         preparedStatement.executeUpdate();
         dropColumn(connection, currency);
-        removeCurrencySuccess(currency);
       } catch (SQLException exception) {
         new Debug.QualityError("Failed to remove currency from database (" + currency + ")", exception).log();
         connection.rollback();
+        return false;
       }
     } catch (SQLException exception) {
       new Debug.QualityError("Failed to retrieve connection to database or rollback", exception).log();
+      return false;
     }
+    super.currencies.remove(currency);
+    return true;
   }
   
   private void toggleCurrencyTable(Connection connection) throws SQLException {
@@ -223,8 +227,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
       for (String currency : currencies)
         if (!columnExists(metaData, currency))
           addColumn(connection, currency, "FLOAT(53)", "0.0");
-    }
-    else {
+    } else {
       for (String currency : currencies)
         if (columnExists(metaData, currency))
           dropColumn(connection, currency);

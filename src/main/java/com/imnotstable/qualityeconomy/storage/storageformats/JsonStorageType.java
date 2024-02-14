@@ -96,8 +96,7 @@ public class JsonStorageType extends EasyJson implements StorageType {
   }
   
   @Override
-  public void addCurrency(@NotNull String currency) {
-    currency = addCurrencyAttempt(currency);
+  public boolean addCurrency(@NotNull String currency) {
     JsonArray currencies = json.getAsJsonArray("custom-currencies");
     if (currencies == null || currencies.isEmpty())
       currencies = new JsonArray();
@@ -107,13 +106,13 @@ public class JsonStorageType extends EasyJson implements StorageType {
       JsonObject accountJson = entry.getValue().getAsJsonObject();
       accountJson.addProperty(currency, 0);
     }
-    addCurrencySuccess(currency);
     save();
+    super.currencies.add(currency);
+    return true;
   }
   
   @Override
-  public void removeCurrency(@NotNull String currency) {
-    currency = removeCurrencyAttempt(currency);
+  public boolean removeCurrency(@NotNull String currency) {
     JsonArray currencies = json.getAsJsonArray("custom-currencies");
     currencies.remove(new Gson().toJsonTree(currency));
     json.add("custom-currencies", currencies);
@@ -121,8 +120,9 @@ public class JsonStorageType extends EasyJson implements StorageType {
       JsonObject accountJson = entry.getValue().getAsJsonObject();
       accountJson.remove(currency);
     }
-    removeCurrencySuccess(currency);
     save();
+    super.currencies.remove(currency);
+    return true;
   }
   
 }
