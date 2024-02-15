@@ -4,7 +4,6 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.Misc;
@@ -89,65 +88,29 @@ public class PlaceholderHook extends PlaceholderExpansion {
         }
       }
       case "balance" -> {
-        UUID uuid = null;
-        if (elements.length == 2) {
-          if (Misc.isUUID(elements[1])) {
-            uuid = UUID.fromString(elements[1]);
-          } else {
-            uuid = Bukkit.getOfflinePlayer(elements[1]).getUniqueId();
-          }
-        } else if (elements.length == 1) {
-          uuid = player.getUniqueId();
-        }
+        UUID uuid = grabUUID(elements, player, 1);
         if (uuid == null)
           return null;
         return Number.format(QualityEconomyAPI.getBalance(uuid), Number.FormatType.NORMAL);
       }
       case "cbalance" -> {
-        if (Configuration.areCustomCurrenciesEnabled())
+        if (!Configuration.areCustomCurrenciesEnabled())
           return "Feature is disabled";
-        UUID uuid = null;
-        if (elements.length == 3) {
-          if (Misc.isUUID(elements[2])) {
-            uuid = UUID.fromString(elements[2]);
-          } else {
-            uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();
-          }
-        } else if (elements.length == 2) {
-          uuid = player.getUniqueId();
-        }
+        if (!QualityEconomyAPI.doesCustomCurrencyExist(elements[1]))
+          return "Currency does not exist";
+        UUID uuid = grabUUID(elements, player, 2);
         if (uuid == null)
-          return null;
-        if (!StorageManager.getActiveStorageType().getCurrencies().contains(elements[1]))
           return null;
         return Number.format(QualityEconomyAPI.getCustomBalance(uuid, elements[1]), Number.FormatType.NORMAL);
       }
       case "isPayable" -> {
-        UUID uuid = null;
-        if (elements.length == 2) {
-          if (Misc.isUUID(elements[1])) {
-            uuid = UUID.fromString(elements[1]);
-          } else {
-            uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();
-          }
-        } else if (elements.length == 1) {
-          uuid = player.getUniqueId();
-        }
+        UUID uuid = grabUUID(elements, player, 1);
         if (uuid == null)
           return null;
         return String.valueOf(QualityEconomyAPI.isPayable(uuid));
       }
       case "isRequestable" -> {
-        UUID uuid = null;
-        if (elements.length == 2) {
-          if (Misc.isUUID(elements[1])) {
-            uuid = UUID.fromString(elements[1]);
-          } else {
-            uuid = Bukkit.getOfflinePlayer(elements[2]).getUniqueId();
-          }
-        } else if (elements.length == 1) {
-          uuid = player.getUniqueId();
-        }
+        UUID uuid = grabUUID(elements, player, 1);
         if (uuid == null)
           return null;
         return String.valueOf(QualityEconomyAPI.isRequestable(uuid));
@@ -155,6 +118,20 @@ public class PlaceholderHook extends PlaceholderExpansion {
     }
     
     return null;
+  }
+  
+  private UUID grabUUID(String[] elements, Player player, int index) {
+    UUID uuid = null;
+    if (elements.length == index + 1) {
+      if (Misc.isUUID(elements[index])) {
+        uuid = UUID.fromString(elements[index]);
+      } else {
+        uuid = Bukkit.getOfflinePlayer(elements[index + 1]).getUniqueId();
+      }
+    } else if (elements.length == index) {
+      uuid = player.getUniqueId();
+    }
+    return uuid;
   }
   
 }
