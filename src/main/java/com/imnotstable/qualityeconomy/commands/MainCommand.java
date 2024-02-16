@@ -8,7 +8,6 @@ import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Misc;
-import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
@@ -34,7 +33,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-public class MainCommand implements Command {
+public class MainCommand extends BaseCommand {
   
   private final Pattern IMPORT_FILE_PATTERN = Pattern.compile("^QualityEconomy \\d{4}.\\d{2}.\\d{2} \\d{2}-\\d{2}\\.json$");
   private final CommandTree command = new CommandTree("qualityeconomy")
@@ -71,20 +70,13 @@ public class MainCommand implements Command {
           .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0])))
           .executes(this::deleteCustomCurrency)
         )));
-  private boolean isRegistered;
   
   public void register() {
-    if (isRegistered)
-      return;
-    command.register();
-    isRegistered = true;
+    super.register(command);
   }
   
   public void unregister() {
-    if (!isRegistered)
-      return;
-    CommandAPI.unregister(command.getName(), true);
-    isRegistered = false;
+    super.unregister(command);
   }
   
   private void reload(CommandSender sender, CommandArguments args) {

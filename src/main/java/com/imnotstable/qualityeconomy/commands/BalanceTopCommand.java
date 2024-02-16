@@ -8,7 +8,6 @@ import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Number;
-import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
@@ -21,10 +20,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-public class BalanceTopCommand implements Command {
+public class BalanceTopCommand extends BaseCommand {
   
   public static List<Account> orderedPlayerList = new ArrayList<>();
-  private boolean isRegistered = false;
   private double serverTotal = 0;
   private int maxPage;
   private final CommandTree command = new CommandTree("balancetop")
@@ -40,23 +38,19 @@ public class BalanceTopCommand implements Command {
   private Integer taskID = null;
   
   public void register() {
-    if (isRegistered || !Configuration.isCommandEnabled("balancetop"))
+    if (!super.register(command))
       return;
-    command.register();
     if (Configuration.getBalancetopInterval() != 0)
       taskID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(), this::updateBalanceTop, 0L, Configuration.getBalancetopInterval()).getTaskId();
-    isRegistered = true;
   }
   
   public void unregister() {
-    if (!isRegistered)
+    if (!super.unregister(command))
       return;
-    CommandAPI.unregister(command.getName(), true);
     if (taskID != null) {
       Bukkit.getScheduler().cancelTask(taskID);
       taskID = null;
     }
-    isRegistered = false;
   }
   
   private void viewBalanceTop(CommandSender sender, CommandArguments args) {

@@ -27,7 +27,6 @@ public class Configuration {
   private static String storageType;
   @Getter
   private static int decimalPlaces;
-  private static boolean banknotes;
   private static boolean customCurrencies;
   @Getter
   private static long backupInterval;
@@ -49,8 +48,10 @@ public class Configuration {
     YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
     storageType = configuration.getString("storage-type", "sqlite").toLowerCase();
     decimalPlaces = Math.max(configuration.getInt("decimal-places", 4), 0);
-    banknotes = configuration.getBoolean("banknotes", false);
     enabledCommands.clear();
+    if (configuration.getBoolean("banknotes", false))
+      enabledCommands.add("withdraw");
+    enabledCommands.add("qualityeconomy");
     for (String command : new String[]{"balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy"})
       if (configuration.getBoolean("commands." + command, Debug.DEBUG_MODE))
         enabledCommands.add(command);
@@ -109,10 +110,6 @@ public class Configuration {
           new Debug.QualityError("Failed to update config.yml", exception).log();
         }
     }
-  }
-  
-  public static boolean areBanknotesEnabled() {
-    return banknotes;
   }
   
   public static boolean isCommandEnabled(String command) {

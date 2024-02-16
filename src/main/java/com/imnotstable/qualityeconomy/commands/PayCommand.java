@@ -1,12 +1,10 @@
 package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
-import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
@@ -15,7 +13,7 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-public class PayCommand implements Command {
+public class PayCommand extends BaseCommand {
   
   private final CommandTree command = new CommandTree("pay")
     .then(new LiteralArgument("toggle")
@@ -24,20 +22,13 @@ public class PayCommand implements Command {
       .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
       .then(new DoubleArgument("amount", Number.getMinimumValue())
         .executesPlayer(this::pay)));
-  private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isCommandEnabled("pay"))
-      return;
-    command.register();
-    isRegistered = true;
+    super.register(command);
   }
   
   public void unregister() {
-    if (!isRegistered)
-      return;
-    CommandAPI.unregister(command.getName(), true);
-    isRegistered = false;
+    super.unregister(command);
   }
   
   private void togglePay(Player sender, CommandArguments args) {

@@ -5,6 +5,7 @@ import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
+import com.imnotstable.qualityeconomy.util.Number;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -52,7 +53,7 @@ public class VaultHook implements Economy {
   
   @Override
   public String format(double amount) {
-    return String.valueOf(amount);
+    return Number.format(amount, Number.FormatType.NORMAL);
   }
   
   @Override

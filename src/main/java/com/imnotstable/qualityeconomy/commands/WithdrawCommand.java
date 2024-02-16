@@ -7,8 +7,7 @@ import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
-import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.Material;
@@ -25,27 +24,20 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Collections;
 
-public class WithdrawCommand implements Listener, Command {
+public class WithdrawCommand extends BaseCommand implements Listener {
   
   private final NamespacedKey amountKey = new NamespacedKey(QualityEconomy.getInstance(), "amount");
   private final NamespacedKey ownerKey = new NamespacedKey(QualityEconomy.getInstance(), "owner");
-  private final CommandAPICommand command = new CommandAPICommand("withdraw")
-    .withArguments(new DoubleArgument("amount", Number.getMinimumValue()))
-    .executesPlayer(this::withdraw);
-  private boolean isRegistered = false;
+  private final CommandTree command = new CommandTree("withdraw")
+    .then(new DoubleArgument("amount", Number.getMinimumValue())
+      .executesPlayer(this::withdraw));
   
   public void register() {
-    if (isRegistered || !Configuration.areBanknotesEnabled())
-      return;
-    command.register();
-    isRegistered = true;
+    super.register(command);
   }
   
   public void unregister() {
-    if (!isRegistered)
-      return;
-    CommandAPI.unregister(command.getName(), true);
-    isRegistered = true;
+    super.unregister(command);
   }
   
   private void withdraw(Player sender, CommandArguments args) {
@@ -74,7 +66,7 @@ public class WithdrawCommand implements Listener, Command {
   
   @EventHandler
   public void on(PlayerInteractEvent event) {
-    if (!Configuration.areBanknotesEnabled() || event.getItem() == null || !event.getItem().getType().equals(Material.PAPER) || !event.getAction().isRightClick())
+    if (!Configuration.isCommandEnabled(command.getName()) || event.getItem() == null || !event.getItem().getType().equals(Material.PAPER) || !event.getAction().isRightClick())
       return;
     PersistentDataContainer persistentDataContainer = event.getItem().getItemMeta().getPersistentDataContainer();
     if (!persistentDataContainer.has(amountKey) || !persistentDataContainer.has(ownerKey))

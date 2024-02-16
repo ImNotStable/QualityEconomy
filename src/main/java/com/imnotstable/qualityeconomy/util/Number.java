@@ -1,9 +1,12 @@
 package com.imnotstable.qualityeconomy.util;
 
 import com.imnotstable.qualityeconomy.configuration.Configuration;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.function.Function;
 
 public class Number {
   
@@ -13,22 +16,7 @@ public class Number {
   private static final DecimalFormat COMMA_FORMAT = new DecimalFormat("#,###.##");
   
   public static String format(double value, FormatType formatType) {
-    switch (formatType) {
-      case NORMAL -> {
-        return NORMAL_FORMAT.format(value);
-      }
-      case SUFFIX -> {
-        int index;
-        for (index = 0; index < SUFFIXES.size() - 1 && value >= 1000; index++) {
-          value /= 1000;
-        }
-        return DECIMAL_FORMAT.format(value) + SUFFIXES.get(index);
-      }
-      case COMMAS -> {
-        return COMMA_FORMAT.format(value);
-      }
-      default -> throw new IllegalArgumentException("Invalid format type");
-    }
+    return formatType.getFormatter().apply(value);
   }
   
   public static double unformatSuffix(String value) throws NumberFormatException {
@@ -61,8 +49,20 @@ public class Number {
       return Math.pow(10, -Configuration.getDecimalPlaces());
   }
   
+  @AllArgsConstructor
+  @Getter
   public enum FormatType {
-    NORMAL, SUFFIX, COMMAS
+    NORMAL(NORMAL_FORMAT::format),
+    SUFFIX(value -> {
+      int index;
+      for (index = 0; index < SUFFIXES.size() - 1 && value >= 1000; index++) {
+        value /= 1000;
+      }
+      return DECIMAL_FORMAT.format(value) + SUFFIXES.get(index);
+    }),
+    COMMAS(COMMA_FORMAT::format);
+    
+    private final Function<Double, String> formatter;
   }
   
 }

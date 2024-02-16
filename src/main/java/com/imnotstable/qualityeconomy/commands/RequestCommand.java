@@ -2,12 +2,10 @@ package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
-import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
@@ -22,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class RequestCommand implements Command {
+public class RequestCommand extends BaseCommand {
   
   //<Requestee, <Requester, Amount>>
   private Map<UUID, Map<UUID, Double>> requests;
@@ -42,22 +40,17 @@ public class RequestCommand implements Command {
         .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
         .then(new DoubleArgument("amount", Number.getMinimumValue())
           .executesPlayer(this::request))));
-  private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isCommandEnabled("request"))
+    if (!super.register(command))
       return;
-    command.register();
     requests = new HashMap<>();
-    isRegistered = true;
   }
   
   public void unregister() {
-    if (!isRegistered)
+    if (!super.unregister(command))
       return;
-    CommandAPI.unregister(command.getName(), true);
     requests = null;
-    isRegistered = false;
   }
   
   private void toggleRequests(Player sender, CommandArguments args) {

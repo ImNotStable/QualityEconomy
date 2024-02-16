@@ -1,12 +1,10 @@
 package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
-import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
@@ -15,7 +13,7 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
-public class EconomyCommand implements Command {
+public class EconomyCommand extends BaseCommand {
   
   private final CommandTree command = new CommandTree("economy")
     .withPermission("qualityeconomy.economy")
@@ -26,20 +24,13 @@ public class EconomyCommand implements Command {
       .then(new LiteralArgument("set").then(new StringArgument("amount").executes(this::setBalance)))
       .then(new LiteralArgument("add").then(new StringArgument("amount").executes(this::addBalance)))
       .then(new LiteralArgument("remove").then(new StringArgument("amount").executes(this::removeBalance))));
-  private boolean isRegistered = false;
   
   public void register() {
-    if (isRegistered || !Configuration.isCommandEnabled("economy"))
-      return;
-    command.register();
-    isRegistered = true;
+    super.register(command);
   }
   
   public void unregister() {
-    if (!isRegistered)
-      return;
-    CommandAPI.unregister(command.getName(), true);
-    isRegistered = false;
+    super.unregister(command);
   }
   
   private void resetBalance(CommandSender sender, CommandArguments args) {
