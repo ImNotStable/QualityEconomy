@@ -3,6 +3,7 @@ package com.imnotstable.qualityeconomy.commands;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Set;
 
 public class CommandManager {
   
@@ -24,6 +25,10 @@ public class CommandManager {
   
   public static void unregisterCommands() {
     commands.values().forEach(BaseCommand::unregister);
+  }
+  
+  public static Set<String> getCommandNames() {
+    return commands.keySet();
   }
   
   public static @Nullable BaseCommand getCommand(String command) {
