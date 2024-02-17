@@ -71,21 +71,22 @@ public class PlaceholderHook extends PlaceholderExpansion {
     
     switch (elements[0]) {
       case "balancetop" -> {
-        if (elements.length == 2 && elements[1].startsWith("#")) {
-          try {
-            int place = Integer.parseInt(elements[1].substring(1)) - 1;
-            return BalanceTopCommand.orderedPlayerList.get(place).getUsername();
-          } catch (NumberFormatException exception) {
-            new Debug.QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
-          }
-        } else if (elements.length == 3 && elements[1].equals("balance")) {
-          try {
-            int place = Integer.parseInt(elements[2].substring(1)) - 1;
-            return Number.format(BalanceTopCommand.orderedPlayerList.get(place).getBalance(), Number.FormatType.NORMAL);
-          } catch (NumberFormatException exception) {
-            new Debug.QualityError("Invalid input for \"balancetop_balance_#<integer>\": " + input, exception).log();
-          }
+        int place = -1;
+        try {
+          if (elements.length == 2 && elements[1].startsWith("#"))
+            place = Integer.parseInt(elements[1].substring(1)) - 1;
+          else if (elements.length == 3 && elements[2].startsWith("#"))
+            place = Integer.parseInt(elements[2].substring(1)) - 1;
+        } catch (NumberFormatException exception) {
+          new Debug.QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
+          return null;
         }
+        if (place == -1 || BalanceTopCommand.orderedPlayerList.size() > place)
+          return null;
+        if (elements[1].equals("balance"))
+          return Number.format(BalanceTopCommand.orderedPlayerList.get(place).getBalance(), Number.FormatType.NORMAL);
+        else
+          return BalanceTopCommand.orderedPlayerList.get(place).getUsername();
       }
       case "balance" -> {
         UUID uuid = grabUUID(elements, player, 1);
