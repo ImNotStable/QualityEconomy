@@ -3,6 +3,9 @@ package com.imnotstable.qualityeconomy.commands;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
+import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
+import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandTree;
@@ -10,6 +13,7 @@ import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
+import lombok.SneakyThrows;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -41,6 +45,7 @@ public class PayCommand extends BaseCommand {
     }
   }
   
+  @SneakyThrows
   private void pay(Player sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
@@ -52,14 +57,8 @@ public class PayCommand extends BaseCommand {
     double amount = Number.roundObj(args.get("amount"));
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
       return;
-    Messages.sendParsedMessage(sender, MessageType.PAY_SEND,
-      Number.format(amount, Number.FormatType.COMMAS),
-      target.getName()
-    );
-    if (target.isOnline())
-      Messages.sendParsedMessage(target.getPlayer(), MessageType.PAY_RECEIVE,
-        Number.format(amount, Number.FormatType.COMMAS), sender.getName());
-    QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), amount);
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_TRANSFER, sender, amount, EconomyPlayer.of(sender), EconomyPlayer.of(target));
+    transaction.execute();
   }
   
 }

@@ -49,9 +49,9 @@ public class Configuration {
     storageType = configuration.getString("storage-type", "sqlite").toLowerCase();
     decimalPlaces = Math.max(configuration.getInt("decimal-places", 4), 0);
     enabledCommands.clear();
+    enabledCommands.add("qualityeconomy");
     if (configuration.getBoolean("banknotes", false))
       enabledCommands.add("withdraw");
-    enabledCommands.add("qualityeconomy");
     for (String command : new String[]{"balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy"})
       if (configuration.getBoolean("commands." + command, Debug.DEBUG_MODE))
         enabledCommands.add(command);
@@ -61,7 +61,7 @@ public class Configuration {
       enabledCommands.remove("customeconomy");
     }
     backupInterval = (long) (configuration.getDouble("backup-interval", 1) * 72000);
-    balancetopInterval = configuration.getInt("balancetop-inverval", 5) * 20L;
+    balancetopInterval = configuration.getInt("balancetop-interval", 5) * 20L;
     autoSaveAccountsInterval = configuration.getInt("autosave-accounts-interval", 60) * 20L;
     databaseInfo = List.of(
       configuration.getString("database-information.database"),

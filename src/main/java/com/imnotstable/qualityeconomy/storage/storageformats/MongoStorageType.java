@@ -82,24 +82,22 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     List<WriteModel<Document>> updates = new ArrayList<>();
     
     for (Account account : accounts) {
-      Document query = new Document("UUID", account.getUniqueId());
       Document update = new Document();
-      update.append("$set", new Document("USERNAME", account.getUsername()));
-      update.append("$set", new Document("BALANCE", account.getBalance()));
+      update.append("$set", new Document("USERNAME", account.getUsername())
+        .append("BALANCE", account.getBalance()));
       if (Configuration.isCommandEnabled("pay"))
-        update.get("$set", Document.class).append("PAYABLE", account.isPayable());
+        update.get("$set", new Document("PAYABLE", account.isPayable()));
       if (Configuration.isCommandEnabled("request"))
-        update.get("$set", Document.class).append("REQUESTABLE", account.isRequestable());
+        update.get("$set", new Document("REQUESTABLE", account.isRequestable()));
       if (Configuration.areCustomCurrenciesEnabled())
         for (String currency : currencies)
-          update.get("$set", Document.class).append(currency, account.getCustomBalance(currency));
-      updates.add(new UpdateOneModel<>(query, update));
+          update.get("$set", new Document(currency, account.getCustomBalance(currency)));
+      updates.add(new UpdateOneModel<>(new Document("UUID", account.getUniqueId()), update));
     }
     
     if (!updates.isEmpty())
       playerdata.bulkWrite(updates);
   }
-  
   
   @Override
   public synchronized @NotNull Map<UUID, Account> getAllAccounts() {
@@ -174,7 +172,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     if (Configuration.isCommandEnabled("request"))
       setDefaultValue("REQUESTABLE", false);
     else
-      wipeEntry("REQUETABLE");
+      wipeEntry("REQUESTABLE");
   }
   
   

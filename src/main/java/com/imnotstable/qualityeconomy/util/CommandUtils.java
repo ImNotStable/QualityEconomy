@@ -24,17 +24,15 @@ public class CommandUtils {
   }
   
   public static double parseNumber(String rawNumber) throws NumberFormatException {
-    if (FORMATTED_NUMBER_PATTERN.matcher(rawNumber).matches())
-      return Number.round(Number.unformatSuffix(rawNumber));
-    return Double.parseDouble(rawNumber);
+    return FORMATTED_NUMBER_PATTERN.matcher(rawNumber).matches() ? Number.round(Number.unformatSuffix(rawNumber)) : Double.parseDouble(rawNumber);
   }
   
   public static ArgumentSuggestions<CommandSender> getOnlinePlayerSuggestion() {
-    return ArgumentSuggestions.stringCollection(info -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toList());
+    return ArgumentSuggestions.strings(info -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new));
   }
   
   public static ArgumentSuggestions<CommandSender> getOfflinePlayerSuggestion() {
-    return ArgumentSuggestions.stringCollection(info -> Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).toList());
+    return ArgumentSuggestions.strings(info -> Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).toArray(String[]::new));
   }
   
 }

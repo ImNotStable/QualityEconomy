@@ -11,11 +11,11 @@ public abstract class BaseCommand {
   public abstract void register();
   public abstract void unregister();
   
-  public boolean register(CommandTree command) {
+  protected boolean register(CommandTree command) {
     return register(command, true);
   }
   
-  public boolean register(CommandTree command, boolean conditions) {
+  protected boolean register(CommandTree command, boolean conditions) {
     if (isRegistered || !Configuration.isCommandEnabled(command.getName()) || !conditions)
       return false;
     command.register();
@@ -23,7 +23,7 @@ public abstract class BaseCommand {
     return true;
   }
   
-  public boolean unregister(CommandTree command) {
+  protected boolean unregister(CommandTree command) {
     if (!isRegistered)
       return false;
     CommandAPI.unregister(command.getName(), true);

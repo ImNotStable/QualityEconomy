@@ -1,10 +1,12 @@
 package com.imnotstable.qualityeconomy.api;
 
+import com.imnotstable.qualityeconomy.commands.RequestCommand;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 
@@ -81,12 +83,41 @@ public class QualityEconomyAPI {
     return getAccount(uuid).isPayable();
   }
   
-  public static void setRequestable(@NotNull UUID uuid, boolean isPayable) {
-    getAccount(uuid).setRequestable(isPayable);
+  public static void setRequestable(@NotNull UUID uuid, boolean isRequestable) {
+    getAccount(uuid).setRequestable(isRequestable);
   }
   
   public static boolean isRequestable(@NotNull UUID uuid) {
     return getAccount(uuid).isRequestable();
+  }
+  
+  public static void createRequest(@NotNull UUID requester, @NotNull UUID requestee, double amount) {
+    if (RequestCommand.getRequests() == null) return;
+    RequestCommand.getRequests().computeIfAbsent(requestee, uuid -> new HashMap<>()).put(requester, amount);
+  }
+  
+  public static void deleteRequest(@NotNull UUID requester, @NotNull UUID requestee) {
+    if (RequestCommand.getRequests() == null) return;
+    RequestCommand.getRequests().get(requestee).remove(requester);
+  }
+  
+  public static boolean requestExists(@NotNull UUID requester, @NotNull UUID requestee) {
+    if (RequestCommand.getRequests() == null) return false;
+    return RequestCommand.getRequests().get(requestee).containsKey(requester);
+  }
+  
+  public static boolean hasRequest(@NotNull UUID requestee) {
+    if (RequestCommand.getRequests() == null) return false;
+    return RequestCommand.getRequests().containsKey(requestee) && !RequestCommand.getRequests().get(requestee).isEmpty();
+  }
+  
+  public static void answerRequest(@NotNull UUID requester, @NotNull UUID requestee, boolean answer) {
+    if (RequestCommand.getRequests() == null) return;
+    if (answer) {
+      double amount = RequestCommand.getRequests().get(requestee).get(requester);
+      transferBalance(requestee, requester, amount);
+    }
+    deleteRequest(requester, requestee);
   }
   
   public static void createCustomCurrency(@NotNull String currency) {

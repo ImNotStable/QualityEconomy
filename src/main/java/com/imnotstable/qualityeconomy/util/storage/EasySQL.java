@@ -55,7 +55,7 @@ public class EasySQL extends EasyCurrencies {
   
   protected void open() {
     openDataSource();
-    try (Connection connection = openConnection()) {
+    try (Connection connection = getConnection()) {
       createPlayerDataTable(connection);
       columns = getColumns(connection);
     } catch (SQLException exception) {
@@ -110,10 +110,6 @@ public class EasySQL extends EasyCurrencies {
     hikariConfig.setConnectionTimeout(settings.get("connection-timeout"));
   }
   
-  private Connection openConnection() throws SQLException {
-    return dataSource.getConnection();
-  }
-  
   protected void createPlayerDataTable(Connection connection) throws SQLException {
     executeStatement(connection, "CREATE TABLE IF NOT EXISTS PLAYERDATA(UUID CHAR(36) PRIMARY KEY, USERNAME VARCHAR(16), BALANCE FLOAT(53) NOT NULL);");
   }
@@ -136,10 +132,6 @@ public class EasySQL extends EasyCurrencies {
     }
   }
   
-  protected DatabaseMetaData getMetaData(Connection connection) throws SQLException {
-    return connection.getMetaData();
-  }
-  
   protected void executeStatement(Connection connection, String sql) throws SQLException {
     try (Statement statement = connection.createStatement()) {
       statement.execute(sql);
@@ -148,7 +140,7 @@ public class EasySQL extends EasyCurrencies {
   
   protected List<String> getColumns(Connection connection) throws SQLException {
     List<String> columns = new ArrayList<>();
-    try (ResultSet rs = getMetaData(connection).getColumns(null, null, "PLAYERDATA", null)) {
+    try (ResultSet rs = connection.getMetaData().getColumns(null, null, "PLAYERDATA", null)) {
       while (rs.next()) {
         columns.add(rs.getString("COLUMN_NAME"));
       }
@@ -170,7 +162,7 @@ public class EasySQL extends EasyCurrencies {
   
   protected void addColumn(Connection connection, String column, String type, String def) throws SQLException {
     try (Statement statement = connection.createStatement()) {
-      statement.executeUpdate("ALTER TABLE PLAYERDATA ADD COLUMN " + column + " " + type + " NOT NULL DEFAULT " + def + ";");
+      statement.executeUpdate(String.format("ALTER TABLE PLAYERDATA ADD COLUMN %s %s NOT NULL DEFAULT %s;", column, type, def));
       columns.add(column);
       generateStatements();
     }
@@ -178,7 +170,7 @@ public class EasySQL extends EasyCurrencies {
   
   protected void dropColumn(Connection connection, String column) throws SQLException {
     try (Statement statement = connection.createStatement()) {
-      statement.executeUpdate("ALTER TABLE PLAYERDATA DROP COLUMN " + column + ";");
+      statement.executeUpdate(String.format("ALTER TABLE PLAYERDATA DROP COLUMN %s;", column));
       columns.remove(column);
       generateStatements();
     }

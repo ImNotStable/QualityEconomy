@@ -29,7 +29,7 @@ public enum MessageType {
   REQUEST_DENY_SEND("request.deny-send", new String[]{"amount", "requestee"}),
   REQUEST_DENY_RECEIVE("request.deny-receive", new String[]{"amount", "requester"}),
   WITHDRAW_MESSAGE("withdraw.message", new String[]{"amount"}),
-  WITHDRAW_CLAIM("withdraw.claim", new String[]{"amount"}),
+  WITHDRAW_CLAIM("withdraw.claim", new String[]{"amount", "player"}),
   WITHDRAW_BANKNOTE_DISPLAYNAME("withdraw.banknote-item.displayname", new String[]{"amount", "player"}),
   WITHDRAW_BANKNOTE_LORE("withdraw.banknote-item.lore", new String[]{"amount", "player"}),
   PLAYER_NOT_FOUND("errors.player-not-found"),

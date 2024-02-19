@@ -33,9 +33,8 @@ public class Messages {
     if (tags.length != tagsRequirement)
       throw new IllegalArgumentException("Found " + tags.length + " tags when required " + tagsRequirement);
     TagResolver[] tagResolvers = new TagResolver[tagsRequirement];
-    for (int i = 0; i < tagsRequirement; i++) {
+    for (int i = 0; i < tagsRequirement; i++)
       tagResolvers[i] = TagResolver.resolver(id.getTags()[i], Tag.selfClosingInserting(Component.text(tags[i])));
-    }
     return MiniMessage.miniMessage().deserialize(messages.get(id.getValue()), tagResolvers);
   }
   

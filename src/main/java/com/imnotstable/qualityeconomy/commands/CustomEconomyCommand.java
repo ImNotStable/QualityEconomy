@@ -3,6 +3,9 @@ package com.imnotstable.qualityeconomy.commands;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
+import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
+import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
@@ -13,6 +16,7 @@ import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
@@ -39,6 +43,7 @@ public class CustomEconomyCommand extends BaseCommand {
     super.unregister(command);
   }
   
+  @SneakyThrows
   private void resetBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
     if (CommandUtils.requirement(StorageManager.getActiveStorageType().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
@@ -46,11 +51,11 @@ public class CustomEconomyCommand extends BaseCommand {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
-    QualityEconomyAPI.setCustomBalance(target.getUniqueId(), currency, 0);
-    Messages.sendParsedMessage(sender, MessageType.ECONOMY_RESET,
-      target.getName());
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_ECONOMY_RESET, sender, 0, EconomyPlayer.of(target));
+    transaction.execute();
   }
   
+  @SneakyThrows
   private void setBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
     if (CommandUtils.requirement(StorageManager.getActiveStorageType().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
@@ -60,16 +65,16 @@ public class CustomEconomyCommand extends BaseCommand {
       return;
     double balance;
     try {
-      balance = Number.roundObj(CommandUtils.parseNumber((String) args.get("amount")));
+      balance = Number.roundObj(CommandUtils.parseNumber(args.get("amount").toString().toUpperCase()));
     } catch (NumberFormatException exception) {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    QualityEconomyAPI.setCustomBalance(target.getUniqueId(), currency, balance);
-    Messages.sendParsedMessage(sender, MessageType.ECONOMY_SET,
-      Number.format(balance, Number.FormatType.COMMAS), target.getName());
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_ECONOMY_SET, sender, balance, EconomyPlayer.of(target));
+    transaction.execute();
   }
   
+  @SneakyThrows
   private void addBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
     if (CommandUtils.requirement(StorageManager.getActiveStorageType().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
@@ -79,16 +84,16 @@ public class CustomEconomyCommand extends BaseCommand {
       return;
     double balance;
     try {
-      balance = Number.roundObj(CommandUtils.parseNumber((String) args.get("amount")));
+      balance = Number.roundObj(CommandUtils.parseNumber(args.get("amount").toString().toUpperCase()));
     } catch (NumberFormatException exception) {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    QualityEconomyAPI.addCustomBalance(target.getUniqueId(), currency, balance);
-    Messages.sendParsedMessage(sender, MessageType.ECONOMY_ADD,
-      Number.format(balance, Number.FormatType.COMMAS), target.getName());
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_ECONOMY_ADD, sender, balance, EconomyPlayer.of(target));
+    transaction.execute();
   }
   
+  @SneakyThrows
   private void removeBalance(CommandSender sender, CommandArguments args) {
     String currency = (String) args.get("currency");
     if (CommandUtils.requirement(StorageManager.getActiveStorageType().getCurrencies().contains(currency), MessageType.CURRENCY_NOT_FOUND, sender))
@@ -98,14 +103,13 @@ public class CustomEconomyCommand extends BaseCommand {
       return;
     double balance;
     try {
-      balance = Number.roundObj(CommandUtils.parseNumber((String) args.get("amount")));
+      balance = Number.roundObj(CommandUtils.parseNumber(args.get("amount").toString().toUpperCase()));
     } catch (NumberFormatException exception) {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    QualityEconomyAPI.removeCustomBalance(target.getUniqueId(), currency, balance);
-    Messages.sendParsedMessage(sender, MessageType.ECONOMY_REMOVE,
-      Number.format(balance, Number.FormatType.COMMAS), target.getName());
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_ECONOMY_REMOVE, sender, balance, EconomyPlayer.of(target));
+    transaction.execute();
   }
   
 }

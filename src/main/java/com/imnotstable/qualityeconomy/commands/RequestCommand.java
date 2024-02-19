@@ -4,14 +4,21 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
+import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
+import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
+import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
+import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.MultiLiteralArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
+import lombok.Getter;
+import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -23,17 +30,20 @@ import java.util.UUID;
 public class RequestCommand extends BaseCommand {
   
   //<Requestee, <Requester, Amount>>
-  private Map<UUID, Map<UUID, Double>> requests;
+  @Getter
+  private static Map<UUID, Map<UUID, Double>> requests = null;
   
   private final CommandTree command = new CommandTree("request")
     .then(new LiteralArgument("toggle")
       .executesPlayer(this::toggleRequests))
     .then(new MultiLiteralArgument("answer", "accept", "deny")
-      .withRequirement(sender -> {
-        if (!(sender instanceof Player player)) return false;
-        return requests.containsKey(player.getUniqueId());
-      })
+      .withRequirement(sender -> sender instanceof Player player && QualityEconomyAPI.hasRequest(player.getUniqueId()))
       .then(new PlayerArgument("target")
+        .replaceSuggestions(ArgumentSuggestions.strings(info -> {
+          if (info.sender() instanceof Player player && QualityEconomyAPI.hasRequest(player.getUniqueId()))
+            return requests.get(player.getUniqueId()).keySet().stream().map(Bukkit::getOfflinePlayer).map(OfflinePlayer::getName).toArray(String[]::new);
+          return new String[0];
+        }))
         .executesPlayer(this::answerRequest)))
     .then(new LiteralArgument("send")
       .then(new PlayerArgument("target")
@@ -60,6 +70,7 @@ public class RequestCommand extends BaseCommand {
     else Messages.sendParsedMessage(sender, MessageType.REQUEST_TOGGLE_OFF);
   }
   
+  @SneakyThrows
   private void request(Player requester, CommandArguments args) {
     Player requestee = (Player) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(requestee.getUniqueId()), MessageType.PLAYER_NOT_FOUND, requester))
@@ -71,51 +82,38 @@ public class RequestCommand extends BaseCommand {
     double amount = Number.roundObj(args.get("amount"));
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.OTHER_NOT_ENOUGH_MONEY, requester))
       return;
-    Messages.sendParsedMessage(requester, MessageType.REQUEST_SEND,
-      Number.format(amount, Number.FormatType.COMMAS), requestee.getName());
-    Messages.sendParsedMessage(requestee, MessageType.REQUEST_RECEIVE,
-      Number.format(amount, Number.FormatType.COMMAS), requester.getName());
-    UUID requesterUUID = requester.getUniqueId();
-    UUID requesteeUUID = requestee.getUniqueId();
-    requests.computeIfAbsent(requesteeUUID, uuid -> new HashMap<>()).put(requesterUUID, amount);
-    Bukkit.getScheduler().runTaskLater(QualityEconomy.getInstance(), () -> requests.get(requesteeUUID).remove(requesterUUID, amount), 1200);
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.REQUEST, amount, EconomyPlayer.of(requester), EconomyPlayer.of(requestee));
+    transaction.execute();
+    CommandAPI.updateRequirements(requestee);
+    Bukkit.getScheduler().runTaskLater(QualityEconomy.getInstance(), () -> {
+      RequestCommand.getRequests().get(requestee.getUniqueId()).remove(requester.getUniqueId(), amount);
+      CommandAPI.updateRequirements(requestee);
+    }, 1200);
   }
   
   private void answerRequest(Player requestee, CommandArguments args) {
-    String answer = (String) args.get("answer");
-    if (answer.equalsIgnoreCase("accept")) accept(requestee, args);
-    else if (answer.equalsIgnoreCase("deny")) deny(requestee, args);
-  }
-  
-  private void accept(Player requestee, CommandArguments args) {
     OfflinePlayer requester = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(requester.getUniqueId()), MessageType.PLAYER_NOT_FOUND, requestee))
       return;
     double amount = Number.round(requests.get(requestee.getUniqueId()).get(requester.getUniqueId()));
-    if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, requestee))
-      return;
-    Messages.sendParsedMessage(requestee, MessageType.REQUEST_ACCEPT_SEND,
-      Number.format(amount, Number.FormatType.COMMAS),
-      requester.getName()
-    );
-    if (requester.isOnline())
-      Messages.sendParsedMessage(requestee, MessageType.REQUEST_ACCEPT_RECEIVE,
-        Number.format(amount, Number.FormatType.COMMAS), requestee.getName());
-    QualityEconomyAPI.transferBalance(requester.getUniqueId(), requestee.getUniqueId(), amount);
+    String answer = (String) args.get("answer");
+    if (answer.equalsIgnoreCase("accept")) accept(requestee, requester, amount);
+    else if (answer.equalsIgnoreCase("deny")) deny(requestee, requester, amount);
+    CommandAPI.updateRequirements(requestee);
   }
   
-  private void deny(Player requestee, CommandArguments args) {
-    OfflinePlayer requester = (OfflinePlayer) args.get("target");
-    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(requester.getUniqueId()), MessageType.PLAYER_NOT_FOUND, requestee))
-      return;
-    double amount = Number.roundObj(args.get("amount"));
+  @SneakyThrows
+  private void accept(Player requestee, OfflinePlayer requester, double amount) {
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, requestee))
       return;
-    Messages.sendParsedMessage(requestee, MessageType.REQUEST_DENY_SEND,
-      Number.format(amount, Number.FormatType.COMMAS), requester.getName());
-    if (requester.isOnline())
-      Messages.sendParsedMessage(requestee, MessageType.REQUEST_DENY_RECEIVE,
-        Number.format(amount, Number.FormatType.COMMAS), requestee.getName());
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.REQUEST_ACCEPT, amount, EconomyPlayer.of(requester), EconomyPlayer.of(requestee));
+    transaction.execute();
+  }
+  
+  @SneakyThrows
+  private void deny(Player requestee, OfflinePlayer requester, double amount) {
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.REQUEST_DENY, amount, EconomyPlayer.of(requester), EconomyPlayer.of(requestee));
+    transaction.execute();
   }
   
 }

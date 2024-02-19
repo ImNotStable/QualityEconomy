@@ -203,7 +203,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   private void toggleCurrencyTable(Connection connection) throws SQLException {
-    boolean tableExists = currencyTableExists(getMetaData(connection));
+    boolean tableExists = currencyTableExists(connection.getMetaData());
     if (tableExists) {
       try (ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM CURRENCIES")) {
         while (resultSet.next())
@@ -217,7 +217,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   private void toggleColumns(Connection connection) throws SQLException {
-    DatabaseMetaData metaData = getMetaData(connection);
+    DatabaseMetaData metaData = connection.getMetaData();
     if (Configuration.areCustomCurrenciesEnabled()) {
       CommandManager.getCommand("custombalance").register();
       CommandManager.getCommand("customeconomy").register();

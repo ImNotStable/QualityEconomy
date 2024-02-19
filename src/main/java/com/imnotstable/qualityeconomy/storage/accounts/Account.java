@@ -11,7 +11,7 @@ import java.util.UUID;
 public class Account {
   @Getter
   private final UUID uniqueId;
-  private final Map<String, Double> otherBalances = new HashMap<>();
+  private final Map<String, Double> otherBalances;
   @Getter
   private String username = "";
   private double balance = 0.0;
@@ -22,6 +22,16 @@ public class Account {
   
   public Account(UUID uniqueId) {
     this.uniqueId = uniqueId;
+    this.otherBalances = new HashMap<>();
+  }
+  
+  protected Account(Account account) {
+    this.uniqueId = account.uniqueId;
+    this.username = account.username;
+    this.balance = account.balance;
+    this.otherBalances = account.otherBalances;
+    this.isPayable = account.isPayable;
+    this.isRequestable = account.isRequestable;
   }
   
   public Account setUsername(@NotNull String username) {
