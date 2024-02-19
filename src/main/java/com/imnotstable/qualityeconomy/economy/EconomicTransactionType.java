@@ -152,6 +152,6 @@ public enum EconomicTransactionType {
   
   private final int playerRequirement;
   private final Consumer<EconomicTransaction> executor;
-  //private final Consumer<EconomicTransaction> eventExecutor;
+  //private final String logMessage;
   
 }

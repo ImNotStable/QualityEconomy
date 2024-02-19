@@ -23,7 +23,7 @@ import java.util.List;
 public class BalanceTopCommand extends BaseCommand {
   
   public static List<Account> orderedPlayerList = new ArrayList<>();
-  private double serverTotal = 0;
+  private String serverTotal = "0.0";
   private int maxPage;
   private final CommandTree command = new CommandTree("balancetop")
     .withAliases("baltop")
@@ -61,7 +61,7 @@ public class BalanceTopCommand extends BaseCommand {
     Messages.sendParsedMessage(sender, MessageType.BALANCETOP_TITLE,
       String.valueOf(maxPage), String.valueOf(page));
     Messages.sendParsedMessage(sender, MessageType.BALANCETOP_SERVER_TOTAL,
-      String.valueOf(serverTotal));
+      serverTotal);
     
     if (!orderedPlayerList.isEmpty())
       for (int i = startIndex; i < endIndex; i++) {
@@ -79,9 +79,9 @@ public class BalanceTopCommand extends BaseCommand {
     
     Collection<Account> accounts = AccountManager.getAllAccounts();
     
-    serverTotal = accounts.stream()
+    serverTotal = Number.format(accounts.stream()
       .mapToDouble(Account::getBalance)
-      .sum();
+      .sum(), Number.FormatType.COMMAS);
     orderedPlayerList = accounts.stream()
       .sorted(Comparator.comparingDouble(Account::getBalance).reversed())
       .toList();

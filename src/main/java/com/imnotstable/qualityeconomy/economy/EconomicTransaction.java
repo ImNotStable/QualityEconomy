@@ -48,8 +48,9 @@ public class EconomicTransaction {
   }
   
   public void execute() { // This will be used to call the custom events that are planned.
-    if (!cancelled)
-      type.getExecutor().accept(this);
+    if (cancelled)
+      return;
+    type.getExecutor().accept(this);
   }
   
 }
