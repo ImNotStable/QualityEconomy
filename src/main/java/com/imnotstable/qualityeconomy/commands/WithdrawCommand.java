@@ -38,6 +38,19 @@ public class WithdrawCommand extends BaseCommand implements Listener {
     .then(new DoubleArgument("amount", Number.getMinimumValue())
       .executesPlayer(this::withdraw));
   
+  public static ItemStack getBankNote(double amount, Player player) {
+    ItemStack item = new ItemStack(Material.PAPER);
+    ItemMeta meta = item.getItemMeta();
+    meta.displayName(Messages.getParsedMessage(MessageType.WITHDRAW_BANKNOTE_DISPLAYNAME,
+      Number.format(amount, Number.FormatType.COMMAS), player.getName()).decoration(TextDecoration.ITALIC, false));
+    meta.lore(ComponentSplit.split(Messages.getParsedMessage(MessageType.WITHDRAW_BANKNOTE_LORE,
+      Number.format(amount, Number.FormatType.COMMAS), player.getName()).decoration(TextDecoration.ITALIC, false), "\\|\\|"));
+    meta.getPersistentDataContainer().set(amountKey, PersistentDataType.DOUBLE, amount);
+    meta.getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, player.getName());
+    item.setItemMeta(meta);
+    return item;
+  }
+  
   public void register() {
     super.register(command);
   }
@@ -53,19 +66,6 @@ public class WithdrawCommand extends BaseCommand implements Listener {
       return;
     EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.WITHDRAW, amount, EconomyPlayer.of(sender));
     transaction.execute();
-  }
-  
-  public static ItemStack getBankNote(double amount, Player player) {
-    ItemStack item = new ItemStack(Material.PAPER);
-    ItemMeta meta = item.getItemMeta();
-    meta.displayName(Messages.getParsedMessage(MessageType.WITHDRAW_BANKNOTE_DISPLAYNAME,
-      Number.format(amount, Number.FormatType.COMMAS), player.getName()).decoration(TextDecoration.ITALIC, false));
-    meta.lore(ComponentSplit.split(Messages.getParsedMessage(MessageType.WITHDRAW_BANKNOTE_LORE,
-      Number.format(amount, Number.FormatType.COMMAS), player.getName()).decoration(TextDecoration.ITALIC, false), "\\|\\|"));
-    meta.getPersistentDataContainer().set(amountKey, PersistentDataType.DOUBLE, amount);
-    meta.getPersistentDataContainer().set(ownerKey, PersistentDataType.STRING, player.getName());
-    item.setItemMeta(meta);
-    return item;
   }
   
   @SneakyThrows

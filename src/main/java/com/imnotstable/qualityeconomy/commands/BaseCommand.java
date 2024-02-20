@@ -9,6 +9,7 @@ public abstract class BaseCommand {
   private boolean isRegistered = false;
   
   public abstract void register();
+  
   public abstract void unregister();
   
   protected boolean register(CommandTree command) {

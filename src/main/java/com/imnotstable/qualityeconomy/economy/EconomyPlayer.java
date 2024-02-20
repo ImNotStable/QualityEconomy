@@ -8,15 +8,15 @@ import org.bukkit.OfflinePlayer;
 @Getter
 public class EconomyPlayer extends Account {
   
-  public static EconomyPlayer of(OfflinePlayer offlineplayer) {
-    return new EconomyPlayer(QualityEconomyAPI.getAccount(offlineplayer.getUniqueId()), offlineplayer);
-  }
-  
   private final OfflinePlayer offlineplayer;
   
   private EconomyPlayer(Account account, OfflinePlayer offlineplayer) {
     super(account);
     this.offlineplayer = offlineplayer;
+  }
+  
+  public static EconomyPlayer of(OfflinePlayer offlineplayer) {
+    return new EconomyPlayer(QualityEconomyAPI.getAccount(offlineplayer.getUniqueId()), offlineplayer);
   }
   
 }

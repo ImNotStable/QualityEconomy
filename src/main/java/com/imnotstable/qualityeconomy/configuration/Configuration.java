@@ -35,6 +35,10 @@ public class Configuration {
   @Getter
   private static long autoSaveAccountsInterval;
   private static List<String> databaseInfo;
+  @Getter
+  private static boolean transactionLoggingEnabled;
+  @Getter
+  private static boolean customEventsEnabled;
   
   public static void load() {
     if (!file.exists())
@@ -48,6 +52,8 @@ public class Configuration {
     YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
     storageType = configuration.getString("storage-type", "sqlite").toLowerCase();
     decimalPlaces = Math.max(configuration.getInt("decimal-places", 4), 0);
+    customEventsEnabled = configuration.getBoolean("custom-events", false);
+    transactionLoggingEnabled = configuration.getBoolean("transaction-logging", false);
     enabledCommands.clear();
     enabledCommands.add("qualityeconomy");
     if (configuration.getBoolean("banknotes", false))

@@ -12,8 +12,9 @@ import java.util.stream.Collectors;
 
 public final class ComponentSplit {
   
-  private ComponentSplit() {}
-
+  private ComponentSplit() {
+  }
+  
   @Contract(pure = true)
   public static @NotNull List<Component> split(final @NotNull Component self, final @NotNull @RegExp String separator) {
     List<Component> lines = splitComponentContent(self, separator);

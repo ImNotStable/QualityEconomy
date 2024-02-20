@@ -51,7 +51,7 @@ public class CustomEconomyCommand extends BaseCommand {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_ECONOMY_RESET, sender, 0, EconomyPlayer.of(target));
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_RESET, sender, 0, EconomyPlayer.of(target));
     transaction.execute();
   }
   
@@ -70,7 +70,7 @@ public class CustomEconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_ECONOMY_SET, sender, balance, EconomyPlayer.of(target));
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_SET, sender, balance, EconomyPlayer.of(target));
     transaction.execute();
   }
   
@@ -89,7 +89,7 @@ public class CustomEconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_ECONOMY_ADD, sender, balance, EconomyPlayer.of(target));
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_ADD, sender, balance, EconomyPlayer.of(target));
     transaction.execute();
   }
   
@@ -108,7 +108,7 @@ public class CustomEconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_ECONOMY_REMOVE, sender, balance, EconomyPlayer.of(target));
+    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_REMOVE, sender, balance, EconomyPlayer.of(target));
     transaction.execute();
   }
   

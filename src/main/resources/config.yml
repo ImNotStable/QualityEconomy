@@ -11,6 +11,14 @@ decimal-places: 3
 # they're money to 'checks' or 'banknotes'
 banknotes: false
 
+# Whether you want QualityEconomy's custom bukkit events
+# to be enabled, this is for developers specifically
+custom-events: false
+
+# Whether you want all transactions to be logged
+# within a player specific file
+transaction-logging: false
+
 # Whether you want these commands enabled
 commands:
   balance: true

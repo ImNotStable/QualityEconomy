@@ -1,9 +1,12 @@
 package com.imnotstable.qualityeconomy.economy;
 
+import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.util.QualityException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,10 +50,17 @@ public class EconomicTransaction {
     return startNewTransaction(type, null, null, amount, players);
   }
   
-  public void execute() { // This will be used to call the custom events that are planned.
-    if (cancelled)
-      return;
-    type.getExecutor().accept(this);
+  public void execute() {
+    if (Configuration.isCustomEventsEnabled())
+      cancelled = type.callEvent(this);
+    
+    Bukkit.getScheduler().runTaskAsynchronously(QualityEconomy.getInstance(), () -> {
+      if (!cancelled)
+        type.getExecutor().accept(this);
+      
+      if (Configuration.isTransactionLoggingEnabled())
+        TransactionLogger.log(this);
+    });
   }
   
 }
