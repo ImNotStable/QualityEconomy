@@ -1,6 +1,7 @@
 package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
@@ -26,8 +27,9 @@ public class CustomBalanceCommand extends BaseCommand {
         .executes(this::viewOtherBalance))
       .executesPlayer(this::viewOwnBalance));
   
+  @SuppressWarnings("SimplifiableConditionalExpression")
   public void register() {
-    super.register(command, !StorageManager.getActiveStorageType().getCurrencies().isEmpty());
+    super.register(command, Configuration.areCustomCurrenciesEnabled() ? !StorageManager.getActiveStorageType().getCurrencies().isEmpty() : false);
   }
   
   public void unregister() {

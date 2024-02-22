@@ -57,8 +57,7 @@ public class PayCommand extends BaseCommand {
     double amount = Number.roundObj(args.get("amount"));
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
       return;
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_TRANSFER, sender, amount, EconomyPlayer.of(sender), EconomyPlayer.of(target));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_TRANSFER, sender, amount, EconomyPlayer.of(sender), EconomyPlayer.of(target)).execute();
   }
   
 }

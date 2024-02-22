@@ -1,6 +1,5 @@
 package com.imnotstable.qualityeconomy.commands;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
@@ -9,7 +8,6 @@ import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
-import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.DoubleArgument;
@@ -82,13 +80,7 @@ public class RequestCommand extends BaseCommand {
     double amount = Number.roundObj(args.get("amount"));
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.OTHER_NOT_ENOUGH_MONEY, requester))
       return;
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.REQUEST, amount, EconomyPlayer.of(requester), EconomyPlayer.of(requestee));
-    transaction.execute();
-    CommandAPI.updateRequirements(requestee);
-    Bukkit.getScheduler().runTaskLater(QualityEconomy.getInstance(), () -> {
-      RequestCommand.getRequests().get(requestee.getUniqueId()).remove(requester.getUniqueId(), amount);
-      CommandAPI.updateRequirements(requestee);
-    }, 1200);
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.REQUEST, amount, EconomyPlayer.of(requester), EconomyPlayer.of(requestee)).execute();
   }
   
   private void answerRequest(Player requestee, CommandArguments args) {
@@ -99,21 +91,18 @@ public class RequestCommand extends BaseCommand {
     String answer = (String) args.get("answer");
     if (answer.equalsIgnoreCase("accept")) accept(requestee, requester, amount);
     else if (answer.equalsIgnoreCase("deny")) deny(requestee, requester, amount);
-    CommandAPI.updateRequirements(requestee);
   }
   
   @SneakyThrows
   private void accept(Player requestee, OfflinePlayer requester, double amount) {
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, requestee))
       return;
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.REQUEST_ACCEPT, amount, EconomyPlayer.of(requester), EconomyPlayer.of(requestee));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.REQUEST_ACCEPT, amount, EconomyPlayer.of(requester), EconomyPlayer.of(requestee)).execute();
   }
   
   @SneakyThrows
   private void deny(Player requestee, OfflinePlayer requester, double amount) {
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.REQUEST_DENY, amount, EconomyPlayer.of(requester), EconomyPlayer.of(requestee));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.REQUEST_DENY, amount, EconomyPlayer.of(requester), EconomyPlayer.of(requestee)).execute();
   }
   
 }

@@ -1,6 +1,7 @@
 package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
+import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
@@ -35,8 +36,9 @@ public class CustomEconomyCommand extends BaseCommand {
         .then(new LiteralArgument("add").then(new StringArgument("amount").executes(this::addBalance)))
         .then(new LiteralArgument("remove").then(new StringArgument("amount").executes(this::removeBalance)))));
   
+  @SuppressWarnings("SimplifiableConditionalExpression")
   public void register() {
-    super.register(command, !StorageManager.getActiveStorageType().getCurrencies().isEmpty());
+    super.register(command, Configuration.areCustomCurrenciesEnabled() ? !StorageManager.getActiveStorageType().getCurrencies().isEmpty() : false);
   }
   
   public void unregister() {
@@ -51,8 +53,7 @@ public class CustomEconomyCommand extends BaseCommand {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_RESET, sender, 0, EconomyPlayer.of(target));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_RESET, sender, 0, EconomyPlayer.of(target)).execute();
   }
   
   @SneakyThrows
@@ -70,8 +71,7 @@ public class CustomEconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_SET, sender, balance, EconomyPlayer.of(target));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_SET, sender, balance, EconomyPlayer.of(target)).execute();
   }
   
   @SneakyThrows
@@ -89,8 +89,7 @@ public class CustomEconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_ADD, sender, balance, EconomyPlayer.of(target));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_ADD, sender, balance, EconomyPlayer.of(target)).execute();
   }
   
   @SneakyThrows
@@ -108,8 +107,7 @@ public class CustomEconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_REMOVE, sender, balance, EconomyPlayer.of(target));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_REMOVE, sender, balance, EconomyPlayer.of(target)).execute();
   }
   
 }

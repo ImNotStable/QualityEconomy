@@ -64,8 +64,7 @@ public class WithdrawCommand extends BaseCommand implements Listener {
     double amount = Number.roundObj(args.get("amount"));
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
       return;
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.WITHDRAW, amount, EconomyPlayer.of(sender));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.WITHDRAW, amount, EconomyPlayer.of(sender)).execute();
   }
   
   @SneakyThrows
@@ -77,8 +76,7 @@ public class WithdrawCommand extends BaseCommand implements Listener {
     if (!persistentDataContainer.has(amountKey) || !persistentDataContainer.has(ownerKey))
       return;
     
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.WITHDRAW_CLAIM, 0, EconomyPlayer.of(event.getPlayer()));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.WITHDRAW_CLAIM, 0, EconomyPlayer.of(event.getPlayer())).execute();
   }
   
 }

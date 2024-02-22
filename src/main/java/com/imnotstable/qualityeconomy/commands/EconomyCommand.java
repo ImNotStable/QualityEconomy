@@ -42,8 +42,7 @@ public class EconomyCommand extends BaseCommand {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_RESET, sender, 0, EconomyPlayer.of(target));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_RESET, sender, 0, EconomyPlayer.of(target)).execute();
   }
   
   @SneakyThrows
@@ -58,8 +57,7 @@ public class EconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_SET, sender, balance, EconomyPlayer.of(target));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_SET, sender, balance, EconomyPlayer.of(target)).execute();
   }
   
   @SneakyThrows
@@ -74,8 +72,7 @@ public class EconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_ADD, sender, balance, EconomyPlayer.of(target));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_ADD, sender, balance, EconomyPlayer.of(target)).execute();
   }
   
   @SneakyThrows
@@ -90,8 +87,7 @@ public class EconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction transaction = EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_REMOVE, sender, balance, EconomyPlayer.of(target));
-    transaction.execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_REMOVE, sender, balance, EconomyPlayer.of(target)).execute();
   }
   
 }

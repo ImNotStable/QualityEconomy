@@ -1,12 +1,10 @@
 package com.imnotstable.qualityeconomy.economy;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.util.QualityException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,6 +31,8 @@ public class EconomicTransaction {
   }
   
   public static EconomicTransaction startNewTransaction(EconomicTransactionType type, CommandSender sender, String currency, double amount, EconomyPlayer... players) throws QualityException {
+    if (!type.getConfigurationRequirement().get())
+      throw new QualityException("Economic Transaction failed to meet configuration requirement");
     if (type.getPlayerRequirement() != players.length)
       throw new QualityException("Economic Transaction failed to meet player requirement");
     return new EconomicTransaction(type, sender, players, currency, amount);
@@ -53,14 +53,7 @@ public class EconomicTransaction {
   public void execute() {
     if (Configuration.isCustomEventsEnabled())
       cancelled = type.callEvent(this);
-    
-    Bukkit.getScheduler().runTaskAsynchronously(QualityEconomy.getInstance(), () -> {
-      if (!cancelled)
-        type.getExecutor().accept(this);
-      
-      if (Configuration.isTransactionLoggingEnabled())
-        TransactionLogger.log(this);
-    });
+    type.execute(this);
   }
   
 }
