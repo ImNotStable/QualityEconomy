@@ -163,7 +163,7 @@ public class StorageManager implements Listener {
           }
         Gson gson = new Gson();
         JsonObject root = new JsonObject();
-        if (Configuration.areCustomCurrenciesEnabled())
+        if (Configuration.isCustomCurrenciesEnabled())
           root.add("CUSTOM-CURRENCIES", gson.toJsonTree(getActiveStorageType().getCurrencies()));
         getActiveStorageType().getAllAccounts().forEach((uuid, account) -> {
           JsonObject accountJson = new JsonObject();
@@ -187,7 +187,7 @@ public class StorageManager implements Listener {
   
   public static void addCurrency(String currency) {
     currency = currency.toUpperCase();
-    if (!Configuration.areCustomCurrenciesEnabled()) {
+    if (!Configuration.isCustomCurrenciesEnabled()) {
       new Debug.QualityError("This feature is disabled within QualityEconomy's configuration").log();
       return;
     }
@@ -207,7 +207,7 @@ public class StorageManager implements Listener {
   
   public static void removeCurrency(String currency) {
     currency = currency.toUpperCase();
-    if (!Configuration.areCustomCurrenciesEnabled()) {
+    if (!Configuration.isCustomCurrenciesEnabled()) {
       new Debug.QualityError("This feature is disabled within QualityEconomy's configuration").log();
       return;
     }

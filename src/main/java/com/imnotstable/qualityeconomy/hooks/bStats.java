@@ -11,7 +11,7 @@ public class bStats {
   public static void load() {
     Metrics metrics = new Metrics(QualityEconomy.getInstance(), 20121);
     metrics.addCustomChart(new SimplePie("database_type_used", Configuration::getStorageType));
-    metrics.addCustomChart(new SimplePie("custom_currency_usage", () -> String.valueOf(Configuration.areCustomCurrenciesEnabled())));
+    metrics.addCustomChart(new SimplePie("custom_currency_usage", () -> String.valueOf(Configuration.isCustomCurrenciesEnabled())));
     metrics.addCustomChart(new SimplePie("vault_usage", () -> String.valueOf(HookManager.isVaultEnabled())));
     metrics.addCustomChart(new SimplePie("placeholderapi_usage", () -> String.valueOf(HookManager.isPlaceholderapiEnabled())));
     CommandManager.getCommandNames().forEach(command -> {

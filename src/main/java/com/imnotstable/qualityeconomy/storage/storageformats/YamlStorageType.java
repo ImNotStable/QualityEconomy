@@ -80,7 +80,7 @@ public class YamlStorageType extends EasyYaml implements StorageType {
         account.setPayable(yaml.getBoolean(uuid + ".PAYABLE"));
       if (Configuration.isCommandEnabled("request"))
         account.setRequestable(yaml.getBoolean(uuid + ".REQUESTABLE"));
-      if (Configuration.areCustomCurrenciesEnabled())
+      if (Configuration.isCustomCurrenciesEnabled())
         for (String currency : getCurrencies())
           account.setCustomBalance(currency, yaml.getDouble(uuid + "." + currency));
       accounts.put(account.getUniqueId(), account);

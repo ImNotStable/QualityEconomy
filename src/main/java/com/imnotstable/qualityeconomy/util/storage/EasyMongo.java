@@ -46,7 +46,7 @@ public class EasyMongo extends EasyCurrencies {
       document.put("PAYABLE", account.isPayable());
     if (Configuration.isCommandEnabled("request"))
       document.put("REQUESTABLE", account.isRequestable());
-    if (Configuration.areCustomCurrenciesEnabled())
+    if (Configuration.isCustomCurrenciesEnabled())
       for (String currency : currencies)
         document.put(currency, account.getCustomBalance(currency));
     return document;

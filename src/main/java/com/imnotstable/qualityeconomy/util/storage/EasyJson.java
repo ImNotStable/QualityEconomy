@@ -30,13 +30,13 @@ public class EasyJson extends EasyCurrencies {
       json.addProperty("PAYABLE", account.isPayable());
     if (Configuration.isCommandEnabled("request"))
       json.addProperty("REQUESTABLE", account.isRequestable());
-    if (Configuration.areCustomCurrenciesEnabled())
+    if (Configuration.isCustomCurrenciesEnabled())
       account.getCustomBalances().forEach(json::addProperty);
     return json;
   }
   
   protected void toggleCustomCurrencies() {
-    if (Configuration.areCustomCurrenciesEnabled()) {
+    if (Configuration.isCustomCurrenciesEnabled()) {
       if (!json.has("custom-currencies"))
         json.add("custom-currencies", new JsonArray());
       json.getAsJsonArray("custom-currencies").forEach(currency -> currencies.add(currency.getAsString()));

@@ -89,7 +89,7 @@ public enum EconomicTransactionType {
           Number.format(transaction.getAmount(), Number.FormatType.COMMAS), sender.getName());
       QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), transaction.getAmount());
     }, (transaction) -> String.format("$%s was transferred from %s to %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getEconomyPlayers()[1].getUsername())),
-  CUSTOM_BALANCE_RESET(Configuration::areCustomCurrenciesEnabled,
+  CUSTOM_BALANCE_RESET(Configuration::isCustomCurrenciesEnabled,
     CustomBalanceResetEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
@@ -98,7 +98,7 @@ public enum EconomicTransactionType {
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_RESET,
           target.getUsername());
     }, (transaction) -> String.format("%s's custom balance (%s) was reset by %s", transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency(), transaction.getSender().getName())),
-  CUSTOM_BALANCE_SET(Configuration::areCustomCurrenciesEnabled,
+  CUSTOM_BALANCE_SET(Configuration::isCustomCurrenciesEnabled,
     CustomBalanceSetEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
@@ -107,7 +107,7 @@ public enum EconomicTransactionType {
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_SET,
           Number.format(transaction.getAmount(), Number.FormatType.COMMAS), target.getUsername());
     }, (transaction) -> String.format("%s's custom balance (%s) was set to $%s by %s", transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getSender().getName())),
-  CUSTOM_BALANCE_ADD(Configuration::areCustomCurrenciesEnabled,
+  CUSTOM_BALANCE_ADD(Configuration::isCustomCurrenciesEnabled,
     CustomBalanceAddEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
@@ -116,7 +116,7 @@ public enum EconomicTransactionType {
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_ADD,
           Number.format(transaction.getAmount(), Number.FormatType.COMMAS), target.getUsername());
     }, (transaction) -> String.format("$%s was added to %s's custom balance (%s) by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency(), transaction.getSender().getName())),
-  CUSTOM_BALANCE_REMOVE(Configuration::areCustomCurrenciesEnabled,
+  CUSTOM_BALANCE_REMOVE(Configuration::isCustomCurrenciesEnabled,
     CustomBalanceRemoveEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];

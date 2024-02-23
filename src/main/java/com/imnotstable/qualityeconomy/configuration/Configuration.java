@@ -27,7 +27,8 @@ public class Configuration {
   private static String storageType;
   @Getter
   private static int decimalPlaces;
-  private static boolean customCurrencies;
+  @Getter
+  private static boolean customCurrenciesEnabled;
   @Getter
   private static long backupInterval;
   @Getter
@@ -61,8 +62,8 @@ public class Configuration {
     for (String command : new String[]{"balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy"})
       if (configuration.getBoolean("commands." + command, Debug.DEBUG_MODE))
         enabledCommands.add(command);
-    customCurrencies = configuration.getBoolean("custom-currencies", false);
-    if (!customCurrencies) {
+    customCurrenciesEnabled = configuration.getBoolean("custom-currencies", false);
+    if (!customCurrenciesEnabled) {
       enabledCommands.remove("custombalance");
       enabledCommands.remove("customeconomy");
     }
@@ -120,10 +121,6 @@ public class Configuration {
   
   public static boolean isCommandEnabled(String command) {
     return enabledCommands.contains(command);
-  }
-  
-  public static boolean areCustomCurrenciesEnabled() {
-    return customCurrencies;
   }
   
   public static @NotNull String getDatabaseInfo(int index, String def) {

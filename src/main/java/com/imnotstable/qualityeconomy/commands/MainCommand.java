@@ -61,7 +61,7 @@ public class MainCommand extends BaseCommand {
         .withRequirement(sender -> Debug.DEBUG_MODE)
         .executes(this::changeAllEntries)))
     .then(new LiteralArgument("economy")
-      .withRequirement(sender -> Configuration.areCustomCurrenciesEnabled())
+      .withRequirement(sender -> Configuration.isCustomCurrenciesEnabled())
       .then(new LiteralArgument("createCustomCurrency")
         .then(new StringArgument("name")
           .executes(this::createCustomCurrency)))

@@ -185,7 +185,7 @@ public class EasySQL extends EasyCurrencies {
       preparedStatement.setBoolean(columns.indexOf("PAYABLE") + 1, account.isPayable());
     if (Configuration.isCommandEnabled("request"))
       preparedStatement.setBoolean(columns.indexOf("REQUESTABLE") + 1, account.isRequestable());
-    if (Configuration.areCustomCurrenciesEnabled())
+    if (Configuration.isCustomCurrenciesEnabled())
       for (String currency : currencies)
         preparedStatement.setDouble(columns.indexOf(currency) + 1, account.getCustomBalance(currency));
   }

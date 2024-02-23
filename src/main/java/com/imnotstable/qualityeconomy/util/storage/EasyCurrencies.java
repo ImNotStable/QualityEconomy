@@ -12,7 +12,7 @@ public class EasyCurrencies {
   protected final Set<String> currencies = new HashSet<>();
   
   public @NotNull Set<String> getCurrencies() {
-    if (!Configuration.areCustomCurrenciesEnabled()) {
+    if (!Configuration.isCustomCurrenciesEnabled()) {
       new Debug.QualityError("This feature is disabled within QualityEconomy's configuration").log();
       return new HashSet<>();
     }

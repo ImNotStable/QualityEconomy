@@ -87,7 +87,7 @@ public class JsonStorageType extends EasyJson implements StorageType {
         account.setPayable(accountJson.get("PAYABLE").getAsBoolean());
       if (Configuration.isCommandEnabled("request"))
         account.setPayable(accountJson.get("REQUESTABLE").getAsBoolean());
-      if (Configuration.areCustomCurrenciesEnabled())
+      if (Configuration.isCustomCurrenciesEnabled())
         for (String currency : getCurrencies())
           account.setCustomBalance(currency, accountJson.get(currency).getAsDouble());
       accounts.put(uuid, account);

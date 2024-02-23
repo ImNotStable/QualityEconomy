@@ -25,12 +25,12 @@ public class EasyYaml extends EasyCurrencies {
       yaml.set(uuid + ".PAYABLE", account.isPayable());
     if (Configuration.isCommandEnabled("request"))
       yaml.set(uuid + ".REQUESTABLE", account.isRequestable());
-    if (Configuration.areCustomCurrenciesEnabled())
+    if (Configuration.isCustomCurrenciesEnabled())
       account.getCustomBalances().forEach((currency, balance) -> yaml.set(uuid + "." + currency, balance));
   }
   
   protected void toggleCustomCurrencies() {
-    if (Configuration.areCustomCurrenciesEnabled()) {
+    if (Configuration.isCustomCurrenciesEnabled()) {
       if (!yaml.contains("custom-currencies"))
         yaml.set("custom-currencies", new ArrayList<String>());
       currencies.addAll(yaml.getStringList("custom-currencies"));

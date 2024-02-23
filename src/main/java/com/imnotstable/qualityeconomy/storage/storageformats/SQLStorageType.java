@@ -50,7 +50,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   public synchronized void wipeDatabase() {
     try (Connection connection = getConnection()) {
       dropPlayerDataTable(connection);
-      if (Configuration.areCustomCurrenciesEnabled())
+      if (Configuration.isCustomCurrenciesEnabled())
         dropCurrencyTable(connection);
       close();
       open();
@@ -115,7 +115,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
           account.setPayable(resultSet.getBoolean("PAYABLE"));
         if (Configuration.isCommandEnabled("request"))
           account.setRequestable(resultSet.getBoolean("REQUESTABLE"));
-        if (Configuration.areCustomCurrenciesEnabled()) {
+        if (Configuration.isCustomCurrenciesEnabled()) {
           Map<String, Double> customCurrencies = new HashMap<>();
           for (String currency : currencies) {
             customCurrencies.put(currency, resultSet.getDouble(currency));
@@ -145,7 +145,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
             preparedStatement.setBoolean(columns.indexOf("PAYABLE"), account.isPayable());
           if (Configuration.isCommandEnabled("request"))
             preparedStatement.setBoolean(columns.indexOf("REQUESTABLE"), account.isRequestable());
-          if (Configuration.areCustomCurrenciesEnabled())
+          if (Configuration.isCustomCurrenciesEnabled())
             for (String currency : currencies)
               preparedStatement.setDouble(columns.indexOf(currency), account.getCustomBalance(currency));
           preparedStatement.setString(columns.size(), account.getUniqueId().toString());
@@ -210,15 +210,15 @@ public class SQLStorageType extends EasySQL implements StorageType {
           currencies.add(resultSet.getString(1));
       }
     }
-    if (Configuration.areCustomCurrenciesEnabled() && !tableExists)
+    if (Configuration.isCustomCurrenciesEnabled() && !tableExists)
       createCurrencyTable(connection);
-    else if (!Configuration.areCustomCurrenciesEnabled() && tableExists)
+    else if (!Configuration.isCustomCurrenciesEnabled() && tableExists)
       dropCurrencyTable(connection);
   }
   
   private void toggleColumns(Connection connection) throws SQLException {
     DatabaseMetaData metaData = connection.getMetaData();
-    if (Configuration.areCustomCurrenciesEnabled()) {
+    if (Configuration.isCustomCurrenciesEnabled()) {
       CommandManager.getCommand("custombalance").register();
       CommandManager.getCommand("customeconomy").register();
       for (String currency : currencies)

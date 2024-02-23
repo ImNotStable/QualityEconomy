@@ -95,7 +95,7 @@ public class PlaceholderHook extends PlaceholderExpansion {
         return Number.format(QualityEconomyAPI.getBalance(uuid), Number.FormatType.NORMAL);
       }
       case "cbalance" -> {
-        if (!Configuration.areCustomCurrenciesEnabled())
+        if (!Configuration.isCustomCurrenciesEnabled())
           return "Feature is disabled";
         if (!QualityEconomyAPI.doesCustomCurrencyExist(elements[1]))
           return "Currency does not exist";

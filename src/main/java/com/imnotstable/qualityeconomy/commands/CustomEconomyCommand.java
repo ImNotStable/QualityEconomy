@@ -38,7 +38,7 @@ public class CustomEconomyCommand extends BaseCommand {
   
   @SuppressWarnings("SimplifiableConditionalExpression")
   public void register() {
-    super.register(command, Configuration.areCustomCurrenciesEnabled() ? !StorageManager.getActiveStorageType().getCurrencies().isEmpty() : false);
+    super.register(command, Configuration.isCustomCurrenciesEnabled() ? !StorageManager.getActiveStorageType().getCurrencies().isEmpty() : false);
   }
   
   public void unregister() {

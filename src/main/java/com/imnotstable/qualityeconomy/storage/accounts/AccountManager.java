@@ -99,7 +99,7 @@ public class AccountManager {
         Debug.Timer timer = new Debug.Timer(String.format("createFakeAccounts(%d)", entries));
         Collection<Account> accounts = new ArrayList<>();
         Random random = new Random();
-        Collection<String> currencies = Configuration.areCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
+        Collection<String> currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
         for (int i = 0; i < entries; ++i) {
           UUID uuid = UUID.randomUUID();
           HashMap<String, Double> customBalances = new HashMap<>();
@@ -124,7 +124,7 @@ public class AccountManager {
       public void run() {
         Debug.Timer timer = new Debug.Timer("changeAllAccounts()");
         Random random = new Random();
-        Collection<String> currencies = Configuration.areCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
+        Collection<String> currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
         accounts.values().forEach(account -> {
           HashMap<String, Double> customBalances = new HashMap<>();
           for (String currency : currencies) {

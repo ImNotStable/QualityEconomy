@@ -89,7 +89,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
         update.get("$set", new Document("PAYABLE", account.isPayable()));
       if (Configuration.isCommandEnabled("request"))
         update.get("$set", new Document("REQUESTABLE", account.isRequestable()));
-      if (Configuration.areCustomCurrenciesEnabled())
+      if (Configuration.isCustomCurrenciesEnabled())
         for (String currency : currencies)
           update.get("$set", new Document(currency, account.getCustomBalance(currency)));
       updates.add(new UpdateOneModel<>(new Document("UUID", account.getUniqueId()), update));
@@ -109,7 +109,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
         account.setPayable(document.getBoolean("PAYABLE"));
       if (Configuration.isCommandEnabled("request"))
         account.setRequestable(document.getBoolean("REQUESTABLE"));
-      if (Configuration.areCustomCurrenciesEnabled())
+      if (Configuration.isCustomCurrenciesEnabled())
         for (String currency : currencies)
           account.setCustomBalance(currency, document.getDouble(currency));
       accounts.put(uuid, account);
@@ -150,11 +150,11 @@ public class MongoStorageType extends EasyMongo implements StorageType {
         collection.find().forEach(document -> currencies.add((String) document.get("CURRENCY")));
         break;
       }
-    if (Configuration.areCustomCurrenciesEnabled() && !collectionExists) {
+    if (Configuration.isCustomCurrenciesEnabled() && !collectionExists) {
       super.currencies.addAll(currencies);
       data.createCollection("CURRENCIES");
       customCurrencies = data.getCollection("CURRENCIES");
-    } else if (!Configuration.areCustomCurrenciesEnabled() && collectionExists) {
+    } else if (!Configuration.isCustomCurrenciesEnabled() && collectionExists) {
       currencies.forEach(super::wipeEntry);
       data.getCollection("CURRENCIES").drop();
       customCurrencies = null;
