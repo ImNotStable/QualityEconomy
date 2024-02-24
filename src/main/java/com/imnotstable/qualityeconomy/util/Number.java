@@ -7,6 +7,7 @@ import lombok.Getter;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class Number {
   
@@ -14,19 +15,27 @@ public class Number {
   private static final DecimalFormat NORMAL_FORMAT = new DecimalFormat("#");
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
   private static final DecimalFormat COMMA_FORMAT = new DecimalFormat("#,###.##");
+  private static final Pattern SUFFIX_PATTERN = Pattern.compile("\\d+(?:\\.\\d*)?[a-zA-Z]");
+  private static final Pattern COMMA_PATTERN = Pattern.compile("^(?:[1-9][0-9]{0,2}|1000)(?:,\\d{3})*(?:\\.\\d*)?$");
   
   public static String format(double value, FormatType formatType) {
     return formatType.getFormatter().apply(value);
   }
   
-  public static double unformatSuffix(String value) throws NumberFormatException {
-    String number = value.replaceAll("[^\\d.]", "");
-    String suffix = value.replaceAll("[\\d.]", "");
-    int index = SUFFIXES.indexOf(suffix);
-    if (index == -1)
-      throw new NumberFormatException("Invalid suffix");
-    double multiplier = Math.pow(1000, index);
-    return Double.parseDouble(number) * multiplier;
+  public static double unformat(String value) throws NumberFormatException {
+    if (SUFFIX_PATTERN.matcher(value).matches()) {
+      String number = value.replaceAll("[^\\d.]", "");
+      String suffix = value.replaceAll("[\\d.]", "");
+      int index = SUFFIXES.indexOf(suffix);
+      if (index == -1)
+        throw new NumberFormatException("Invalid suffix");
+      double multiplier = Math.pow(1000, index);
+      return Double.parseDouble(number) * multiplier;
+    }
+    if (COMMA_PATTERN.matcher(value).matches()) {
+      return Double.parseDouble(value.replaceAll(",", ""));
+    }
+    throw new IllegalArgumentException("Invalid number format");
   }
   
   public static double roundObj(Object obj) {

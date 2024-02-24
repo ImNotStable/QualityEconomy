@@ -17,6 +17,7 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -28,7 +29,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-public class WithdrawCommand extends BaseCommand implements Listener {
+public class WithdrawCommand extends BaseCommand {
   
   @Getter
   private static final NamespacedKey amountKey = new NamespacedKey(QualityEconomy.getInstance(), "amount");
@@ -53,6 +54,21 @@ public class WithdrawCommand extends BaseCommand implements Listener {
   
   public void register() {
     super.register(command);
+    Bukkit.getPluginManager().registerEvents(new Listener() {
+      
+      @SneakyThrows
+      @EventHandler
+      public void on(PlayerInteractEvent event) {
+        if (!Configuration.isCommandEnabled(command.getName()) || !event.getAction().isRightClick() || event.getItem() == null || !event.getItem().getType().equals(Material.PAPER))
+          return;
+        PersistentDataContainer persistentDataContainer = event.getItem().getItemMeta().getPersistentDataContainer();
+        if (!persistentDataContainer.has(amountKey) || !persistentDataContainer.has(ownerKey))
+          return;
+        
+        EconomicTransaction.startNewTransaction(EconomicTransactionType.WITHDRAW_CLAIM, 0, EconomyPlayer.of(event.getPlayer())).execute();
+      }
+      
+    }, QualityEconomy.getInstance());
   }
   
   public void unregister() {
@@ -65,18 +81,6 @@ public class WithdrawCommand extends BaseCommand implements Listener {
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
       return;
     EconomicTransaction.startNewTransaction(EconomicTransactionType.WITHDRAW, amount, EconomyPlayer.of(sender)).execute();
-  }
-  
-  @SneakyThrows
-  @EventHandler
-  public void on(PlayerInteractEvent event) {
-    if (!Configuration.isCommandEnabled(command.getName()) || !event.getAction().isRightClick() || event.getItem() == null || !event.getItem().getType().equals(Material.PAPER))
-      return;
-    PersistentDataContainer persistentDataContainer = event.getItem().getItemMeta().getPersistentDataContainer();
-    if (!persistentDataContainer.has(amountKey) || !persistentDataContainer.has(ownerKey))
-      return;
-    
-    EconomicTransaction.startNewTransaction(EconomicTransactionType.WITHDRAW_CLAIM, 0, EconomyPlayer.of(event.getPlayer())).execute();
   }
   
 }

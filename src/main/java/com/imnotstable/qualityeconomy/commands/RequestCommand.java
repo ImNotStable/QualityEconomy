@@ -21,15 +21,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class RequestCommand extends BaseCommand {
   
   //<Requestee, <Requester, Amount>>
   @Getter
-  private static Map<UUID, Map<UUID, Double>> requests = null;
+  private static ConcurrentMap<UUID, ConcurrentMap<UUID, Double>> requests = null;
   
   private final CommandTree command = new CommandTree("request")
     .then(new LiteralArgument("toggle")
@@ -52,7 +52,7 @@ public class RequestCommand extends BaseCommand {
   public void register() {
     if (!super.register(command))
       return;
-    requests = new HashMap<>();
+    requests = new ConcurrentHashMap<>();
   }
   
   public void unregister() {

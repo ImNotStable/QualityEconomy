@@ -6,9 +6,9 @@ import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("unused")
 public class QualityEconomyAPI {
@@ -92,17 +92,20 @@ public class QualityEconomyAPI {
   }
   
   public static void createRequest(@NotNull UUID requester, @NotNull UUID requestee, double amount) {
-    if (RequestCommand.getRequests() == null) return;
-    RequestCommand.getRequests().computeIfAbsent(requestee, uuid -> new HashMap<>()).put(requester, amount);
+    if (RequestCommand.getRequests() == null)
+      return;
+    RequestCommand.getRequests().computeIfAbsent(requestee, uuid -> new ConcurrentHashMap<>()).put(requester, amount);
   }
   
   public static void deleteRequest(@NotNull UUID requester, @NotNull UUID requestee) {
-    if (RequestCommand.getRequests() == null) return;
+    if (RequestCommand.getRequests() == null)
+      return;
     RequestCommand.getRequests().get(requestee).remove(requester);
   }
   
   public static boolean requestExists(@NotNull UUID requester, @NotNull UUID requestee) {
-    if (RequestCommand.getRequests() == null) return false;
+    if (RequestCommand.getRequests() == null)
+      return false;
     return RequestCommand.getRequests().get(requestee).containsKey(requester);
   }
   

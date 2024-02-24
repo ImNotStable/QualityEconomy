@@ -2,14 +2,12 @@ package com.imnotstable.qualityeconomy.economy;
 
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.util.QualityException;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@AllArgsConstructor
 @Setter
 @Getter
 public class EconomicTransaction {

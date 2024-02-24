@@ -1,7 +1,6 @@
 package com.imnotstable.qualityeconomy;
 
 import com.imnotstable.qualityeconomy.commands.CommandManager;
-import com.imnotstable.qualityeconomy.commands.WithdrawCommand;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.hooks.HookManager;
@@ -53,7 +52,6 @@ public final class QualityEconomy extends JavaPlugin {
     HookManager.loadHooks();
     
     Bukkit.getPluginManager().registerEvents(new StorageManager(), this);
-    Bukkit.getPluginManager().registerEvents(new WithdrawCommand(), this);
     
     UpdateChecker.load();
     
