@@ -11,7 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("unused")
-public class QualityEconomyAPI {
+public final class QualityEconomyAPI {
   
   public static void createAccount(@NotNull UUID uuid) {
     AccountManager.createAccount(uuid);

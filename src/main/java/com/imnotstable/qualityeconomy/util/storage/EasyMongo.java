@@ -19,8 +19,8 @@ public class EasyMongo extends EasyCurrencies {
   
   protected MongoClient client = null;
   protected MongoDatabase data = null;
-  protected MongoCollection<Document> playerdata = null;
-  protected MongoCollection<Document> customCurrencies = null;
+  protected MongoCollection<Document> playerDataCollection = null;
+  protected MongoCollection<Document> currencyCollection = null;
   
   protected String getConnectionString() {
     String database = Configuration.getDatabaseInfo(0, "qualityeconomy");
@@ -54,7 +54,7 @@ public class EasyMongo extends EasyCurrencies {
   
   protected void setDefaultValue(String entry, boolean value) {
     List<WriteModel<Document>> updates = new ArrayList<>();
-    for (Document document : playerdata.find().projection(Projections.include("UUID"))) {
+    for (Document document : playerDataCollection.find().projection(Projections.include("UUID"))) {
       UUID uuid = document.get("UUID", UUID.class);
       if (uuid != null && !document.containsKey(entry)) {
         Document query = new Document("UUID", uuid);
@@ -63,12 +63,12 @@ public class EasyMongo extends EasyCurrencies {
       }
     }
     if (!updates.isEmpty())
-      playerdata.bulkWrite(updates);
+      playerDataCollection.bulkWrite(updates);
   }
   
   protected void wipeEntry(String entry) {
     List<WriteModel<Document>> updates = new ArrayList<>();
-    for (Document document : playerdata.find().projection(Projections.include("UUID"))) {
+    for (Document document : playerDataCollection.find().projection(Projections.include("UUID"))) {
       UUID uuid = document.get("UUID", UUID.class);
       if (uuid != null) {
         Document query = new Document("UUID", uuid);
@@ -77,7 +77,7 @@ public class EasyMongo extends EasyCurrencies {
       }
     }
     if (!updates.isEmpty())
-      playerdata.bulkWrite(updates);
+      playerDataCollection.bulkWrite(updates);
   }
   
 }

@@ -35,7 +35,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
       .build();
     client = MongoClients.create(settings);
     data = client.getDatabase("DATA");
-    playerdata = data.getCollection("PLAYERDATA");
+    playerDataCollection = data.getCollection("PLAYERDATA");
     new BukkitRunnable() {
       @Override
       public void run() {
@@ -65,7 +65,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   @Override
   public synchronized void createAccount(@NotNull Account account) {
     Document document = createDocument(account);
-    if (!playerdata.insertOne(document).wasAcknowledged())
+    if (!playerDataCollection.insertOne(document).wasAcknowledged())
       new Debug.QualityError("Failed to create account (" + account.getUniqueId() + ")").log();
   }
   
@@ -73,7 +73,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   public synchronized void createAccounts(@NotNull Collection<Account> accounts) {
     List<Document> documents = new ArrayList<>();
     accounts.forEach(account -> documents.add(createDocument(account)));
-    if (!playerdata.insertMany(documents).wasAcknowledged())
+    if (!playerDataCollection.insertMany(documents).wasAcknowledged())
       new Debug.QualityError("Failed to create accounts").log();
   }
   
@@ -96,13 +96,13 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     }
     
     if (!updates.isEmpty())
-      playerdata.bulkWrite(updates);
+      playerDataCollection.bulkWrite(updates);
   }
   
   @Override
   public synchronized @NotNull Map<UUID, Account> getAllAccounts() {
     Map<UUID, Account> accounts = new HashMap<>();
-    playerdata.find().forEach(document -> {
+    playerDataCollection.find().forEach(document -> {
       UUID uuid = document.get("UUID", UUID.class);
       Account account = new Account(uuid).setUsername(document.getString("USERNAME")).setBalance(document.getDouble("BALANCE"));
       if (Configuration.isCommandEnabled("pay"))
@@ -119,23 +119,23 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   
   @Override
   public boolean addCurrency(@NotNull String currency) {
-    if (customCurrencies == null) {
-      new Debug.QualityError("currencies database not found.").log();
+    if (currencyCollection == null) {
+      new Debug.QualityError("currencies collection database not found.").log();
       return false;
     }
-    customCurrencies.insertOne(new Document("CURRENCY", currency));
+    currencyCollection.insertOne(new Document("CURRENCY", currency));
     super.currencies.add(currency);
     return true;
   }
   
   @Override
   public boolean removeCurrency(@NotNull String currency) {
-    if (customCurrencies == null) {
-      new Debug.QualityError("currencies database not found.").log();
+    if (currencyCollection == null) {
+      new Debug.QualityError("currencies collection not found.").log();
       return false;
     }
     wipeEntry(currency);
-    customCurrencies.findOneAndDelete(new Document("CURRENCY", currency));
+    currencyCollection.findOneAndDelete(new Document("CURRENCY", currency));
     super.currencies.remove(currency);
     return true;
   }
@@ -153,11 +153,11 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     if (Configuration.isCustomCurrenciesEnabled() && !collectionExists) {
       super.currencies.addAll(currencies);
       data.createCollection("CURRENCIES");
-      customCurrencies = data.getCollection("CURRENCIES");
+      currencyCollection = data.getCollection("CURRENCIES");
     } else if (!Configuration.isCustomCurrenciesEnabled() && collectionExists) {
       currencies.forEach(super::wipeEntry);
       data.getCollection("CURRENCIES").drop();
-      customCurrencies = null;
+      currencyCollection = null;
     }
   }
   
