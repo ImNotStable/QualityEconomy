@@ -1,5 +1,8 @@
 package com.imnotstable.qualityeconomy.util;
 
+import com.imnotstable.qualityeconomy.QualityEconomy;
+import org.bukkit.Bukkit;
+
 import java.util.regex.Pattern;
 
 public class Misc {
@@ -14,6 +17,14 @@ public class Misc {
     for (Object o : comparable)
       if (object.equals(o)) return true;
     return false;
+  }
+  
+  public static void runAsync(Runnable runnable) {
+    Bukkit.getScheduler().runTaskAsynchronously(QualityEconomy.getInstance(), runnable);
+  }
+  
+  public static void runSync(Runnable runnable) {
+    Bukkit.getScheduler().runTask(QualityEconomy.getInstance(), runnable);
   }
   
 }

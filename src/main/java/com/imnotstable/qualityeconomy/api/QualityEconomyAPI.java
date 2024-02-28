@@ -26,7 +26,7 @@ public final class QualityEconomyAPI {
   }
   
   public static double getBalance(@NotNull UUID uuid) {
-    return AccountManager.getAccount(uuid).getBalance();
+    return getAccount(uuid).getBalance();
   }
   
   public static void setBalance(@NotNull UUID uuid, double amount) {

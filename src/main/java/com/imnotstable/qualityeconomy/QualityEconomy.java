@@ -61,7 +61,7 @@ public final class QualityEconomy extends JavaPlugin {
   @Override
   public void onDisable() {
     Debug.Timer timer = new Debug.Timer("onDisable()");
-    StorageManager.endStorageProcesses();
+    StorageManager.endStorageProcesses(false);
     CommandAPI.onDisable();
     timer.end();
   }

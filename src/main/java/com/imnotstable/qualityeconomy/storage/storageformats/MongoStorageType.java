@@ -1,9 +1,9 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.storage.EasyMongo;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -13,7 +13,6 @@ import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -36,14 +35,11 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     client = MongoClients.create(settings);
     data = client.getDatabase("DATA");
     playerDataCollection = data.getCollection("PLAYERDATA");
-    new BukkitRunnable() {
-      @Override
-      public void run() {
-        toggleCurrencyCollection();
-        togglePayable();
-        toggleRequestable();
-      }
-    }.runTaskAsynchronously(QualityEconomy.getInstance());
+    Misc.runAsync(() -> {
+      toggleCurrencyCollection();
+      togglePayable();
+      toggleRequestable();
+    });
     return true;
   }
   

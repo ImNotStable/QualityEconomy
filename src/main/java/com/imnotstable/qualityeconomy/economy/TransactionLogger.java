@@ -27,11 +27,11 @@ public class TransactionLogger {
         continue;
       File playerFile = new File(dir, player.getUniqueId() + ".txt");
       try (FileWriter writer = new FileWriter(playerFile, true)) {
+        if (transaction.isCancelled())
+          writer.write("[Cancelled] ");
         writer.write(getFormattedTime() + transaction.getType().getLogMessage().apply(transaction));
         if (transaction.isSilent())
           writer.write(" (Silent)");
-        if (transaction.isCancelled())
-          writer.write(" (Cancelled)");
         writer.write("\n");
       } catch (IOException exception) {
         new Debug.QualityError("Failed to write to transaction log (" + player.getUniqueId() + ")", exception).log();

@@ -20,7 +20,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -81,7 +80,7 @@ public class MainCommand extends BaseCommand {
   
   private void reload(CommandSender sender, CommandArguments args) {
     Debug.Timer timer = new Debug.Timer("reload()");
-    StorageManager.endStorageProcesses();
+    StorageManager.endStorageProcesses(true);
     Configuration.load();
     Messages.load();
     CommandManager.unregisterCommands();
@@ -112,32 +111,29 @@ public class MainCommand extends BaseCommand {
   }
   
   private void transferPluginData(String plugin, CommandSender sender) {
-    new BukkitRunnable() {
-      @Override
-      public void run() {
-        Debug.Timer timer = new Debug.Timer("transferPluginData()");
-        Collection<Account> accounts = new ArrayList<>();
-        if (plugin.equals("Essentials")) {
-          File[] userdata = new File("plugins/Essentials/userdata").listFiles((dir, name) -> Misc.isUUID(name.split("\\.")[0]));
-          if (userdata == null || userdata.length == 0) {
-            sender.sendMessage(Component.text("Failed to import Database", NamedTextColor.RED));
-            return;
-          }
-          for (File userfile : userdata) {
-            YamlConfiguration user = YamlConfiguration.loadConfiguration(userfile);
-            UUID uuid = UUID.fromString(userfile.getName().split("\\.")[0]);
-            String username = user.getString("last-account-name");
-            double balance = Double.parseDouble(user.getString("money"));
-            accounts.add(new Account(uuid).setUsername(username).setBalance(balance));
-          }
+    Misc.runAsync(() -> {
+      Debug.Timer timer = new Debug.Timer("transferPluginData()");
+      Collection<Account> accounts = new ArrayList<>();
+      if (plugin.equals("Essentials")) {
+        File[] userdata = new File("plugins/Essentials/userdata").listFiles((dir, name) -> Misc.isUUID(name.split("\\.")[0]));
+        if (userdata == null || userdata.length == 0) {
+          sender.sendMessage(Component.text("Failed to import Database", NamedTextColor.RED));
+          return;
         }
-        StorageManager.getActiveStorageType().wipeDatabase();
-        StorageManager.getActiveStorageType().createAccounts(accounts);
-        AccountManager.setupAccounts();
-        sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
-        timer.end();
+        for (File userfile : userdata) {
+          YamlConfiguration user = YamlConfiguration.loadConfiguration(userfile);
+          UUID uuid = UUID.fromString(userfile.getName().split("\\.")[0]);
+          String username = user.getString("last-account-name");
+          double balance = Double.parseDouble(user.getString("money"));
+          accounts.add(new Account(uuid).setUsername(username).setBalance(balance));
+        }
       }
-    }.runTaskAsynchronously(QualityEconomy.getInstance());
+      StorageManager.getActiveStorageType().wipeDatabase();
+      StorageManager.getActiveStorageType().createAccounts(accounts);
+      AccountManager.setupAccounts();
+      sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
+      timer.end();
+    });
   }
   
   private void exportDatabase(CommandSender sender, CommandArguments args) {
@@ -207,6 +203,5 @@ public class MainCommand extends BaseCommand {
     
     return completions.toArray(new String[0]);
   }
-  
   
 }

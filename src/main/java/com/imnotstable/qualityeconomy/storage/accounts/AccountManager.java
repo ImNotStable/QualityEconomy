@@ -1,13 +1,12 @@
 package com.imnotstable.qualityeconomy.storage.accounts;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.Misc;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,15 +68,10 @@ public class AccountManager {
   }
   
   public static void setupAccounts() {
-    new BukkitRunnable() {
-      @Override
-      public void run() {
-        Debug.Timer timer = new Debug.Timer("setupAccounts()");
-        clearAccounts();
-        accounts.putAll(StorageManager.getActiveStorageType().getAllAccounts());
-        timer.end();
-      }
-    }.runTaskAsynchronously(QualityEconomy.getInstance());
+    Debug.Timer timer = new Debug.Timer("setupAccounts()");
+    clearAccounts();
+    accounts.putAll(StorageManager.getActiveStorageType().getAllAccounts());
+    timer.end();
   }
   
   public static void saveAllAccounts() {
@@ -93,50 +87,44 @@ public class AccountManager {
   }
   
   public static void createFakeAccounts(int entries) {
-    new BukkitRunnable() {
-      @Override
-      public void run() {
-        Debug.Timer timer = new Debug.Timer(String.format("createFakeAccounts(%d)", entries));
-        Collection<Account> accounts = new ArrayList<>();
-        Random random = new Random();
-        Collection<String> currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
-        for (int i = 0; i < entries; ++i) {
-          UUID uuid = UUID.randomUUID();
-          HashMap<String, Double> customBalances = new HashMap<>();
-          for (String currency : currencies) {
-            customBalances.put(currency, random.nextDouble(1_000_000_000_000_000.0));
-          }
-          accounts.add(new Account(uuid).setUsername(uuid.toString().split("-")[0])
-            .setBalance(random.nextDouble(1_000_000_000_000_000.0))
-            .setCustomBalances(customBalances).setPayable(false)
-          );
+    Misc.runAsync(() -> {
+      Debug.Timer timer = new Debug.Timer(String.format("createFakeAccounts(%d)", entries));
+      Collection<Account> accounts = new ArrayList<>();
+      Random random = new Random();
+      Collection<String> currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
+      for (int i = 0; i < entries; ++i) {
+        UUID uuid = UUID.randomUUID();
+        HashMap<String, Double> customBalances = new HashMap<>();
+        for (String currency : currencies) {
+          customBalances.put(currency, random.nextDouble(1_000_000_000_000_000.0));
         }
-        StorageManager.getActiveStorageType().createAccounts(accounts);
-        setupAccounts();
-        timer.end();
+        accounts.add(new Account(uuid).setUsername(uuid.toString().split("-")[0])
+          .setBalance(random.nextDouble(1_000_000_000_000_000.0))
+          .setCustomBalances(customBalances).setPayable(false)
+        );
       }
-    }.runTaskAsynchronously(QualityEconomy.getInstance());
+      StorageManager.getActiveStorageType().createAccounts(accounts);
+      setupAccounts();
+      timer.end();
+    });
   }
   
   public static void changeAllAccounts() {
-    new BukkitRunnable() {
-      @Override
-      public void run() {
-        Debug.Timer timer = new Debug.Timer("changeAllAccounts()");
-        Random random = new Random();
-        Collection<String> currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
-        accounts.values().forEach(account -> {
-          HashMap<String, Double> customBalances = new HashMap<>();
-          for (String currency : currencies) {
-            customBalances.put(currency, random.nextDouble(1_000_000_000_000_000.0));
-          }
-          account.setBalance(random.nextDouble(1_000_000_000_000_000.0)).setCustomBalances(customBalances);
-        });
-        StorageManager.getActiveStorageType().updateAccounts(accounts.values());
-        setupAccounts();
-        timer.end();
-      }
-    }.runTaskAsynchronously(QualityEconomy.getInstance());
+    Misc.runAsync(() -> {
+      Debug.Timer timer = new Debug.Timer("changeAllAccounts()");
+      Random random = new Random();
+      Collection<String> currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
+      accounts.values().forEach(account -> {
+        HashMap<String, Double> customBalances = new HashMap<>();
+        for (String currency : currencies) {
+          customBalances.put(currency, random.nextDouble(1_000_000_000_000_000.0));
+        }
+        account.setBalance(random.nextDouble(1_000_000_000_000_000.0)).setCustomBalances(customBalances);
+      });
+      StorageManager.getActiveStorageType().updateAccounts(accounts.values());
+      setupAccounts();
+      timer.end();
+    });
   }
   
 }
