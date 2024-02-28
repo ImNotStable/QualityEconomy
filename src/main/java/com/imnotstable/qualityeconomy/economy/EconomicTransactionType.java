@@ -149,7 +149,7 @@ public enum EconomicTransactionType {
       if (!transaction.isSilent() && requester.isOnline())
         Messages.sendParsedMessage(requester.getPlayer(), MessageType.REQUEST_ACCEPT_RECEIVE,
           Number.format(amount, Number.FormatType.COMMAS), requestee.getName());
-      QualityEconomyAPI.answerRequest(requester.getUniqueId(), requestee.getUniqueId(), true);
+      QualityEconomyAPI.acceptRequest(requester.getUniqueId(), requestee.getUniqueId());
       CommandAPI.updateRequirements(requestee);
     }, (transaction) -> String.format("%s accepted %s's request for $%s", transaction.getEconomyPlayers()[1].getUsername(), transaction.getEconomyPlayers()[0].getUsername(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS))),
   REQUEST_DENY(() -> Configuration.isCommandEnabled("request"), 2, RequestDenyEvent::new,
@@ -163,7 +163,7 @@ public enum EconomicTransactionType {
       if (!transaction.isSilent() && requester.isOnline())
         Messages.sendParsedMessage(requester.getPlayer(), MessageType.REQUEST_DENY_RECEIVE,
           Number.format(amount, Number.FormatType.COMMAS), requestee.getName());
-      QualityEconomyAPI.answerRequest(requester.getUniqueId(), requestee.getUniqueId(), false);
+      QualityEconomyAPI.denyRequest(requester.getUniqueId(), requestee.getUniqueId());
       CommandAPI.updateRequirements(requestee);
     }, (transaction) -> String.format("%s denied %s's request for $%s", transaction.getEconomyPlayers()[1].getUsername(), transaction.getEconomyPlayers()[0].getUsername(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS))),
   WITHDRAW(() -> Configuration.isCommandEnabled("withdraw"), false, WithdrawEvent::new,

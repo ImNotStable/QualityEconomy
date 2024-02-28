@@ -61,12 +61,6 @@ public class AccountManager {
     return accountExists;
   }
   
-  public static void updateAccount(Account account) {
-    Debug.Timer timer = new Debug.Timer("updateAccount()");
-    accounts.put(account.getUniqueId(), account);
-    timer.end();
-  }
-  
   public static void setupAccounts() {
     Debug.Timer timer = new Debug.Timer("setupAccounts()");
     clearAccounts();

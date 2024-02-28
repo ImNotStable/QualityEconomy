@@ -30,7 +30,7 @@ public final class QualityEconomyAPI {
   }
   
   public static void setBalance(@NotNull UUID uuid, double amount) {
-    AccountManager.updateAccount(getAccount(uuid).setBalance(amount));
+    getAccount(uuid).setBalance(amount);
   }
   
   public static void addBalance(@NotNull UUID uuid, double amount) {
@@ -55,7 +55,7 @@ public final class QualityEconomyAPI {
   }
   
   public static void setCustomBalance(@NotNull UUID uuid, @NotNull String currency, double amount) {
-    AccountManager.updateAccount(getAccount(uuid).setCustomBalance(currency, amount));
+    getAccount(uuid).setCustomBalance(currency, amount);
   }
   
   public static void addCustomBalance(@NotNull UUID uuid, @NotNull String currency, double amount) {
@@ -114,12 +114,15 @@ public final class QualityEconomyAPI {
     return RequestCommand.getRequests().containsKey(requestee) && !RequestCommand.getRequests().get(requestee).isEmpty();
   }
   
-  public static void answerRequest(@NotNull UUID requester, @NotNull UUID requestee, boolean answer) {
+  public static void acceptRequest(@NotNull UUID requester, @NotNull UUID requestee) {
     if (RequestCommand.getRequests() == null) return;
-    if (answer) {
-      double amount = RequestCommand.getRequests().get(requestee).get(requester);
-      transferBalance(requestee, requester, amount);
-    }
+    double amount = RequestCommand.getRequests().get(requestee).get(requester);
+    transferBalance(requestee, requester, amount);
+    deleteRequest(requester, requestee);
+  }
+  
+  public static void denyRequest(@NotNull UUID requester, @NotNull UUID requestee) {
+    if (RequestCommand.getRequests() == null) return;
     deleteRequest(requester, requestee);
   }
   
