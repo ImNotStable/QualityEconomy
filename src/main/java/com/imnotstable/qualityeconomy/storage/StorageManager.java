@@ -46,71 +46,61 @@ public class StorageManager implements Listener {
   public static void initStorageProcesses() {
     if (activeStorageType != null)
       return;
-    Misc.runAsync(() -> {
-      Debug.Timer timer = new Debug.Timer("initStorageProcesses()");
-      switch (Configuration.getStorageType()) {
-        case "h2" -> activeStorageType = new SQLStorageType(1);
-        case "sqlite" -> activeStorageType = new SQLStorageType(2);
-        case "mysql" -> activeStorageType = new SQLStorageType(3);
-        case "mariadb" -> activeStorageType = new SQLStorageType(4);
-        case "postgresql" -> activeStorageType = new SQLStorageType(5);
-        case "mongodb" -> activeStorageType = new MongoStorageType();
-        case "json" -> activeStorageType = new JsonStorageType();
-        case "yaml" -> activeStorageType = new YamlStorageType();
-        default -> {
-          new Debug.QualityError("Unexpected Storage Type: " + Configuration.getStorageType()).log();
-          timer.interrupt();
-          Bukkit.getPluginManager().disablePlugin(QualityEconomy.getInstance());
-          return;
-        }
-      }
-      if (!activeStorageType.initStorageProcesses()) {
-        new Debug.QualityError("Failed to initiate storage processes").log();
+    Debug.Timer timer = new Debug.Timer("initStorageProcesses()");
+    switch (Configuration.getStorageType()) {
+      case "h2" -> activeStorageType = new SQLStorageType(1);
+      case "sqlite" -> activeStorageType = new SQLStorageType(2);
+      case "mysql" -> activeStorageType = new SQLStorageType(3);
+      case "mariadb" -> activeStorageType = new SQLStorageType(4);
+      case "postgresql" -> activeStorageType = new SQLStorageType(5);
+      case "mongodb" -> activeStorageType = new MongoStorageType();
+      case "json" -> activeStorageType = new JsonStorageType();
+      case "yaml" -> activeStorageType = new YamlStorageType();
+      default -> {
+        new Debug.QualityError("Unexpected Storage Type: " + Configuration.getStorageType()).log();
         timer.interrupt();
+        Bukkit.getPluginManager().disablePlugin(QualityEconomy.getInstance());
         return;
       }
-      AccountManager.setupAccounts();
-      if (Configuration.getAutoSaveAccountsInterval() > 0)
-        accountSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(),
-          AccountManager::saveAllAccounts,
-          Configuration.getAutoSaveAccountsInterval(),
-          Configuration.getAutoSaveAccountsInterval()).getTaskId();
-      if (Configuration.getBackupInterval() > 0)
-        backupSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(),
-          () -> exportDatabase("plugins/QualityEconomy/backups/"),
-          Configuration.getBackupInterval(),
-          Configuration.getBackupInterval()
-        ).getTaskId();
-      timer.end();
-    });
+    }
+    if (!activeStorageType.initStorageProcesses()) {
+      new Debug.QualityError("Failed to initiate storage processes").log();
+      timer.interrupt();
+      return;
+    }
+    AccountManager.setupAccounts();
+    if (Configuration.getAutoSaveAccountsInterval() > 0)
+      accountSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(),
+        AccountManager::saveAllAccounts,
+        Configuration.getAutoSaveAccountsInterval(),
+        Configuration.getAutoSaveAccountsInterval()).getTaskId();
+    if (Configuration.getBackupInterval() > 0)
+      backupSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(),
+        () -> exportDatabase("plugins/QualityEconomy/backups/"),
+        Configuration.getBackupInterval(),
+        Configuration.getBackupInterval()
+      ).getTaskId();
+    timer.end();
   }
   
-  public static void endStorageProcesses(boolean isAsync) {
+  public static void endStorageProcesses() {
     if (activeStorageType == null)
       return;
+    Debug.Timer timer = new Debug.Timer("endStorageProcesses()");
+    AccountManager.saveAllAccounts();
     
-    Runnable runnable = () -> {
-      Debug.Timer timer = new Debug.Timer("endStorageProcesses()");
-      AccountManager.saveAllAccounts();
-      
-      if (accountSchedulerID != null) {
-        Bukkit.getScheduler().cancelTask(accountSchedulerID);
-        accountSchedulerID = null;
-      }
-      if (backupSchedulerID != null) {
-        Bukkit.getScheduler().cancelTask(backupSchedulerID);
-        backupSchedulerID = null;
-      }
-      
-      activeStorageType.endStorageProcesses();
-      activeStorageType = null;
-      timer.end();
-    };
+    if (accountSchedulerID != null) {
+      Bukkit.getScheduler().cancelTask(accountSchedulerID);
+      accountSchedulerID = null;
+    }
+    if (backupSchedulerID != null) {
+      Bukkit.getScheduler().cancelTask(backupSchedulerID);
+      backupSchedulerID = null;
+    }
     
-    if (isAsync)
-      Misc.runAsync(runnable);
-    else
-      runnable.run();
+    activeStorageType.endStorageProcesses();
+    activeStorageType = null;
+    timer.end();
   }
   
   public static void importDatabase(String fileName) {
@@ -142,9 +132,8 @@ public class StorageManager implements Listener {
             boolean payable = accountJSON.get("PAYABLE").getAsBoolean();
             boolean requestable = accountJSON.get("REQUESTABLE").getAsBoolean();
             Map<String, Double> balanceMap = new HashMap<>();
-            for (String currency : customCurrencies) {
+            for (String currency : customCurrencies)
               balanceMap.put(currency, accountJSON.get(currency).getAsDouble());
-            }
             accounts.add(new Account(uuid).setUsername(name).setBalance(balance).setPayable(payable).setRequestable(requestable).setCustomBalances(balanceMap));
           });
         getActiveStorageType().createAccounts(accounts);

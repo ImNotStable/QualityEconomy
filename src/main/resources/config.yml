@@ -47,7 +47,6 @@ database-information:
   port: 0
   username: username
   password: password
-
   advanced-settings:
     maximum-pool-size: 10
     minimum-idle: 10

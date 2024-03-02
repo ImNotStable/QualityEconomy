@@ -36,9 +36,9 @@ public class AccountManager {
     if (!accountExists(uuid)) {
       account = new Account(uuid).setUsername(username);
       StorageManager.getActiveStorageType().createAccount(account);
+      accounts.put(uuid, account);
     } else
       account = getAccount(uuid).setUsername(username);
-    accounts.put(uuid, account);
     timer.end();
     return account;
   }
@@ -69,7 +69,7 @@ public class AccountManager {
   }
   
   public static void saveAllAccounts() {
-    Debug.Timer timer = new Debug.Timer("saveAllAccounts()");
+    Debug.Timer timer = new Debug.Timer("saveAllAccounts() [" + accounts.size() + "]");
     StorageManager.getActiveStorageType().updateAccounts(AccountManager.accounts.values());
     timer.end();
   }

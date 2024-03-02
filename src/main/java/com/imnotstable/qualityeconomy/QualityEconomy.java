@@ -7,6 +7,7 @@ import com.imnotstable.qualityeconomy.hooks.HookManager;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
+import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.UpdateChecker;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
@@ -45,7 +46,7 @@ public final class QualityEconomy extends JavaPlugin {
     Configuration.load();
     Messages.load();
     
-    StorageManager.initStorageProcesses();
+    Misc.runAsync(StorageManager::initStorageProcesses);
     
     CommandManager.registerCommands();
     
@@ -61,7 +62,7 @@ public final class QualityEconomy extends JavaPlugin {
   @Override
   public void onDisable() {
     Debug.Timer timer = new Debug.Timer("onDisable()");
-    StorageManager.endStorageProcesses(false);
+    StorageManager.endStorageProcesses();
     CommandAPI.onDisable();
     timer.end();
   }

@@ -37,6 +37,7 @@ public class CommandManager {
       public void register() {
         throw new UnsupportedOperationException("This command does not exist");
       }
+      
       @Override
       public void unregister() {
         throw new UnsupportedOperationException("This command does not exist");

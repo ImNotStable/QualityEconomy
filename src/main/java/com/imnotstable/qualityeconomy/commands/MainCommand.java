@@ -22,7 +22,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,7 +47,7 @@ public class MainCommand extends BaseCommand {
         .executesConsole(this::resetDatabase))
       .then(new LiteralArgument("import")
         .then(new GreedyStringArgument("importable")
-          .replaceSuggestions(ArgumentSuggestions.strings(info -> getImportableFiles()))
+          .replaceSuggestions(getImportSuggestion())
           .executes(this::importDatabase)))
       .then(new LiteralArgument("export")
         .executes(this::exportDatabase))
@@ -79,15 +78,17 @@ public class MainCommand extends BaseCommand {
   }
   
   private void reload(CommandSender sender, CommandArguments args) {
-    Debug.Timer timer = new Debug.Timer("reload()");
-    StorageManager.endStorageProcesses(true);
-    Configuration.load();
-    Messages.load();
-    CommandManager.unregisterCommands();
-    StorageManager.initStorageProcesses();
-    CommandManager.registerCommands();
-    timer.end();
-    sender.sendMessage(Component.text("Reloading QualityEconomy...", NamedTextColor.GRAY));
+    Misc.runAsync(() -> {
+      Debug.Timer timer = new Debug.Timer("reload()");
+      StorageManager.endStorageProcesses();
+      Configuration.load();
+      Messages.load();
+      CommandManager.unregisterCommands();
+      StorageManager.initStorageProcesses();
+      CommandManager.registerCommands();
+      timer.end();
+      sender.sendMessage(Component.text("Reloading QualityEconomy...", NamedTextColor.GRAY));
+    });
   }
   
   private void reloadMessages(CommandSender sender, CommandArguments args) {
@@ -170,38 +171,25 @@ public class MainCommand extends BaseCommand {
     StorageManager.removeCurrency(currency);
   }
   
-  private String[] getImportableFiles() {
-    File dataFolder = QualityEconomy.getInstance().getDataFolder();
-    FilenameFilter filter = (dir, name) -> IMPORT_FILE_PATTERN.matcher(name).matches();
-    
-    File exportsFolder = new File(dataFolder, "exports");
-    List<String> exportsFiles = exportsFolder.isDirectory()
-      ? Optional.ofNullable(exportsFolder.listFiles(filter))
-      .map(Arrays::asList)
-      .orElse(Collections.emptyList())
-      .stream()
-      .map(file -> "exports/" + file.getName())
-      .toList()
-      : Collections.emptyList();
-    
-    File backupFolder = new File(dataFolder, "backups");
-    List<String> backupFiles = backupFolder.isDirectory()
-      ? Optional.ofNullable(backupFolder.listFiles(filter))
-      .map(Arrays::asList)
-      .orElse(Collections.emptyList())
-      .stream()
-      .map(file -> "backups/" + file.getName())
-      .toList()
-      : Collections.emptyList();
-    
-    List<String> completions = new ArrayList<>(exportsFiles);
-    completions.addAll(backupFiles);
+  private ArgumentSuggestions<CommandSender> getImportSuggestion() {
+    List<String> completions = new ArrayList<>(getImportableFiles("exports"));
+    completions.addAll(getImportableFiles("backups"));
     
     if (new File("plugins/Essentials/userdata").isDirectory()) {
       completions.add("Essentials");
     }
     
-    return completions.toArray(new String[0]);
+    return ArgumentSuggestions.stringCollection(info -> completions);
+  }
+  
+  public Collection<String> getImportableFiles(String path) {
+    File backupFolder = new File(QualityEconomy.getInstance().getDataFolder(), path);
+    return Optional.ofNullable(backupFolder.listFiles((dir, name) -> IMPORT_FILE_PATTERN.matcher(name).matches()))
+      .map(Arrays::asList)
+      .orElse(Collections.emptyList())
+      .stream()
+      .map(file -> path + "/" + file.getName())
+      .toList();
   }
   
 }
