@@ -10,13 +10,13 @@ public class EconomyPlayer extends Account {
   
   private final OfflinePlayer offlineplayer;
   
-  private EconomyPlayer(Account account, OfflinePlayer offlineplayer) {
-    super(account);
+  private EconomyPlayer(OfflinePlayer offlineplayer) {
+    super(QualityEconomyAPI.getAccount(offlineplayer.getUniqueId()));
     this.offlineplayer = offlineplayer;
   }
   
   public static EconomyPlayer of(OfflinePlayer offlineplayer) {
-    return new EconomyPlayer(QualityEconomyAPI.getAccount(offlineplayer.getUniqueId()), offlineplayer);
+    return new EconomyPlayer(offlineplayer);
   }
   
 }

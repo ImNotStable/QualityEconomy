@@ -62,10 +62,6 @@
                             <pattern>org.bstats</pattern>
                             <shadedPattern>com.imnotstable.qualityeconomy.bstats</shadedPattern>
                         </relocation>
-                        <relocation>
-                            <pattern>de.tr7zw.changeme.nbtapi</pattern>
-                            <shadedPattern>com.imnotstable.qualityeconomy.nbtapi</shadedPattern>
-                        </relocation>
                     </relocations>
                     <filters>
                     <filter>
@@ -113,7 +109,6 @@
         <repository>
             <id>codemc-repo</id>
             <url>https://repo.codemc.io/repository/maven-public/</url>
-            <layout>default</layout>
         </repository>
     </repositories>
 
@@ -131,12 +126,8 @@
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>gson</artifactId>
-                    <groupId>com.google.code.gson</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>snakeyaml</artifactId>
-                    <groupId>org.yaml</groupId>
+                    <artifactId>bukkit</artifactId>
+                    <groupId>org.bukkit</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -149,6 +140,14 @@
                 <exclusion>
                     <artifactId>bstats-bukkit</artifactId>
                     <groupId>org.bstats</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.kyori</groupId>
+                    <artifactId>adventure-platform-bukkit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -197,7 +196,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
-            <version>4.11.1</version>
+            <version>5.0.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

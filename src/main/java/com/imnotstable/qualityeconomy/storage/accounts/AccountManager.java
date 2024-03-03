@@ -4,14 +4,10 @@ import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Misc;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,43 +18,23 @@ public class AccountManager {
   private static final ConcurrentMap<UUID, Account> accounts = new ConcurrentHashMap<>();
   
   public static Account createAccount(UUID uuid) {
-    Debug.Timer timer = new Debug.Timer("createAccount()");
-    String username = "";
-    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-    if (offlinePlayer.hasPlayedBefore() || offlinePlayer.isOnline())
-      username = offlinePlayer.getName();
-    else {
-      Entity entity = Bukkit.getEntity(uuid);
-      if (entity != null)
-        username = entity.getName();
-    }
-    Account account;
-    if (!accountExists(uuid)) {
-      account = new Account(uuid).setUsername(username);
-      StorageManager.getActiveStorageType().createAccount(account);
-      accounts.put(uuid, account);
-    } else
-      account = getAccount(uuid).setUsername(username);
-    timer.end();
-    return account;
+    if (accountExists(uuid))
+      throw new IllegalStateException("Account already exists for UUID: " + uuid);
+    Account account = new Account(uuid);
+    StorageManager.getActiveStorageType().createAccount(account);
+    return accounts.put(uuid, account);
   }
   
   public static Collection<Account> getAllAccounts() {
-    return new HashSet<>(accounts.values());
+    return accounts.values();
   }
   
   public static Account getAccount(UUID uuid) {
-    Debug.Timer timer = new Debug.Timer("getAccount()");
-    Account account = accounts.computeIfAbsent(uuid, AccountManager::createAccount);
-    timer.end();
-    return account;
+    return accounts.computeIfAbsent(uuid, AccountManager::createAccount);
   }
   
   public static boolean accountExists(UUID uuid) {
-    Debug.Timer timer = new Debug.Timer("accountExists()");
-    boolean accountExists = accounts.containsKey(uuid);
-    timer.end();
-    return accountExists;
+    return accounts.containsKey(uuid);
   }
   
   public static void setupAccounts() {

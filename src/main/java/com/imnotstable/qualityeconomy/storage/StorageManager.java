@@ -20,7 +20,7 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -73,7 +73,8 @@ public class StorageManager implements Listener {
       accountSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(),
         AccountManager::saveAllAccounts,
         Configuration.getAutoSaveAccountsInterval(),
-        Configuration.getAutoSaveAccountsInterval()).getTaskId();
+        Configuration.getAutoSaveAccountsInterval()
+      ).getTaskId();
     if (Configuration.getBackupInterval() > 0)
       backupSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(),
         () -> exportDatabase("plugins/QualityEconomy/backups/"),
@@ -216,9 +217,9 @@ public class StorageManager implements Listener {
   }
   
   @EventHandler
-  public void on(PlayerJoinEvent event) {
-    Debug.Timer timer = new Debug.Timer("onPlayerJoinEvent()");
-    AccountManager.createAccount(event.getPlayer().getUniqueId());
+  public void on(AsyncPlayerPreLoginEvent event) {
+    Debug.Timer timer = new Debug.Timer("onAsyncPlayerPreLoginEvent()");
+    AccountManager.getAccount(event.getUniqueId()).setUsername(event.getPlayerProfile().getName());
     timer.end();
   }
   

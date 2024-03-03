@@ -53,7 +53,7 @@ public class CustomEconomyCommand extends BaseCommand {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
-    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_RESET, sender, 0, EconomyPlayer.of(target)).execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_RESET, sender, currency, 0, EconomyPlayer.of(target)).execute();
   }
   
   @SneakyThrows
@@ -71,7 +71,7 @@ public class CustomEconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_SET, sender, balance, EconomyPlayer.of(target)).execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_SET, sender, currency, balance, EconomyPlayer.of(target)).execute();
   }
   
   @SneakyThrows
@@ -89,7 +89,7 @@ public class CustomEconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_ADD, sender, balance, EconomyPlayer.of(target)).execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_ADD, sender, currency, balance, EconomyPlayer.of(target)).execute();
   }
   
   @SneakyThrows
@@ -107,7 +107,7 @@ public class CustomEconomyCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
       return;
     }
-    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_REMOVE, sender, balance, EconomyPlayer.of(target)).execute();
+    EconomicTransaction.startNewTransaction(EconomicTransactionType.CUSTOM_BALANCE_REMOVE, sender, currency, balance, EconomyPlayer.of(target)).execute();
   }
   
 }

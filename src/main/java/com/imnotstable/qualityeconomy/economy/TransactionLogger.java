@@ -3,9 +3,11 @@ package com.imnotstable.qualityeconomy.economy;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.QualityException;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.minecart.CommandMinecart;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -25,21 +27,24 @@ public class TransactionLogger {
         return;
       }
     String message = getLogMessage(transaction);
+    
     CommandSender sender = transaction.getSender();
     if (sender != null) {
-      File senderData = null;
-      if (sender instanceof ConsoleCommandSender)
-        senderData = new File(dir, "console.txt");
-      else if (sender instanceof Player player)
-        senderData = new File(dir, player.getUniqueId() + ".txt");
-      if (senderData != null && createPlayerData(senderData))
-        log(senderData, message);
+      File dataFile = null;
+      if (sender instanceof Player player)
+        dataFile = new File(dir, player.getUniqueId() + ".txt");
+      else if (sender instanceof ConsoleCommandSender)
+        dataFile = new File(dir, "console.txt");
+      else if (sender instanceof BlockCommandSender || sender instanceof CommandMinecart)
+        dataFile = new File(dir, "command_block.txt");
+      if (dataFile != null && createPlayerData(dataFile))
+        log(dataFile, message);
     }
     
     for (EconomyPlayer player : transaction.getEconomyPlayers()) {
-      File playerData = new File(dir, player.getUniqueId() + ".txt");
-      if (createPlayerData(playerData))
-        log(playerData, message);
+      File dataFile = new File(dir, player.getUniqueId() + ".txt");
+      if (createPlayerData(dataFile))
+        log(dataFile, message);
     }
   }
   
@@ -55,7 +60,9 @@ public class TransactionLogger {
     StringBuilder message = new StringBuilder();
     if (transaction.isCancelled())
       message.append("[Cancelled] ");
-    message.append(getFormattedTime());
+    message.append("[");
+    message.append(formatter.format(LocalDateTime.now()));
+    message.append("]");
     message.append(transaction.getType().getLogMessage().apply(transaction));
     if (transaction.isSilent())
       message.append(" (Silent)");
@@ -74,10 +81,6 @@ public class TransactionLogger {
       new Debug.QualityError("Failed to create transaction log (" + file.getName() + ")", exception).log();
     }
     return false;
-  }
-  
-  private static String getFormattedTime() {
-    return "[" + formatter.format(LocalDateTime.now()) + "] ";
   }
   
 }
