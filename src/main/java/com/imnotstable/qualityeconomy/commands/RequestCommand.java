@@ -10,7 +10,6 @@ import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
-import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.MultiLiteralArgument;
 import dev.jorel.commandapi.arguments.PlayerArgument;
@@ -46,7 +45,7 @@ public class RequestCommand extends BaseCommand {
     .then(new LiteralArgument("send")
       .then(new PlayerArgument("target")
         .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
-        .then(new DoubleArgument("amount", Number.getMinimumValue())
+        .then(CommandUtils.CurrencyAmountArgument()
           .executesPlayer(this::request))));
   
   public void register() {
@@ -77,7 +76,7 @@ public class RequestCommand extends BaseCommand {
       return;
     if (CommandUtils.requirement(QualityEconomyAPI.isRequestable(requestee.getUniqueId()), MessageType.NOT_ACCEPTING_REQUESTS, requester))
       return;
-    double amount = Number.roundObj(args.get("amount"));
+    double amount = (double) args.get("amount");
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.OTHER_NOT_ENOUGH_MONEY, requester))
       return;
     EconomicTransaction.startNewTransaction(EconomicTransactionType.REQUEST, amount, EconomyPlayer.of(requester), EconomyPlayer.of(requestee)).execute();

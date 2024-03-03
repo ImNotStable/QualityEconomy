@@ -12,10 +12,11 @@ import java.util.regex.Pattern;
 public class Number {
   
   private static final List<String> SUFFIXES = List.of("", "k", "M", "B", "T", "Q", "Qt", "Sx", "Sp", "O", "N", "D");
+  private static final List<String> SUFFIXES_UPPER = List.of("", "k", "M", "B", "T", "Q", "QI", "SX", "SP", "O", "N", "D");
   private static final DecimalFormat NORMAL_FORMAT = new DecimalFormat("#");
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
   private static final DecimalFormat COMMA_FORMAT = new DecimalFormat("#,###.##");
-  private static final Pattern SUFFIX_PATTERN = Pattern.compile("\\d+(?:\\.\\d*)?[a-zA-Z]");
+  private static final Pattern SUFFIX_PATTERN = Pattern.compile("\\d+(?:\\.\\d*)?[a-zA-Z]{1,2}");
   private static final Pattern COMMA_PATTERN = Pattern.compile("^(?:[1-9][0-9]{0,2}|1000)(?:,\\d{3})*(?:\\.\\d*)?$");
   
   public static String format(double value, FormatType formatType) {
@@ -25,8 +26,8 @@ public class Number {
   public static double unformat(String value) throws NumberFormatException {
     if (SUFFIX_PATTERN.matcher(value).matches()) {
       String number = value.replaceAll("[^\\d.]", "");
-      String suffix = value.replaceAll("[\\d.]", "");
-      int index = SUFFIXES.indexOf(suffix);
+      String suffix = value.replaceAll("[\\d.]", "").toUpperCase();
+      int index = SUFFIXES_UPPER.indexOf(suffix);
       if (index == -1)
         throw new NumberFormatException("Invalid suffix");
       double multiplier = Math.pow(1000, index);
@@ -35,7 +36,7 @@ public class Number {
     if (COMMA_PATTERN.matcher(value).matches()) {
       return Double.parseDouble(value.replaceAll(",", ""));
     }
-    throw new IllegalArgumentException("Invalid number format");
+    return Double.parseDouble(value);
   }
   
   public static double roundObj(Object obj) {

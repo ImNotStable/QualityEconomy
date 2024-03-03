@@ -2,16 +2,15 @@ package com.imnotstable.qualityeconomy.util;
 
 import com.imnotstable.qualityeconomy.configuration.MessageType;
 import com.imnotstable.qualityeconomy.configuration.Messages;
+import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
+import dev.jorel.commandapi.arguments.CustomArgument;
+import dev.jorel.commandapi.arguments.StringArgument;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.regex.Pattern;
-
 public class CommandUtils {
-  
-  private static final Pattern FORMATTED_NUMBER_PATTERN = Pattern.compile("\\d{1,3}+[a-zA-Z]");
   
   public static boolean requirement(boolean requirement, MessageType errorMessage, CommandSender sender) {
     if (!requirement) {
@@ -21,12 +20,26 @@ public class CommandUtils {
     return false;
   }
   
-  public static double parseNumber(String rawNumber) throws NumberFormatException {
-    return FORMATTED_NUMBER_PATTERN.matcher(rawNumber).matches() ? Number.round(Number.unformat(rawNumber)) : Double.parseDouble(rawNumber);
-  }
-  
   public static ArgumentSuggestions<CommandSender> getOnlinePlayerSuggestion() {
     return ArgumentSuggestions.strings(info -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new));
+  }
+  
+  public static Argument<Double> CurrencyAmountArgument() {
+    
+    return new CustomArgument<>(new StringArgument("amount"), info -> {
+      String rawAmount = info.input();
+      double amount;
+      
+      try {
+        amount = Number.unformat(rawAmount);
+      } catch (NumberFormatException exception) {
+        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.INVALID_NUMBER, rawAmount));
+      }
+      
+      return Number.round(amount);
+      
+    }).replaceSuggestions(ArgumentSuggestions.strings(info -> new String[]{"<amount>"})
+    );
   }
   
 }

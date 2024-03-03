@@ -2,16 +2,13 @@ package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.configuration.MessageType;
-import com.imnotstable.qualityeconomy.configuration.Messages;
 import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
 import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
-import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.SneakyThrows;
 import org.bukkit.OfflinePlayer;
@@ -25,9 +22,9 @@ public class EconomyCommand extends BaseCommand {
     .then(new OfflinePlayerArgument("target")
       .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
       .then(new LiteralArgument("reset").executes(this::resetBalance))
-      .then(new LiteralArgument("set").then(new StringArgument("amount").executes(this::setBalance)))
-      .then(new LiteralArgument("add").then(new StringArgument("amount").executes(this::addBalance)))
-      .then(new LiteralArgument("remove").then(new StringArgument("amount").executes(this::removeBalance))));
+      .then(new LiteralArgument("set").then(CommandUtils.CurrencyAmountArgument().executes(this::setBalance)))
+      .then(new LiteralArgument("add").then(CommandUtils.CurrencyAmountArgument().executes(this::addBalance)))
+      .then(new LiteralArgument("remove").then(CommandUtils.CurrencyAmountArgument().executes(this::removeBalance))));
   
   public void register() {
     super.register(command);
@@ -50,13 +47,7 @@ public class EconomyCommand extends BaseCommand {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
-    double balance;
-    try {
-      balance = Number.roundObj(CommandUtils.parseNumber(args.get("amount").toString().toUpperCase()));
-    } catch (NumberFormatException exception) {
-      Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
-      return;
-    }
+    double balance = (double) args.get("amount");
     EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_SET, sender, balance, EconomyPlayer.of(target)).execute();
   }
   
@@ -65,13 +56,7 @@ public class EconomyCommand extends BaseCommand {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
-    double balance;
-    try {
-      balance = Number.roundObj(CommandUtils.parseNumber(args.get("amount").toString().toUpperCase()));
-    } catch (NumberFormatException exception) {
-      Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
-      return;
-    }
+    double balance = (double) args.get("amount");
     EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_ADD, sender, balance, EconomyPlayer.of(target)).execute();
   }
   
@@ -80,13 +65,7 @@ public class EconomyCommand extends BaseCommand {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(target.getUniqueId()), MessageType.PLAYER_NOT_FOUND, sender))
       return;
-    double balance;
-    try {
-      balance = Number.roundObj(CommandUtils.parseNumber(args.get("amount").toString().toUpperCase()));
-    } catch (NumberFormatException exception) {
-      Messages.sendParsedMessage(sender, MessageType.INVALID_NUMBER);
-      return;
-    }
+    double balance = (double) args.get("amount");
     EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_REMOVE, sender, balance, EconomyPlayer.of(target)).execute();
   }
   

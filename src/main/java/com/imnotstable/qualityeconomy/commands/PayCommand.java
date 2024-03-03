@@ -7,9 +7,7 @@ import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
 import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
-import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandTree;
-import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.OfflinePlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
@@ -24,7 +22,7 @@ public class PayCommand extends BaseCommand {
       .executesPlayer(this::togglePay))
     .then(new OfflinePlayerArgument("target")
       .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
-      .then(new DoubleArgument("amount", Number.getMinimumValue())
+      .then(CommandUtils.CurrencyAmountArgument()
         .executesPlayer(this::pay)));
   
   public void register() {
@@ -54,7 +52,7 @@ public class PayCommand extends BaseCommand {
       Messages.sendParsedMessage(sender, MessageType.NOT_ACCEPTING_PAYMENTS);
       return;
     }
-    double amount = Number.roundObj(args.get("amount"));
+    double amount = (double) args.get("amount");
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
       return;
     EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_TRANSFER, sender, amount, EconomyPlayer.of(sender), EconomyPlayer.of(target)).execute();
