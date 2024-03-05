@@ -30,7 +30,7 @@ public class CommandUtils {
       if (!StorageManager.getActiveStorageType().getCurrencies().contains(currency))
         throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.CURRENCY_NOT_FOUND, currency));
       return currency;
-    }).replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageType().getCurrencies().toArray(String[]::new)));
+    }).replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0])));
   }
   
   public static Argument<OfflinePlayer> TargetArgument(boolean checkOnline) {

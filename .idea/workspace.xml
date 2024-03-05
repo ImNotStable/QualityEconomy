@@ -1,0 +1,874 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="dee9b785-01d5-4cd8-bd28-3b2549051344" name="Changes" comment="Faster Account Saving">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/RequestCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/RequestCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/configuration/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/configuration/Configuration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/accounts/AccountManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/accounts/AccountManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/MongoStorageType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/MongoStorageType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/CommandUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/CommandUtils.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeInsightWorkspaceSettings">
+    <option name="optimizeImportsOnTheFly" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Enum" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PUSH_AUTO_UPDATE" value="true" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="dev" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/pom.xml" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2SxZBLjeDXaI0jh4FbN394udp2r" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
+    &quot;Maven.Package.executor&quot;: &quot;Run&quot;,
+    &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
+    &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;ToolWindowRun.ShowToolbar&quot;: &quot;false&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;I:/Equip/lux-spawners-1&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mariadb&quot;
+    ]
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="I:\QualityEconomy\src\main\java\com\imnotstable\qualityeconomy\economy" />
+      <recent name="I:\QualityEconomy\src\main\java\com\imnotstable\qualityeconomy\economy\events" />
+    </key>
+    <key name="MoveMembersDialog.RECENTS_KEY">
+      <recent name="com.imnotstable.qualityeconomy.storage.StorageManager" />
+      <recent name="com.imnotstable.qualityeconomy.util.CommandUtils" />
+      <recent name="com.imnotstable.qualityeconomy.util.Misc" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="I:\QualityEconomy" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.imnotstable.qualityeconomy.commands" />
+      <recent name="com.imnotstable.qualityeconomy.storage.storageformats" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Maven.Package">
+    <configuration name="Compile" type="MavenRunConfiguration" factoryName="Maven">
+      <MavenSettings>
+        <option name="myGeneralSettings" />
+        <option name="myRunnerSettings" />
+        <option name="myRunnerParameters">
+          <MavenRunnerParameters>
+            <option name="cmdOptions" />
+            <option name="profiles">
+              <set />
+            </option>
+            <option name="goals">
+              <list>
+                <option value="compile" />
+              </list>
+            </option>
+            <option name="multimoduleDir" />
+            <option name="pomFileName" />
+            <option name="profilesMap">
+              <map />
+            </option>
+            <option name="projectsCmdOptionValues">
+              <list />
+            </option>
+            <option name="resolveToWorkspace" value="false" />
+            <option name="workingDirPath" value="$PROJECT_DIR$" />
+          </MavenRunnerParameters>
+        </option>
+      </MavenSettings>
+      <method v="2" />
+    </configuration>
+    <configuration name="Package" type="MavenRunConfiguration" factoryName="Maven">
+      <MavenSettings>
+        <option name="myGeneralSettings" />
+        <option name="myRunnerSettings" />
+        <option name="myRunnerParameters">
+          <MavenRunnerParameters>
+            <option name="cmdOptions" />
+            <option name="profiles">
+              <set />
+            </option>
+            <option name="goals">
+              <list>
+                <option value="clean" />
+                <option value="package" />
+              </list>
+            </option>
+            <option name="multimoduleDir" />
+            <option name="pomFileName" />
+            <option name="profilesMap">
+              <map />
+            </option>
+            <option name="projectsCmdOptionValues">
+              <list />
+            </option>
+            <option name="resolveToWorkspace" value="false" />
+            <option name="workingDirPath" value="$PROJECT_DIR$" />
+          </MavenRunnerParameters>
+        </option>
+      </MavenSettings>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Maven.Compile" />
+      <item itemvalue="Maven.Package" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="dee9b785-01d5-4cd8-bd28-3b2549051344" name="Changes" comment="" />
+      <created>1690090074875</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1690090074875</updated>
+      <workItem from="1702032487979" duration="442000" />
+      <workItem from="1702068107297" duration="314000" />
+      <workItem from="1702068592177" duration="163000" />
+      <workItem from="1702166875105" duration="762000" />
+      <workItem from="1702179451427" duration="2584000" />
+      <workItem from="1702221998443" duration="1890000" />
+      <workItem from="1702224997137" duration="282000" />
+      <workItem from="1702227469212" duration="6000" />
+      <workItem from="1702496145879" duration="20000" />
+      <workItem from="1702498025607" duration="15000" />
+      <workItem from="1703299825773" duration="661000" />
+      <workItem from="1703355550672" duration="770000" />
+      <workItem from="1703459542657" duration="611000" />
+      <workItem from="1703532333812" duration="1542000" />
+      <workItem from="1703713970754" duration="326000" />
+      <workItem from="1703736156020" duration="2110000" />
+      <workItem from="1703743869854" duration="681000" />
+      <workItem from="1703789156145" duration="6503000" />
+      <workItem from="1703819985896" duration="3824000" />
+      <workItem from="1703825934466" duration="1154000" />
+      <workItem from="1703827853995" duration="7129000" />
+      <workItem from="1703869205808" duration="4706000" />
+      <workItem from="1703904445784" duration="14497000" />
+      <workItem from="1703965118534" duration="3681000" />
+      <workItem from="1703977917474" duration="10954000" />
+      <workItem from="1703994654920" duration="55000" />
+      <workItem from="1703994721246" duration="466000" />
+      <workItem from="1703995196935" duration="59000" />
+      <workItem from="1703995352955" duration="15000" />
+      <workItem from="1703995814169" duration="50000" />
+      <workItem from="1703995888649" duration="738000" />
+      <workItem from="1704058810347" duration="3517000" />
+      <workItem from="1704099394169" duration="2591000" />
+      <workItem from="1704137295168" duration="3499000" />
+      <workItem from="1704149318386" duration="1163000" />
+      <workItem from="1704185422002" duration="34000" />
+      <workItem from="1704187454274" duration="82000" />
+      <workItem from="1704187623784" duration="601000" />
+      <workItem from="1704236134480" duration="98000" />
+      <workItem from="1704259973634" duration="18000" />
+      <workItem from="1704262517460" duration="449000" />
+      <workItem from="1704265969433" duration="1011000" />
+      <workItem from="1704311041846" duration="744000" />
+      <workItem from="1704312372706" duration="5226000" />
+      <workItem from="1704321188856" duration="2563000" />
+      <workItem from="1704340103202" duration="15339000" />
+      <workItem from="1704366901441" duration="26000" />
+      <workItem from="1704379985798" duration="66000" />
+      <workItem from="1704424217797" duration="2809000" />
+      <workItem from="1704428282599" duration="1843000" />
+      <workItem from="1704430598153" duration="35000" />
+      <workItem from="1704433762330" duration="810000" />
+      <workItem from="1704509950949" duration="330000" />
+      <workItem from="1704517214528" duration="643000" />
+      <workItem from="1704554659824" duration="1612000" />
+      <workItem from="1704556992011" duration="79000" />
+      <workItem from="1704564033891" duration="1105000" />
+      <workItem from="1704629759486" duration="1536000" />
+      <workItem from="1704638327924" duration="935000" />
+      <workItem from="1704639760802" duration="324000" />
+      <workItem from="1704647443578" duration="2452000" />
+      <workItem from="1704667002483" duration="9000" />
+      <workItem from="1704668247127" duration="610000" />
+      <workItem from="1705012109139" duration="19000" />
+      <workItem from="1705012241116" duration="828000" />
+      <workItem from="1705024568685" duration="246000" />
+      <workItem from="1705068138034" duration="124000" />
+      <workItem from="1705072526891" duration="72000" />
+      <workItem from="1705080494342" duration="223000" />
+      <workItem from="1705096173300" duration="119000" />
+      <workItem from="1705101589636" duration="31000" />
+      <workItem from="1705101737263" duration="368000" />
+      <workItem from="1705105696886" duration="27000" />
+      <workItem from="1705112963336" duration="44000" />
+      <workItem from="1705190425740" duration="23000" />
+      <workItem from="1705193172113" duration="61000" />
+      <workItem from="1705252958051" duration="267000" />
+      <workItem from="1705272106439" duration="3226000" />
+      <workItem from="1705337184883" duration="457000" />
+      <workItem from="1705367251191" duration="125000" />
+      <workItem from="1705367475115" duration="1134000" />
+      <workItem from="1705371082884" duration="187000" />
+      <workItem from="1705443455405" duration="15000" />
+      <workItem from="1705953501658" duration="972000" />
+      <workItem from="1706030244223" duration="31000" />
+      <workItem from="1706032073169" duration="2200000" />
+      <workItem from="1706034280077" duration="1150000" />
+      <workItem from="1706042127671" duration="268000" />
+      <workItem from="1706042575510" duration="81000" />
+      <workItem from="1706323377903" duration="2851000" />
+      <workItem from="1706326423512" duration="1584000" />
+      <workItem from="1706328089149" duration="308000" />
+      <workItem from="1706370994157" duration="7805000" />
+      <workItem from="1706384354183" duration="167000" />
+      <workItem from="1706384586726" duration="2128000" />
+      <workItem from="1706387314397" duration="1834000" />
+      <workItem from="1706400555527" duration="32000" />
+      <workItem from="1706401469751" duration="143000" />
+      <workItem from="1706494825957" duration="24000" />
+      <workItem from="1706586738290" duration="26000" />
+      <workItem from="1706586820733" duration="22000" />
+      <workItem from="1706587508052" duration="1896000" />
+      <workItem from="1706644774304" duration="40000" />
+      <workItem from="1706675392409" duration="336000" />
+      <workItem from="1706675729582" duration="123000" />
+      <workItem from="1706675865344" duration="1114000" />
+      <workItem from="1706750444783" duration="878000" />
+      <workItem from="1706751513860" duration="1456000" />
+      <workItem from="1706836239642" duration="16000" />
+      <workItem from="1706836413257" duration="583000" />
+      <workItem from="1706918971529" duration="654000" />
+      <workItem from="1706920354667" duration="271000" />
+      <workItem from="1706920782882" duration="5000" />
+      <workItem from="1706921642551" duration="3001000" />
+      <workItem from="1706934050211" duration="2200000" />
+      <workItem from="1706973653522" duration="483000" />
+      <workItem from="1707007794645" duration="994000" />
+      <workItem from="1707096864187" duration="1705000" />
+      <workItem from="1707100188379" duration="768000" />
+      <workItem from="1707162992284" duration="1494000" />
+      <workItem from="1707179370233" duration="479000" />
+      <workItem from="1707260103537" duration="68000" />
+      <workItem from="1707260391086" duration="365000" />
+      <workItem from="1707269858702" duration="1217000" />
+      <workItem from="1707357221369" duration="942000" />
+      <workItem from="1707420922269" duration="691000" />
+      <workItem from="1707425989641" duration="1334000" />
+      <workItem from="1707428479229" duration="183000" />
+      <workItem from="1707508651272" duration="106000" />
+      <workItem from="1707525742398" duration="590000" />
+      <workItem from="1707526915219" duration="45000" />
+      <workItem from="1707527091562" duration="41000" />
+      <workItem from="1707527586002" duration="12000" />
+      <workItem from="1707528567565" duration="1799000" />
+      <workItem from="1707540630214" duration="2751000" />
+      <workItem from="1707584581099" duration="5547000" />
+      <workItem from="1707596304191" duration="412000" />
+      <workItem from="1707606426295" duration="571000" />
+      <workItem from="1707607507249" duration="955000" />
+      <workItem from="1707617266260" duration="49000" />
+      <workItem from="1707621876564" duration="96000" />
+      <workItem from="1707670832573" duration="2740000" />
+      <workItem from="1707785315180" duration="2177000" />
+      <workItem from="1707866379869" duration="8874000" />
+      <workItem from="1707880460551" duration="1506000" />
+      <workItem from="1707943420042" duration="9676000" />
+      <workItem from="1707960607731" duration="660000" />
+      <workItem from="1708026404117" duration="1039000" />
+      <workItem from="1708040224817" duration="1230000" />
+      <workItem from="1708041521634" duration="1499000" />
+      <workItem from="1708045943620" duration="4036000" />
+      <workItem from="1708112089228" duration="2950000" />
+      <workItem from="1708129159573" duration="4458000" />
+      <workItem from="1708191057665" duration="907000" />
+      <workItem from="1708194523039" duration="316000" />
+      <workItem from="1708203296338" duration="7528000" />
+      <workItem from="1708220057040" duration="6679000" />
+      <workItem from="1708274273738" duration="1498000" />
+      <workItem from="1708275854601" duration="54000" />
+      <workItem from="1708287634515" duration="885000" />
+      <workItem from="1708307281511" duration="12323000" />
+      <workItem from="1708371906374" duration="614000" />
+      <workItem from="1708372531971" duration="2672000" />
+      <workItem from="1708389668859" duration="2093000" />
+      <workItem from="1708469008984" duration="1353000" />
+      <workItem from="1708470378466" duration="1883000" />
+      <workItem from="1708545775394" duration="195000" />
+      <workItem from="1708560640329" duration="454000" />
+      <workItem from="1708561110423" duration="3844000" />
+      <workItem from="1708708095588" duration="3288000" />
+      <workItem from="1708732174557" duration="1169000" />
+      <workItem from="1708745200380" duration="529000" />
+      <workItem from="1708746198831" duration="209000" />
+      <workItem from="1708747060885" duration="1040000" />
+      <workItem from="1708748496595" duration="3205000" />
+      <workItem from="1708752119141" duration="507000" />
+      <workItem from="1708889787176" duration="438000" />
+      <workItem from="1708978086935" duration="504000" />
+      <workItem from="1708992175673" duration="1577000" />
+      <workItem from="1708994434310" duration="599000" />
+      <workItem from="1709066302093" duration="706000" />
+      <workItem from="1709067720245" duration="2056000" />
+      <workItem from="1709162433436" duration="70000" />
+      <workItem from="1709162517611" duration="3873000" />
+      <workItem from="1709173346237" duration="2474000" />
+      <workItem from="1709236612025" duration="1056000" />
+      <workItem from="1709349435505" duration="75000" />
+      <workItem from="1709349529404" duration="2952000" />
+      <workItem from="1709356599679" duration="1646000" />
+      <workItem from="1709359887112" duration="53000" />
+      <workItem from="1709397497638" duration="3012000" />
+      <workItem from="1709403674808" duration="430000" />
+      <workItem from="1709408955644" duration="6000" />
+      <workItem from="1709412669940" duration="258000" />
+      <workItem from="1709412952395" duration="1664000" />
+      <workItem from="1709426913327" duration="831000" />
+      <workItem from="1709480923547" duration="669000" />
+      <workItem from="1709482787803" duration="71000" />
+      <workItem from="1709488354082" duration="193000" />
+      <workItem from="1709488551554" duration="1763000" />
+      <workItem from="1709490404101" duration="3000" />
+      <workItem from="1709490485391" duration="29000" />
+      <workItem from="1709493179729" duration="41000" />
+      <workItem from="1709493732627" duration="338000" />
+      <workItem from="1709494441414" duration="301000" />
+      <workItem from="1709494749151" duration="46000" />
+      <workItem from="1709494808308" duration="369000" />
+      <workItem from="1709496678148" duration="971000" />
+      <workItem from="1709497660329" duration="1956000" />
+      <workItem from="1709499631561" duration="13850000" />
+      <workItem from="1709582089021" duration="1413000" />
+      <workItem from="1709598638672" duration="2926000" />
+      <workItem from="1709679147750" duration="2297000" />
+    </task>
+    <task id="LOCAL-00001" summary="Commit #1">
+      <created>1690401229674</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1690401229674</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Commit #2">
+      <created>1690409859684</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1690409859684</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Commit #2">
+      <created>1690409873668</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1690409873668</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Small optimizations, Added configuration updating, Added banknotes">
+      <option name="closed" value="true" />
+      <created>1698680030762</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1698680030762</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Removed secondary balance, Added custom currencies, Changed synchronization, Added balancetop refresh interval option, Removed Yaml storage option">
+      <option name="closed" value="true" />
+      <created>1699324081259</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1699324081259</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Changes (I forgot)">
+      <option name="closed" value="true" />
+      <created>1700246132609</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1700246132609</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Seperated executors seperated from command registration, Added H2 storage, Added DEBUG_MODE functionality, Other changes as well">
+      <option name="closed" value="true" />
+      <created>1700354413734</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1700354413734</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Moved most functionality to QualityEconomyAPI, Added methods to QualityEconomyAPI, Added custom-currencies config option, Created Misc utility class, Made commands simpler, More changes...">
+      <option name="closed" value="true" />
+      <created>1700447901565</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1700447901566</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Small Optimizations, Optimized Message System, Command Instances are now Stored in Variables, Remerged all SQL classes, Switched from Simple Json to Gson">
+      <option name="closed" value="true" />
+      <created>1700803450052</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1700803450052</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Changes">
+      <option name="closed" value="true" />
+      <created>1701527345631</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1701527345631</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Changes">
+      <option name="closed" value="true" />
+      <created>1702223400772</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1702223400772</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Changes">
+      <option name="closed" value="true" />
+      <created>1703873310174</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1703873310174</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Added more Metrics">
+      <option name="closed" value="true" />
+      <created>1703909467682</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1703909467682</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Fixed dumb issues">
+      <option name="closed" value="true" />
+      <created>1703919376619</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1703919376619</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Fixed more dumb issues">
+      <option name="closed" value="true" />
+      <created>1704266255774</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1704266255774</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Changes">
+      <option name="closed" value="true" />
+      <created>1706034982081</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1706034982081</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Removed Redis (Soon to be Added)&#10;Fixed Json&#10;Readded Yaml&#10;Advanced SQL Settings (Soon to be Added)">
+      <option name="closed" value="true" />
+      <created>1706376128686</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1706376128686</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Simple">
+      <option name="closed" value="true" />
+      <created>1706387564237</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1706387564237</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Small Fixes&#10;Fixed Json &amp; Yaml issue&#10;Added PostgreSQL (Untested)">
+      <option name="closed" value="true" />
+      <created>1706921901234</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1706921901234</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Small Fixes&#10;Fixed Json &amp; Yaml issue&#10;Added PostgreSQL (Untested)">
+      <option name="closed" value="true" />
+      <created>1706921913665</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1706921913665</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Fixed random feature not enabled error">
+      <option name="closed" value="true" />
+      <created>1706922761129</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1706922761129</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Small Changes&#10;Implement Advanced Settings&#10;Increase default backup-interval to 6&#10;Remove execute argument in Main Command">
+      <option name="closed" value="true" />
+      <created>1707097836392</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1707097836392</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Small Changes&#10;Fixed Yaml creating/updating issue">
+      <option name="closed" value="true" />
+      <created>1707100668806</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1707100668806</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Small Changes/Optimizations&#10;Added @NotNull annotations to Account.java&#10;Rearranged sendParsedMessage method&#10;Added dropPlayerDataTable method&#10;Fixed Essentials import suggestion check&#10;Put accounts stream into variable (BalanceTopCommand.java)">
+      <option name="closed" value="true" />
+      <created>1707270626566</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1707270626566</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Small Changes&#10;Changed Account.getUUID() to Account.getUniqueId()&#10;Added Verison.java class for better version checking&#10;Changed Messages.sendParsedMessage's variable order for consistency">
+      <option name="closed" value="true" />
+      <created>1707421180368</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1707421180368</updated>
+    </task>
+    <task id="LOCAL-00034" summary="Small Changes&#10;Change Account.setCustomBalances to use a forEach&#10;Changed command naming&#10;Fixed Stream issue (Stupidity)">
+      <option name="closed" value="true" />
+      <created>1707530971649</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1707530971649</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Small Fixes&#10;Fixed Multiple Json Issues&#10;Fixed Multiple Yaml Issues">
+      <option name="closed" value="true" />
+      <created>1707543085389</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1707543085389</updated>
+    </task>
+    <task id="LOCAL-00036" summary="Medium Fixes&#10;Reformatted Messages.sendParsedMessage usage&#10;Removed bStats &quot;other_plugins_used&quot; chart&#10;Fixed Configuration&#10;Fixed Custom Currency storage&#10;Added Banknote item customization&#10;Currencies now stored into Set instead of List&#10;Updated Version &amp; UpdateChecker">
+      <option name="closed" value="true" />
+      <created>1707873756422</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1707873756422</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Messages.yml&#10;Forgot to commit">
+      <option name="closed" value="true" />
+      <created>1707876217940</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1707876217940</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Quick Fix with Medium Changes&#10;Reformatted some code&#10;Fixed an error with SQL and custom currencies&#10;Fixed placeholder balance returns&#10;Added &quot;balancetop_balance_#&lt;integer&gt;&quot; placeholder&#10;Changed how economy &amp; customeconomy commands function&#10;Combined all Number.format methods">
+      <option name="closed" value="true" />
+      <created>1707952876177</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1707952876177</updated>
+    </task>
+    <task id="LOCAL-00039" summary="PlaceholderHook Changes&#10;Fixed cbalance&#10;Shortened code">
+      <option name="closed" value="true" />
+      <created>1708026906820</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1708026906820</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Medium Changes&#10;Changed the internal functionality of commands&#10;Changed for Number.format functions&#10;Changed functionality of Vault (Fixes how values display)">
+      <option name="closed" value="true" />
+      <created>1708042271760</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1708042271760</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Extra bStats&#10;Adds command usage information">
+      <option name="closed" value="true" />
+      <created>1708042732817</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1708042732817</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Quick Placeholder Fix">
+      <option name="closed" value="true" />
+      <created>1708132218901</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1708132218901</updated>
+    </task>
+    <task id="LOCAL-00043" summary="Big Changes&#10;Added EconomicTransactions (Changes functionality of all commands)&#10;Fixed italics of banknotes&#10;Banknotes now allow new lines using &quot;||&quot;&#10;Fixed Request command answer issue">
+      <option name="closed" value="true" />
+      <created>1708317036834</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1708317036834</updated>
+    </task>
+    <task id="LOCAL-00044" summary="Small Changes&#10;Fix server total display in BalanceTop">
+      <option name="closed" value="true" />
+      <created>1708373136672</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1708373136672</updated>
+    </task>
+    <task id="LOCAL-00045" summary="Custom Events and more...&#10;Added custom events&#10;Added transaction logging">
+      <option name="closed" value="true" />
+      <created>1708471286337</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1708471286337</updated>
+    </task>
+    <task id="LOCAL-00046" summary="Small Changes&#10;Simplified all startNewTransaction calls&#10;Made async transactions conditional">
+      <option name="closed" value="true" />
+      <created>1708564332498</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1708564332498</updated>
+    </task>
+    <task id="LOCAL-00047" summary="Method Name Change (CustomCurrenciesEnabled)">
+      <option name="closed" value="true" />
+      <created>1708732797071</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1708732797072</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Small Changes&#10;Removed getOfflinePlayerSuggestion() method&#10;Changed Number.unformatSuffix to Number.unformat&#10;Changed Number.unformat functionality&#10;Changed formatting&#10;Made Requests Map to ConcurrentMap">
+      <option name="closed" value="true" />
+      <created>1708752283139</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1708752283139</updated>
+    </task>
+    <task id="LOCAL-00049" summary="Small Changes">
+      <option name="closed" value="true" />
+      <created>1709068243750</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1709068243750</updated>
+    </task>
+    <task id="LOCAL-00050" summary="Small Changes&#10;Created runAsync method&#10;Made some methods async">
+      <option name="closed" value="true" />
+      <created>1709163544569</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1709163544569</updated>
+    </task>
+    <task id="LOCAL-00051" summary="Tiny Changes&#10;Removed AccountManager.updateAccount()&#10;Split answerRequest into two methods">
+      <option name="closed" value="true" />
+      <created>1709163876943</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1709163876943</updated>
+    </task>
+    <task id="LOCAL-00052" summary="Improved Logging">
+      <option name="closed" value="true" />
+      <created>1709351975725</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1709351975726</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Small Changes&#10;createAccount no longer automatically updates username&#10;Fixed CustomEconomyCommand.java functionality&#10;Changed EconomyPlayer.of functionality&#10;Player username updater made asynchronous">
+      <option name="closed" value="true" />
+      <created>1709499787384</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1709499787385</updated>
+    </task>
+    <task id="LOCAL-00054" summary="Small Changes&#10;Changed how all currency input arguments functioned">
+      <option name="closed" value="true" />
+      <created>1709503202178</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1709503202178</updated>
+    </task>
+    <task id="LOCAL-00055" summary="Command Functionality Changed&#10;Many other things as well&#10;Fixed Balancetop placeholder">
+      <option name="closed" value="true" />
+      <created>1709598938442</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1709598938443</updated>
+    </task>
+    <task id="LOCAL-00056" summary="Tiny Fixes">
+      <option name="closed" value="true" />
+      <created>1709599497241</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1709599497241</updated>
+    </task>
+    <task id="LOCAL-00057" summary="Faster Account Saving">
+      <option name="closed" value="true" />
+      <created>1709601369882</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1709601369882</updated>
+    </task>
+    <option name="localTasksCounter" value="58" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="283bce96-a2e4-45a2-9b67-3ae2eb8de18e" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="283bce96-a2e4-45a2-9b67-3ae2eb8de18e">
+          <value>
+            <State />
+          </value>
+        </entry>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="dev" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$" />
+    </ignored-roots>
+    <MESSAGE value="Small Changes&#10;Changed Account.getUUID() to Account.getUniqueId()&#10;Added Verison.java class for better version checking&#10;Changed Messages.sendParsedMessage's variable order for consistency" />
+    <MESSAGE value="Small Changes&#10;Change Account.setCustomBalances to use a forEach&#10;Changed command naming&#10;Fixed Stream issue (Stupidity)" />
+    <MESSAGE value="Small Fixes&#10;Fixed Multiple Json Issues&#10;Fixed Multiple Yaml Issues" />
+    <MESSAGE value="Medium Fixes&#10;Reformatted Messages.sendParsedMessage usage&#10;Removed bStats &quot;other_plugins_used&quot; chart&#10;Fixed Configuration&#10;Fixed Custom Currency storage&#10;Added Banknote item customization&#10;Currencies now stored into Set instead of List&#10;Updated Version &amp; UpdateChecker" />
+    <MESSAGE value="Messages.yml&#10;Forgot to commit" />
+    <MESSAGE value="Quick Fix with Medium Changes&#10;Reformatted some code&#10;Fixed an error with SQL and custom currencies&#10;Fixed placeholder balance returns&#10;Added &quot;balancetop_balance_#&lt;integer&gt;&quot; placeholder&#10;Changed how economy &amp; customeconomy commands function&#10;Combined all Number.format methods" />
+    <MESSAGE value="PlaceholderHook Changes&#10;Fixed cbalance&#10;Shortened code" />
+    <MESSAGE value="Medium Changes&#10;Changed the internal functionality of commands&#10;Changed for Number.format functions&#10;Changed functionality of Vault (Fixes how values display)" />
+    <MESSAGE value="Extra bStats&#10;Adds command usage information" />
+    <MESSAGE value="Quick Placeholder Fix" />
+    <MESSAGE value="Big Changes&#10;Added EconomicTransactions (Changes functionality of all commands)&#10;Fixed italics of banknotes&#10;Banknotes now allow new lines using &quot;||&quot;&#10;Fixed Request command answer issue" />
+    <MESSAGE value="Small Changes&#10;Fix server total display in BalanceTop" />
+    <MESSAGE value="Custom Events and more...&#10;Added custom events&#10;Added transaction logging" />
+    <MESSAGE value="Small Changes&#10;Simplified all startNewTransaction calls&#10;Made async transactions conditional" />
+    <MESSAGE value="Method Name Change (CustomCurrenciesEnabled)" />
+    <MESSAGE value="Small Changes&#10;Removed getOfflinePlayerSuggestion() method&#10;Changed Number.unformatSuffix to Number.unformat&#10;Changed Number.unformat functionality&#10;Changed formatting&#10;Made Requests Map to ConcurrentMap" />
+    <MESSAGE value="Small Changes" />
+    <MESSAGE value="Small Changes&#10;Created runAsync method&#10;Made some methods async" />
+    <MESSAGE value="Tiny Changes&#10;Removed AccountManager.updateAccount()&#10;Split answerRequest into two methods" />
+    <MESSAGE value="Improved Logging" />
+    <MESSAGE value="Small Changes&#10;createAccount no longer automatically updates username&#10;Fixed CustomEconomyCommand.java functionality&#10;Changed EconomyPlayer.of functionality&#10;Player username updater made asynchronous" />
+    <MESSAGE value="Small Changes&#10;Changed how all currency input arguments functioned" />
+    <MESSAGE value="Command Functionality Changed&#10;Many other things as well&#10;Fixed Balancetop placeholder" />
+    <MESSAGE value="Tiny Fixes" />
+    <MESSAGE value="Faster Account Saving" />
+    <option name="LAST_COMMIT_MESSAGE" value="Faster Account Saving" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/io/papermc/paper/paper-api/1.19.4-R0.1-SNAPSHOT/paper-api-1.19.4-R0.1-20230608.201059-104.jar!/org/bukkit/plugin/RegisteredServiceProvider.class</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$MAVEN_REPOSITORY$/org/bstats/bstats-bukkit/3.0.2/bstats-bukkit-3.0.2.jar!/org/bstats/bukkit/Metrics.class</url>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

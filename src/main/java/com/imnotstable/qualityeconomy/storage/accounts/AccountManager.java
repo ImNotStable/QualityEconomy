@@ -84,7 +84,7 @@ public class AccountManager {
     Misc.runAsync(() -> {
       Debug.Timer timer = new Debug.Timer("changeAllAccounts()");
       Random random = new Random();
-      Collection<String> currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
+      String[] currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0]) : null;
       accounts.values().forEach(account -> {
         HashMap<String, Double> customBalances = new HashMap<>();
         for (String currency : currencies) {

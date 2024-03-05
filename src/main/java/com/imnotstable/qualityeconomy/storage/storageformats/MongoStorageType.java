@@ -79,7 +79,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     boolean isPayEnabled = Configuration.isCommandEnabled("pay");
     boolean isRequestEnabled = Configuration.isCommandEnabled("request");
     boolean isCustomCurrenciesEnabled = Configuration.isCustomCurrenciesEnabled();
-    String[] currencies = isCustomCurrenciesEnabled ? getCurrencies().toArray(String[]::new) : null;
+    String[] currencies = isCustomCurrenciesEnabled ? getCurrencies().toArray(new String[0]) : null;
     
     List<WriteModel<Document>> updates = new ArrayList<>(AccountManager.getAllAccounts().size());
     
