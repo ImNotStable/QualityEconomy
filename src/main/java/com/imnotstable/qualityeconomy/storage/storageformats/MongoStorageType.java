@@ -2,6 +2,7 @@ package com.imnotstable.qualityeconomy.storage.storageformats;
 
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.storage.EasyMongo;
@@ -74,18 +75,18 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   }
   
   @Override
-  public synchronized void updateAccounts(@NotNull Collection<Account> accounts) {
-    if (accounts.isEmpty())
-      return;
-    
+  public synchronized void saveAllAccounts() {
     boolean isPayEnabled = Configuration.isCommandEnabled("pay");
     boolean isRequestEnabled = Configuration.isCommandEnabled("request");
     boolean isCustomCurrenciesEnabled = Configuration.isCustomCurrenciesEnabled();
     String[] currencies = isCustomCurrenciesEnabled ? getCurrencies().toArray(String[]::new) : null;
     
-    List<WriteModel<Document>> updates = new ArrayList<>(accounts.size());
+    List<WriteModel<Document>> updates = new ArrayList<>(AccountManager.getAllAccounts().size());
     
-    for (Account account : accounts) {
+    for (Account account : AccountManager.getAllAccounts()) {
+      if (!account.requiresUpdate())
+        continue;
+      account.update();
       Document update = new Document("$set",
         new Document("USERNAME", account.getUsername())
           .append("BALANCE", account.getBalance())

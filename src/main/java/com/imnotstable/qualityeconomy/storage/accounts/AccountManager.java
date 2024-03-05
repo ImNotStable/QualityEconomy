@@ -47,7 +47,7 @@ public class AccountManager {
   
   public static void saveAllAccounts() {
     Debug.Timer timer = new Debug.Timer("saveAllAccounts() [" + accounts.size() + "]");
-    StorageManager.getActiveStorageType().updateAccounts(AccountManager.accounts.values());
+    StorageManager.getActiveStorageType().saveAllAccounts();
     timer.end();
   }
   
@@ -92,8 +92,6 @@ public class AccountManager {
         }
         account.setBalance(random.nextDouble(1_000_000_000_000_000.0)).setCustomBalances(customBalances);
       });
-      StorageManager.getActiveStorageType().updateAccounts(accounts.values());
-      setupAccounts();
       timer.end();
     });
   }

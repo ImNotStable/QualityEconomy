@@ -20,7 +20,7 @@ public interface StorageType {
   
   void createAccounts(@NotNull Collection<Account> accounts);
   
-  void updateAccounts(@NotNull Collection<Account> accounts);
+  void saveAllAccounts();
   
   @NotNull Map<UUID, Account> getAllAccounts();
   

@@ -2,6 +2,7 @@ package com.imnotstable.qualityeconomy.storage.storageformats;
 
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.storage.EasyYaml;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -64,8 +65,10 @@ public class YamlStorageType extends EasyYaml implements StorageType {
   }
   
   @Override
-  public void updateAccounts(@NotNull Collection<Account> accounts) {
-    accounts.forEach(this::setAccount);
+  public void saveAllAccounts() {
+    AccountManager.getAllAccounts().stream()
+      .filter(Account::requiresUpdate)
+      .forEach(account -> setAccount(account.update()));
     save();
   }
   

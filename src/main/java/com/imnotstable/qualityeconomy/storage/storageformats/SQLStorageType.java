@@ -3,6 +3,7 @@ package com.imnotstable.qualityeconomy.storage.storageformats;
 import com.imnotstable.qualityeconomy.commands.CommandManager;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.storage.EasySQL;
@@ -131,14 +132,14 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public synchronized void updateAccounts(@NotNull Collection<Account> accounts) {
-    if (accounts.isEmpty())
-      return;
-    
+  public synchronized void saveAllAccounts() {
     try (Connection connection = getConnection()) {
       try (PreparedStatement preparedStatement = connection.prepareStatement(getUpdateStatement())) {
         connection.setAutoCommit(false);
-        for (Account account : accounts) {
+        for (Account account : AccountManager.getAllAccounts()) {
+          if (!account.requiresUpdate())
+            continue;
+          account.update();
           preparedStatement.setString(1, account.getUsername());
           preparedStatement.setDouble(2, account.getBalance());
           if (Configuration.isCommandEnabled("pay"))
