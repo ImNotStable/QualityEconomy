@@ -12,7 +12,6 @@ import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.ComponentSplit;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandTree;
-import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -36,7 +35,7 @@ public class WithdrawCommand extends BaseCommand {
   @Getter
   private static final NamespacedKey ownerKey = new NamespacedKey(QualityEconomy.getInstance(), "owner");
   private final CommandTree command = new CommandTree("withdraw")
-    .then(new DoubleArgument("amount", Number.getMinimumValue())
+    .then(CommandUtils.AmountArgument()
       .executesPlayer(this::withdraw));
   
   public static ItemStack getBankNote(double amount, Player player) {

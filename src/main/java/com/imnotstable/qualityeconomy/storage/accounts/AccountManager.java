@@ -19,10 +19,11 @@ public class AccountManager {
   
   public static Account createAccount(UUID uuid) {
     if (accountExists(uuid))
-      throw new IllegalStateException("Account already exists for UUID: " + uuid);
+      return accounts.get(uuid);
     Account account = new Account(uuid);
     StorageManager.getActiveStorageType().createAccount(account);
-    return accounts.put(uuid, account);
+    accounts.put(uuid, account);
+    return account;
   }
   
   public static Collection<Account> getAllAccounts() {

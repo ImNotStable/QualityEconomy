@@ -7,7 +7,6 @@ import com.imnotstable.qualityeconomy.hooks.HookManager;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
-import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.UpdateChecker;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
@@ -33,6 +32,7 @@ public final class QualityEconomy extends JavaPlugin {
     CommandAPI.onLoad(new CommandAPIBukkitConfig(this)
       .verboseOutput(Debug.DEBUG_MODE)
       .silentLogs(!Debug.DEBUG_MODE)
+      //.dispatcherFile(new File(getDataFolder(), "command_registration.json"))
     );
   }
   
@@ -46,8 +46,7 @@ public final class QualityEconomy extends JavaPlugin {
     Configuration.load();
     Messages.load();
     
-    Misc.runAsync(StorageManager::initStorageProcesses);
-    
+    StorageManager.initStorageProcesses();
     CommandManager.registerCommands();
     
     HookManager.loadHooks();

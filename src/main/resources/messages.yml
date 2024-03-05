@@ -32,9 +32,9 @@ request:
   deny-send: "<gray>Request for <yellow>$<amount> <gray>was denied by <yellow><requestee>"
   deny-receive: "<gray>Denied request for <yellow>$<amount> <gray>from <yellow><requester>"
 errors:
-  player-not-found: "<red>That player does not exist"
-  player-not-online: "<red>That player is not online"
-  currency-not-found: "<red>That currency does not exist"
+  player-not-found: "<red>Player not found: <player>"
+  player-not-online: "<red>Player not online: <player>"
+  currency-not-found: "<red>Currency does not exist: <currency>"
   not-enough-money:
     self: "<red>You do not have enough money"
     other: "<red>They do not have enough money"

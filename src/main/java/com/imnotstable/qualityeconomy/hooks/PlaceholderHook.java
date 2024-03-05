@@ -71,18 +71,22 @@ public class PlaceholderHook extends PlaceholderExpansion {
     
     switch (elements[0]) {
       case "balancetop" -> {
-        int place = -1;
+        int place;
         try {
+          int index;
           if (elements.length == 2 && elements[1].startsWith("#"))
-            place = Integer.parseInt(elements[1].substring(1)) - 1;
+            index = 1;
           else if (elements.length == 3 && elements[2].startsWith("#"))
-            place = Integer.parseInt(elements[2].substring(1)) - 1;
+            index = 2;
+          else
+            return null;
+          place = Integer.parseInt(elements[index].substring(1)) - 1;
         } catch (NumberFormatException exception) {
           new Debug.QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
           return null;
         }
-        if (place == -1 || BalanceTopCommand.orderedPlayerList.size() > place)
-          return null;
+        if (place == -1 || BalanceTopCommand.orderedPlayerList.size() < place + 1)
+          return "N/A";
         if (elements[1].equals("balance"))
           return Number.format(BalanceTopCommand.orderedPlayerList.get(place).getBalance(), Number.FormatType.NORMAL);
         else

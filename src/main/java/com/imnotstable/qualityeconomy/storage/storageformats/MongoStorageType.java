@@ -75,25 +75,36 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   
   @Override
   public synchronized void updateAccounts(@NotNull Collection<Account> accounts) {
-    List<WriteModel<Document>> updates = new ArrayList<>();
+    if (accounts.isEmpty())
+      return;
+    
+    boolean isPayEnabled = Configuration.isCommandEnabled("pay");
+    boolean isRequestEnabled = Configuration.isCommandEnabled("request");
+    boolean isCustomCurrenciesEnabled = Configuration.isCustomCurrenciesEnabled();
+    String[] currencies = isCustomCurrenciesEnabled ? getCurrencies().toArray(String[]::new) : null;
+    
+    List<WriteModel<Document>> updates = new ArrayList<>(accounts.size());
     
     for (Account account : accounts) {
-      Document update = new Document();
-      update.append("$set", new Document("USERNAME", account.getUsername())
-        .append("BALANCE", account.getBalance()));
-      if (Configuration.isCommandEnabled("pay"))
-        update.get("$set", new Document("PAYABLE", account.isPayable()));
-      if (Configuration.isCommandEnabled("request"))
-        update.get("$set", new Document("REQUESTABLE", account.isRequestable()));
-      if (Configuration.isCustomCurrenciesEnabled())
+      Document update = new Document("$set",
+        new Document("USERNAME", account.getUsername())
+          .append("BALANCE", account.getBalance())
+      );
+      
+      if (isPayEnabled) update.append("$set", new Document("PAYABLE", account.isPayable()));
+      if (isRequestEnabled) update.append("$set", new Document("REQUESTABLE", account.isRequestable()));
+      if (isCustomCurrenciesEnabled)
         for (String currency : currencies)
-          update.get("$set", new Document(currency, account.getCustomBalance(currency)));
+          update.append("$set", new Document(currency, account.getCustomBalance(currency)));
+      
       updates.add(new UpdateOneModel<>(new Document("UUID", account.getUniqueId()), update));
     }
     
-    if (!updates.isEmpty())
+    if (!updates.isEmpty()) {
       playerDataCollection.bulkWrite(updates);
+    }
   }
+
   
   @Override
   public synchronized @NotNull Map<UUID, Account> getAllAccounts() {

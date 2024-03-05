@@ -12,7 +12,6 @@ import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.arguments.MultiLiteralArgument;
-import dev.jorel.commandapi.arguments.PlayerArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -35,7 +34,7 @@ public class RequestCommand extends BaseCommand {
       .executesPlayer(this::toggleRequests))
     .then(new MultiLiteralArgument("answer", "accept", "deny")
       .withRequirement(sender -> sender instanceof Player player && QualityEconomyAPI.hasRequest(player.getUniqueId()))
-      .then(new PlayerArgument("target")
+      .then(CommandUtils.TargetArgument(true)
         .replaceSuggestions(ArgumentSuggestions.strings(info -> {
           if (info.sender() instanceof Player player && QualityEconomyAPI.hasRequest(player.getUniqueId()))
             return requests.get(player.getUniqueId()).keySet().stream().map(Bukkit::getOfflinePlayer).map(OfflinePlayer::getName).toArray(String[]::new);
@@ -43,9 +42,8 @@ public class RequestCommand extends BaseCommand {
         }))
         .executesPlayer(this::answerRequest)))
     .then(new LiteralArgument("send")
-      .then(new PlayerArgument("target")
-        .replaceSuggestions(CommandUtils.getOnlinePlayerSuggestion())
-        .then(CommandUtils.CurrencyAmountArgument()
+      .then(CommandUtils.TargetArgument(true)
+        .then(CommandUtils.AmountArgument()
           .executesPlayer(this::request))));
   
   public void register() {
@@ -70,10 +68,6 @@ public class RequestCommand extends BaseCommand {
   @SneakyThrows
   private void request(Player requester, CommandArguments args) {
     Player requestee = (Player) args.get("target");
-    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(requestee.getUniqueId()), MessageType.PLAYER_NOT_FOUND, requester))
-      return;
-    if (CommandUtils.requirement(requestee.isOnline(), MessageType.PLAYER_NOT_ONLINE, requester))
-      return;
     if (CommandUtils.requirement(QualityEconomyAPI.isRequestable(requestee.getUniqueId()), MessageType.NOT_ACCEPTING_REQUESTS, requester))
       return;
     double amount = (double) args.get("amount");
@@ -84,8 +78,6 @@ public class RequestCommand extends BaseCommand {
   
   private void answerRequest(Player requestee, CommandArguments args) {
     OfflinePlayer requester = (OfflinePlayer) args.get("target");
-    if (CommandUtils.requirement(QualityEconomyAPI.hasAccount(requester.getUniqueId()), MessageType.PLAYER_NOT_FOUND, requestee))
-      return;
     double amount = Number.round(requests.get(requestee.getUniqueId()).get(requester.getUniqueId()));
     String answer = (String) args.get("answer");
     if (answer.equalsIgnoreCase("accept")) accept(requestee, requester, amount);

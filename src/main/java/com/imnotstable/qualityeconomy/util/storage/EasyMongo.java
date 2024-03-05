@@ -2,7 +2,6 @@ package com.imnotstable.qualityeconomy.util.storage;
 
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
-import com.imnotstable.qualityeconomy.util.Logger;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -34,7 +33,6 @@ public class EasyMongo extends EasyCurrencies {
     connectionStringBuilder.append(address).append(":").append(port);
     if (!database.isEmpty())
       connectionStringBuilder.append("/").append(database);
-    Logger.log(connectionStringBuilder.toString());
     return connectionStringBuilder.toString();
   }
   
