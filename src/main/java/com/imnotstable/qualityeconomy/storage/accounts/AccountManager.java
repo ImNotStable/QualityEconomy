@@ -31,7 +31,7 @@ public class AccountManager {
   }
   
   public static Account getAccount(UUID uuid) {
-    return accounts.computeIfAbsent(uuid, AccountManager::createAccount);
+    return createAccount(uuid);
   }
   
   public static boolean accountExists(UUID uuid) {

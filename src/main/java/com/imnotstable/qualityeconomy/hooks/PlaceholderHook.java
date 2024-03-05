@@ -69,73 +69,71 @@ public class PlaceholderHook extends PlaceholderExpansion {
   public String onPlaceholderRequest(Player player, @NotNull String input) {
     String[] elements = input.split("_");
     
-    switch (elements[0]) {
-      case "balancetop" -> {
-        int place;
-        try {
-          int index;
-          if (elements.length == 2 && elements[1].startsWith("#"))
-            index = 1;
-          else if (elements.length == 3 && elements[2].startsWith("#"))
-            index = 2;
-          else
+    try {
+      switch (elements[0]) {
+        case "balancetop" -> {
+          int place;
+          try {
+            int index;
+            if (elements.length == 2 && elements[1].startsWith("#"))
+              index = 1;
+            else if (elements.length == 3 && elements[2].startsWith("#"))
+              index = 2;
+            else
+              return null;
+            place = Integer.parseInt(elements[index].substring(1)) - 1;
+          } catch (NumberFormatException exception) {
+            new Debug.QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
             return null;
-          place = Integer.parseInt(elements[index].substring(1)) - 1;
-        } catch (NumberFormatException exception) {
-          new Debug.QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
-          return null;
+          }
+          if (place == -1 || BalanceTopCommand.orderedPlayerList.size() < place + 1)
+            return "N/A";
+          if (elements[1].equals("balance"))
+            return Number.format(BalanceTopCommand.orderedPlayerList.get(place).getBalance(), Number.FormatType.NORMAL);
+          else
+            return BalanceTopCommand.orderedPlayerList.get(place).getUsername();
         }
-        if (place == -1 || BalanceTopCommand.orderedPlayerList.size() < place + 1)
-          return "N/A";
-        if (elements[1].equals("balance"))
-          return Number.format(BalanceTopCommand.orderedPlayerList.get(place).getBalance(), Number.FormatType.NORMAL);
-        else
-          return BalanceTopCommand.orderedPlayerList.get(place).getUsername();
+        case "balance" -> {
+          UUID uuid = grabUUID(elements, player, 1);
+          return Number.format(QualityEconomyAPI.getBalance(uuid), Number.FormatType.NORMAL);
+        }
+        case "cbalance" -> {
+          if (!Configuration.isCustomCurrenciesEnabled())
+            return "Feature is disabled";
+          if (!QualityEconomyAPI.doesCustomCurrencyExist(elements[1]))
+            return "Currency does not exist";
+          UUID uuid = grabUUID(elements, player, 2);
+          return Number.format(QualityEconomyAPI.getCustomBalance(uuid, elements[1]), Number.FormatType.NORMAL);
+        }
+        case "isPayable" -> {
+          UUID uuid = grabUUID(elements, player, 1);
+          return String.valueOf(QualityEconomyAPI.isPayable(uuid));
+        }
+        case "isRequestable" -> {
+          UUID uuid = grabUUID(elements, player, 1);
+          return String.valueOf(QualityEconomyAPI.isRequestable(uuid));
+        }
       }
-      case "balance" -> {
-        UUID uuid = grabUUID(elements, player, 1);
-        if (uuid == null)
-          return null;
-        return Number.format(QualityEconomyAPI.getBalance(uuid), Number.FormatType.NORMAL);
-      }
-      case "cbalance" -> {
-        if (!Configuration.isCustomCurrenciesEnabled())
-          return "Feature is disabled";
-        if (!QualityEconomyAPI.doesCustomCurrencyExist(elements[1]))
-          return "Currency does not exist";
-        UUID uuid = grabUUID(elements, player, 2);
-        if (uuid == null)
-          return null;
-        return Number.format(QualityEconomyAPI.getCustomBalance(uuid, elements[1]), Number.FormatType.NORMAL);
-      }
-      case "isPayable" -> {
-        UUID uuid = grabUUID(elements, player, 1);
-        if (uuid == null)
-          return null;
-        return String.valueOf(QualityEconomyAPI.isPayable(uuid));
-      }
-      case "isRequestable" -> {
-        UUID uuid = grabUUID(elements, player, 1);
-        if (uuid == null)
-          return null;
-        return String.valueOf(QualityEconomyAPI.isRequestable(uuid));
-      }
+    } catch (Exception ignored) {
+      return null;
     }
     
     return null;
   }
   
-  private UUID grabUUID(String[] elements, Player player, int index) {
+  private @NotNull UUID grabUUID(String[] elements, Player player, int index) throws Exception {
     UUID uuid = null;
     if (elements.length == index + 1) {
       if (Misc.isUUID(elements[index])) {
         uuid = UUID.fromString(elements[index]);
       } else {
-        uuid = Bukkit.getOfflinePlayer(elements[index + 1]).getUniqueId();
+        uuid = Bukkit.getOfflinePlayer(elements[index]).getUniqueId();
       }
     } else if (elements.length == index) {
       uuid = player.getUniqueId();
     }
+    if (uuid == null)
+      throw new Exception();
     return uuid;
   }
   
