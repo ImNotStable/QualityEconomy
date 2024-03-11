@@ -7,6 +7,7 @@ import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
 import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
+import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
@@ -48,6 +49,8 @@ public class PayCommand extends BaseCommand {
       return;
     double amount = (double) args.get("amount");
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
+      return;
+    if (CommandUtils.requirement(amount >= Number.getMinimumValue(), MessageType.INVALID_NUMBER, sender))
       return;
     EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_TRANSFER, sender, amount, EconomyPlayer.of(sender), EconomyPlayer.of(target)).execute();
   }

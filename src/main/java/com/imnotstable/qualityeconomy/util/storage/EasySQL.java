@@ -46,7 +46,6 @@ public class EasySQL extends EasyCurrencies {
   
   protected EasySQL(int databaseType) {
     this.databaseType = databaseType;
-    open();
   }
   
   protected Connection getConnection() throws SQLException {
@@ -56,23 +55,15 @@ public class EasySQL extends EasyCurrencies {
   protected void open() {
     openDataSource();
     try (Connection connection = getConnection()) {
-      createPlayerDataTable(connection);
       columns = getColumns(connection);
     } catch (SQLException exception) {
       new Debug.QualityError("Failed to start database", exception).log();
+      return;
     }
     generateStatements();
   }
   
   protected void close() {
-    if (dataSource == null) {
-      new Debug.QualityError("Attempted to close datasource when datasource doesn't exist").log();
-      return;
-    }
-    if (dataSource.isClosed()) {
-      new Debug.QualityError("Attempted to close datasource when datasource is already closed").log();
-      return;
-    }
     dataSource.close();
   }
   

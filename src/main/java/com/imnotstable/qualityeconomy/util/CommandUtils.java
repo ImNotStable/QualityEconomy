@@ -54,7 +54,7 @@ public class CommandUtils {
         throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.INVALID_NUMBER, rawAmount));
       }
       return Number.round(amount);
-    }).replaceSuggestions(ArgumentSuggestions.strings(info -> new String[]{"<amount>"})
+    }).replaceSuggestions(ArgumentSuggestions.strings("<amount>")
     );
   }
   

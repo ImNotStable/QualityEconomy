@@ -35,8 +35,10 @@ public class TransactionLogger {
         dataFile = new File(dir, player.getUniqueId() + ".txt");
       else if (sender instanceof ConsoleCommandSender)
         dataFile = new File(dir, "console.txt");
-      else if (sender instanceof BlockCommandSender || sender instanceof CommandMinecart)
-        dataFile = new File(dir, "command_block.txt");
+      else if (sender instanceof BlockCommandSender block)
+        dataFile = new File(dir, "command_block-" + block.getBlock().getLocation() + ".txt");
+      else if (sender instanceof CommandMinecart minecart)
+        dataFile = new File(dir, "command_minecart-" + minecart.getUniqueId() + ".txt");
       if (dataFile != null && createPlayerData(dataFile))
         log(dataFile, message);
     }

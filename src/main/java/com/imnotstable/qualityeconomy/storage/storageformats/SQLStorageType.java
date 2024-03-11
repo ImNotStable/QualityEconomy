@@ -29,9 +29,13 @@ public class SQLStorageType extends EasySQL implements StorageType {
   
   @Override
   public boolean initStorageProcesses() {
-    if (dataSource == null || dataSource.isClosed())
+    if (dataSource != null && !dataSource.isClosed()) {
+      new Debug.QualityError("Attempted to open datasource when datasource already exists").log();
       return false;
+    }
+    open();
     try (Connection connection = getConnection()) {
+      createPlayerDataTable(connection);
       toggleCurrencyTable(connection);
       toggleColumns(connection);
     } catch (SQLException exception) {
@@ -44,6 +48,14 @@ public class SQLStorageType extends EasySQL implements StorageType {
   
   @Override
   public void endStorageProcesses() {
+    if (dataSource == null) {
+      new Debug.QualityError("Attempted to close datasource when datasource doesn't exist").log();
+      return;
+    }
+    if (dataSource.isClosed()) {
+      new Debug.QualityError("Attempted to close datasource when datasource is already closed").log();
+      return;
+    }
     close();
   }
   
@@ -53,8 +65,8 @@ public class SQLStorageType extends EasySQL implements StorageType {
       dropPlayerDataTable(connection);
       if (Configuration.isCustomCurrenciesEnabled())
         dropCurrencyTable(connection);
-      close();
-      open();
+      endStorageProcesses();
+      initStorageProcesses();
     } catch (SQLException exception) {
       new Debug.QualityError("Failed to wipe database", exception).log();
     }

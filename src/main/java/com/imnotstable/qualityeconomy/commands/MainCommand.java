@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 public class MainCommand extends BaseCommand {
@@ -106,8 +107,16 @@ public class MainCommand extends BaseCommand {
     if (Misc.equals(importable, "Essentials"))
       transferPluginData(importable, sender);
     else {
-      StorageManager.importDatabase(importable);
-      sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
+      boolean completed = false;
+      try {
+        completed = StorageManager.importDatabase(importable).get();
+      } catch (InterruptedException | ExecutionException exception) {
+        new Debug.QualityError("Error while importing database", exception).log();
+      }
+      if (completed)
+        sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
+      else
+        sender.sendMessage(Component.text("Failed to import Database", NamedTextColor.RED));
     }
   }
   
@@ -172,14 +181,15 @@ public class MainCommand extends BaseCommand {
   }
   
   private ArgumentSuggestions<CommandSender> getImportSuggestion() {
-    List<String> completions = new ArrayList<>(getImportableFiles("exports"));
-    completions.addAll(getImportableFiles("backups"));
-    
-    if (new File("plugins/Essentials/userdata").isDirectory()) {
-      completions.add("Essentials");
-    }
-    
-    return ArgumentSuggestions.stringCollection(info -> completions);
+    return ArgumentSuggestions.stringCollection(info -> {
+      List<String> completions = new ArrayList<>(getImportableFiles("exports"));
+      completions.addAll(getImportableFiles("backups"));
+      
+      if (new File("plugins/Essentials/userdata").isDirectory())
+        completions.add("Essentials");
+      
+      return completions;
+    });
   }
   
   public Collection<String> getImportableFiles(String path) {

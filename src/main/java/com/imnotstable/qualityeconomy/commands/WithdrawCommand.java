@@ -79,6 +79,8 @@ public class WithdrawCommand extends BaseCommand {
     double amount = Number.roundObj(args.get("amount"));
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
       return;
+    if (CommandUtils.requirement(amount >= Number.getMinimumValue(), MessageType.INVALID_NUMBER, sender))
+      return;
     EconomicTransaction.startNewTransaction(EconomicTransactionType.WITHDRAW, amount, EconomyPlayer.of(sender)).execute();
   }
   

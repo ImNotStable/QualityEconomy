@@ -63,7 +63,7 @@ public class BalanceTopCommand extends BaseCommand {
     Messages.sendParsedMessage(sender, MessageType.BALANCETOP_SERVER_TOTAL,
       serverTotal);
     
-    if (!orderedPlayerList.isEmpty())
+    if (maxPage != 0)
       for (int i = startIndex; i < endIndex; i++) {
         Account account = orderedPlayerList.get(i);
         Messages.sendParsedMessage(sender, MessageType.BALANCETOP_BALANCE_VIEW,
@@ -85,8 +85,8 @@ public class BalanceTopCommand extends BaseCommand {
     orderedPlayerList = accounts.stream()
       .sorted(Comparator.comparingDouble(Account::getBalance).reversed())
       .toList();
-    
     maxPage = (int) Math.ceil(orderedPlayerList.size() / 10.0);
+    
     timer.end();
   }
   

@@ -4,13 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dee9b785-01d5-4cd8-bd28-3b2549051344" name="Changes" comment="Faster Account Saving">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+    <list default="true" id="dee9b785-01d5-4cd8-bd28-3b2549051344" name="Changes" comment="Small Changes">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/QualityEconomy.main.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/BalanceTopCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/BalanceTopCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/MainCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/MainCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/PayCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/PayCommand.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/RequestCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/RequestCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/configuration/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/configuration/Configuration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/accounts/AccountManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/accounts/AccountManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/MongoStorageType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/MongoStorageType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/WithdrawCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/WithdrawCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/TransactionLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/TransactionLogger.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/StorageManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/StorageManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/SQLStorageType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/SQLStorageType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/CommandUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/CommandUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/Version.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/Version.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/storage/EasySQL.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/storage/EasySQL.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,13 +43,16 @@
     <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="dev" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/pom.xml" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MavenRunner">
+    <option name="delegateBuildToMaven" value="true" />
   </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -57,6 +70,7 @@
   &quot;keyToString&quot;: {
     &quot;Downloaded.Files.Path.Enabled&quot;: &quot;false&quot;,
     &quot;Maven.Package.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.QualityEconomy [org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources].executor&quot;: &quot;Run&quot;,
     &quot;Repository.Attach.Annotations&quot;: &quot;false&quot;,
     &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
     &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
@@ -65,7 +79,7 @@
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;ToolWindowRun.ShowToolbar&quot;: &quot;false&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;I:/Equip/lux-spawners-1&quot;,
@@ -74,11 +88,11 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Facets&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.archetype.catalogs&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -393,6 +407,28 @@
       <workItem from="1709582089021" duration="1413000" />
       <workItem from="1709598638672" duration="2926000" />
       <workItem from="1709679147750" duration="2297000" />
+      <workItem from="1709682495393" duration="1521000" />
+      <workItem from="1709766670306" duration="2137000" />
+      <workItem from="1709769823313" duration="658000" />
+      <workItem from="1709780341253" duration="686000" />
+      <workItem from="1709781057338" duration="5000" />
+      <workItem from="1709832358829" duration="299000" />
+      <workItem from="1709835312458" duration="1729000" />
+      <workItem from="1709859561017" duration="206000" />
+      <workItem from="1709861083935" duration="1618000" />
+      <workItem from="1709926932952" duration="421000" />
+      <workItem from="1710035352301" duration="178000" />
+      <workItem from="1710035895546" duration="1000" />
+      <workItem from="1710040087593" duration="681000" />
+      <workItem from="1710089252318" duration="516000" />
+      <workItem from="1710089797011" duration="14000" />
+      <workItem from="1710089837117" duration="7000" />
+      <workItem from="1710101030761" duration="15000" />
+      <workItem from="1710101078182" duration="62000" />
+      <workItem from="1710109049092" duration="1701000" />
+      <workItem from="1710115085205" duration="1117000" />
+      <workItem from="1710183564181" duration="539000" />
+      <workItem from="1710197877536" duration="351000" />
     </task>
     <task id="LOCAL-00001" summary="Commit #1">
       <created>1690401229674</created>
@@ -414,14 +450,6 @@
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
       <updated>1690409873668</updated>
-    </task>
-    <task id="LOCAL-00012" summary="Small optimizations, Added configuration updating, Added banknotes">
-      <option name="closed" value="true" />
-      <created>1698680030762</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1698680030762</updated>
     </task>
     <task id="LOCAL-00013" summary="Removed secondary balance, Added custom currencies, Changed synchronization, Added balancetop refresh interval option, Removed Yaml storage option">
       <option name="closed" value="true" />
@@ -783,7 +811,15 @@
       <option name="project" value="LOCAL" />
       <updated>1709601369882</updated>
     </task>
-    <option name="localTasksCounter" value="58" />
+    <task id="LOCAL-00058" summary="Small Changes">
+      <option name="closed" value="true" />
+      <created>1709682742923</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1709682742923</updated>
+    </task>
+    <option name="localTasksCounter" value="59" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -842,7 +878,6 @@
     <MESSAGE value="Small Changes&#10;Simplified all startNewTransaction calls&#10;Made async transactions conditional" />
     <MESSAGE value="Method Name Change (CustomCurrenciesEnabled)" />
     <MESSAGE value="Small Changes&#10;Removed getOfflinePlayerSuggestion() method&#10;Changed Number.unformatSuffix to Number.unformat&#10;Changed Number.unformat functionality&#10;Changed formatting&#10;Made Requests Map to ConcurrentMap" />
-    <MESSAGE value="Small Changes" />
     <MESSAGE value="Small Changes&#10;Created runAsync method&#10;Made some methods async" />
     <MESSAGE value="Tiny Changes&#10;Removed AccountManager.updateAccount()&#10;Split answerRequest into two methods" />
     <MESSAGE value="Improved Logging" />
@@ -851,7 +886,8 @@
     <MESSAGE value="Command Functionality Changed&#10;Many other things as well&#10;Fixed Balancetop placeholder" />
     <MESSAGE value="Tiny Fixes" />
     <MESSAGE value="Faster Account Saving" />
-    <option name="LAST_COMMIT_MESSAGE" value="Faster Account Saving" />
+    <MESSAGE value="Small Changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Small Changes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
