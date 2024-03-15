@@ -17,6 +17,7 @@ public class EconomyEvent extends Event implements Cancellable {
   private boolean cancelled;
   
   protected EconomyEvent(EconomicTransaction transaction, EconomicTransactionType requiredType) {
+    super();
     this.transaction = transaction;
     if (!transaction.getType().equals(requiredType))
       throw new IllegalArgumentException("Transaction Type must be " + requiredType.name() + " found " + transaction.getType().name());

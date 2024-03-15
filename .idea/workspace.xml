@@ -4,23 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dee9b785-01d5-4cd8-bd28-3b2549051344" name="Changes" comment="Small Changes">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules/QualityEconomy.main.iml" beforeDir="false" />
+    <list default="true" id="dee9b785-01d5-4cd8-bd28-3b2549051344" name="Changes" comment="Small Changes&#10;Many different small changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/BalanceTopCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/BalanceTopCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/MainCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/MainCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/PayCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/PayCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/RequestCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/RequestCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/WithdrawCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/WithdrawCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/EconomicTransaction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/EconomicTransaction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/EconomicTransactionType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/EconomicTransactionType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/TransactionLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/TransactionLogger.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/StorageManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/StorageManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/SQLStorageType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/SQLStorageType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/events/EconomyEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/events/EconomyEvent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/PlaceholderHook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/PlaceholderHook.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/CommandUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/CommandUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/Version.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/Version.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/storage/EasySQL.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/storage/EasySQL.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -428,7 +420,16 @@
       <workItem from="1710109049092" duration="1701000" />
       <workItem from="1710115085205" duration="1117000" />
       <workItem from="1710183564181" duration="539000" />
-      <workItem from="1710197877536" duration="351000" />
+      <workItem from="1710197877536" duration="409000" />
+      <workItem from="1710282761323" duration="1631000" />
+      <workItem from="1710284906101" duration="1513000" />
+      <workItem from="1710296413433" duration="277000" />
+      <workItem from="1710296761593" duration="35000" />
+      <workItem from="1710296916512" duration="669000" />
+      <workItem from="1710297607334" duration="10000" />
+      <workItem from="1710297888505" duration="607000" />
+      <workItem from="1710393740993" duration="17000" />
+      <workItem from="1710464587318" duration="495000" />
     </task>
     <task id="LOCAL-00001" summary="Commit #1">
       <created>1690401229674</created>
@@ -450,14 +451,6 @@
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
       <updated>1690409873668</updated>
-    </task>
-    <task id="LOCAL-00013" summary="Removed secondary balance, Added custom currencies, Changed synchronization, Added balancetop refresh interval option, Removed Yaml storage option">
-      <option name="closed" value="true" />
-      <created>1699324081259</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1699324081259</updated>
     </task>
     <task id="LOCAL-00014" summary="Changes (I forgot)">
       <option name="closed" value="true" />
@@ -819,7 +812,15 @@
       <option name="project" value="LOCAL" />
       <updated>1709682742923</updated>
     </task>
-    <option name="localTasksCounter" value="59" />
+    <task id="LOCAL-00059" summary="Small Changes&#10;Many different small changes">
+      <option name="closed" value="true" />
+      <created>1710198275985</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1710198275985</updated>
+    </task>
+    <option name="localTasksCounter" value="60" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -862,7 +863,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$" />
     </ignored-roots>
-    <MESSAGE value="Small Changes&#10;Changed Account.getUUID() to Account.getUniqueId()&#10;Added Verison.java class for better version checking&#10;Changed Messages.sendParsedMessage's variable order for consistency" />
     <MESSAGE value="Small Changes&#10;Change Account.setCustomBalances to use a forEach&#10;Changed command naming&#10;Fixed Stream issue (Stupidity)" />
     <MESSAGE value="Small Fixes&#10;Fixed Multiple Json Issues&#10;Fixed Multiple Yaml Issues" />
     <MESSAGE value="Medium Fixes&#10;Reformatted Messages.sendParsedMessage usage&#10;Removed bStats &quot;other_plugins_used&quot; chart&#10;Fixed Configuration&#10;Fixed Custom Currency storage&#10;Added Banknote item customization&#10;Currencies now stored into Set instead of List&#10;Updated Version &amp; UpdateChecker" />
@@ -887,7 +887,8 @@
     <MESSAGE value="Tiny Fixes" />
     <MESSAGE value="Faster Account Saving" />
     <MESSAGE value="Small Changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Small Changes" />
+    <MESSAGE value="Small Changes&#10;Many different small changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Small Changes&#10;Many different small changes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

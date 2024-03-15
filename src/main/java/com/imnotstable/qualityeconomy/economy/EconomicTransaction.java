@@ -28,7 +28,7 @@ public class EconomicTransaction {
     this.amount = amount;
   }
   
-  public static EconomicTransaction startNewTransaction(EconomicTransactionType type, CommandSender sender, String currency, double amount, EconomyPlayer... players) throws QualityException {
+  public static EconomicTransaction startNewTransaction(@NotNull EconomicTransactionType type, @Nullable CommandSender sender, @Nullable String currency, double amount, @NotNull EconomyPlayer... players) throws QualityException {
     if (!type.getConfigurationRequirement().get())
       throw new QualityException("Economic Transaction failed to meet configuration requirement");
     if (type.getPlayerRequirement() != players.length)

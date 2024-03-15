@@ -86,12 +86,12 @@ public class PlaceholderHook extends PlaceholderExpansion {
             new Debug.QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
             return null;
           }
-          if (place == -1 || BalanceTopCommand.orderedPlayerList.size() < place + 1)
+          if (place == -1 || BalanceTopCommand.orderedPlayerList.length < place + 1)
             return "N/A";
           if (elements[1].equals("balance"))
-            return Number.format(BalanceTopCommand.orderedPlayerList.get(place).getBalance(), Number.FormatType.NORMAL);
+            return Number.format(BalanceTopCommand.orderedPlayerList[place].getBalance(), Number.FormatType.NORMAL);
           else
-            return BalanceTopCommand.orderedPlayerList.get(place).getUsername();
+            return BalanceTopCommand.orderedPlayerList[place].getUsername();
         }
         case "balance" -> {
           UUID uuid = grabUUID(elements, player, 1);
