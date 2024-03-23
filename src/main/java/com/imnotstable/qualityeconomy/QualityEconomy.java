@@ -30,8 +30,8 @@ public final class QualityEconomy extends JavaPlugin {
       Logger.log(Component.text("Enabled DEBUG_MODE", NamedTextColor.GRAY));
     }
     CommandAPI.onLoad(new CommandAPIBukkitConfig(this)
-      .verboseOutput(Debug.DEBUG_MODE)
-      .silentLogs(!Debug.DEBUG_MODE)
+        .verboseOutput(Debug.DEBUG_MODE)
+        .silentLogs(!Debug.DEBUG_MODE)
       //.dispatcherFile(new File(getDataFolder(), "command_registration.json"))
     );
   }
@@ -39,7 +39,6 @@ public final class QualityEconomy extends JavaPlugin {
   @Override
   public void onEnable() {
     Debug.Timer timer = new Debug.Timer("onEnable()");
-    new Debug.QualityLogger("This is a warning", "Please export your database before updating to any version", "Once this message no longer exists, doing so will no longer be required.").log();
     instance = this;
     CommandAPI.onEnable();
     

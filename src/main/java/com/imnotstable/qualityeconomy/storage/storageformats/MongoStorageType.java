@@ -105,7 +105,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
       playerDataCollection.bulkWrite(updates);
     }
   }
-
+  
   
   @Override
   public synchronized @NotNull Map<UUID, Account> getAllAccounts() {

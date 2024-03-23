@@ -10,6 +10,7 @@
     <packaging>jar</packaging>
 
     <name>QualityEconomy</name>
+    <description>The Supreme Economy Plugin</description>
 
     <properties>
         <java.version>17</java.version>

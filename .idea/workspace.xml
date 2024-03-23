@@ -4,15 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dee9b785-01d5-4cd8-bd28-3b2549051344" name="Changes" comment="Small Changes&#10;Many different small changes">
+    <list default="true" id="dee9b785-01d5-4cd8-bd28-3b2549051344" name="Changes" comment="Small Changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/BalanceTopCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/commands/BalanceTopCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/EconomicTransaction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/EconomicTransaction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/EconomicTransactionType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/EconomicTransactionType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/TransactionLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/TransactionLogger.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/events/EconomyEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/economy/events/EconomyEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/PlaceholderHook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/PlaceholderHook.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/CommandUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/CommandUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/QualityEconomy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/QualityEconomy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/configuration/MessageType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/configuration/MessageType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/MongoStorageType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/MongoStorageType.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,11 +77,11 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Facets&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.archetype.catalogs&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;discord-application&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -429,7 +426,16 @@
       <workItem from="1710297607334" duration="10000" />
       <workItem from="1710297888505" duration="607000" />
       <workItem from="1710393740993" duration="17000" />
-      <workItem from="1710464587318" duration="495000" />
+      <workItem from="1710464587318" duration="694000" />
+      <workItem from="1710473886463" duration="1283000" />
+      <workItem from="1710735073565" duration="848000" />
+      <workItem from="1710802718449" duration="753000" />
+      <workItem from="1710803569508" duration="357000" />
+      <workItem from="1710804293701" duration="923000" />
+      <workItem from="1710807972665" duration="1000" />
+      <workItem from="1710809230687" duration="86000" />
+      <workItem from="1710965575303" duration="5000" />
+      <workItem from="1710965760066" duration="7000" />
     </task>
     <task id="LOCAL-00001" summary="Commit #1">
       <created>1690401229674</created>
@@ -451,14 +457,6 @@
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
       <updated>1690409873668</updated>
-    </task>
-    <task id="LOCAL-00014" summary="Changes (I forgot)">
-      <option name="closed" value="true" />
-      <created>1700246132609</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1700246132609</updated>
     </task>
     <task id="LOCAL-00015" summary="Seperated executors seperated from command registration, Added H2 storage, Added DEBUG_MODE functionality, Other changes as well">
       <option name="closed" value="true" />
@@ -820,7 +818,15 @@
       <option name="project" value="LOCAL" />
       <updated>1710198275985</updated>
     </task>
-    <option name="localTasksCounter" value="60" />
+    <task id="LOCAL-00060" summary="Small Changes">
+      <option name="closed" value="true" />
+      <created>1710465160702</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1710465160702</updated>
+    </task>
+    <option name="localTasksCounter" value="61" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -886,9 +892,9 @@
     <MESSAGE value="Command Functionality Changed&#10;Many other things as well&#10;Fixed Balancetop placeholder" />
     <MESSAGE value="Tiny Fixes" />
     <MESSAGE value="Faster Account Saving" />
-    <MESSAGE value="Small Changes" />
     <MESSAGE value="Small Changes&#10;Many different small changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Small Changes&#10;Many different small changes" />
+    <MESSAGE value="Small Changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Small Changes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
