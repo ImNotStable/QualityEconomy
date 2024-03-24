@@ -73,6 +73,8 @@ public class RequestCommand extends BaseCommand {
     double amount = (double) args.get("amount");
     if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(requestee.getUniqueId(), amount), MessageType.OTHER_NOT_ENOUGH_MONEY, requester))
       return;
+    if (CommandUtils.requirement(amount >= Number.getMinimumValue(), MessageType.INVALID_NUMBER, requester))
+      return;
     EconomicTransaction.startNewTransaction(EconomicTransactionType.REQUEST, amount, EconomyPlayer.of(requester), EconomyPlayer.of(requestee)).execute();
   }
   

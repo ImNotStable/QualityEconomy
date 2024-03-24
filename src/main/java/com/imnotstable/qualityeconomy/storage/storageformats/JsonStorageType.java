@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.storage.EasyJson;
 import org.jetbrains.annotations.NotNull;
@@ -69,8 +70,10 @@ public class JsonStorageType extends EasyJson implements StorageType {
   }
   
   @Override
-  public void updateAccounts(@NotNull Collection<Account> accounts) {
-    accounts.forEach(account -> json.add(String.valueOf(account.getUniqueId()), serialize(account)));
+  public void saveAllAccounts() {
+    AccountManager.getAllAccounts().stream()
+      .filter(Account::requiresUpdate)
+      .forEach(account -> json.add(String.valueOf(account.getUniqueId()), serialize(account.update())));
     save();
   }
   

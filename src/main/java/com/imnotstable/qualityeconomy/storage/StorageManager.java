@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class StorageManager implements Listener {
   
@@ -104,8 +105,8 @@ public class StorageManager implements Listener {
     timer.end();
   }
   
-  public static void importDatabase(String fileName) {
-    Misc.runAsync(() -> {
+  public static CompletableFuture<Boolean> importDatabase(String fileName) {
+    return CompletableFuture.supplyAsync(() -> {
       Debug.Timer timer = new Debug.Timer("importDatabase()");
       AccountManager.clearAccounts();
       getActiveStorageType().wipeDatabase();
@@ -122,6 +123,7 @@ public class StorageManager implements Listener {
             customCurrencies.add(currency);
             addCurrency(currency);
           }
+          rootJson.remove("CUSTOM-CURRENCIES");
         }
         rootJson.entrySet().stream()
           .filter(entry -> !entry.getKey().equals("CUSTOM-CURRENCIES"))
@@ -141,8 +143,10 @@ public class StorageManager implements Listener {
         AccountManager.setupAccounts();
       } catch (IOException exception) {
         new Debug.QualityError("Error while importing playerdata", exception).log();
+        return false;
       }
       timer.end();
+      return true;
     });
   }
   

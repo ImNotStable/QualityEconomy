@@ -8,10 +8,15 @@ public class Version {
   
   private static final @Getter Version pluginVersion = new Version(QualityEconomy.getInstance().getDescription().getVersion());
   private final int[] version = new int[3];
+  private final PostFix postFix;
   
   public Version(String version) {
-    if (version.contains("-"))
-      version = version.split("-")[0];
+    if (version.contains("-")) {
+      String[] split = version.split("-");
+      version = split[0];
+      this.postFix = PostFix.valueOf(split[1].toUpperCase());
+    } else
+      this.postFix = PostFix.RELEASE;
     String[] split = version.split("\\.");
     if (split.length != 3)
       throw new IllegalArgumentException("Invalid version format.");
@@ -25,20 +30,32 @@ public class Version {
   }
   
   public int compareTo(Version other) {
-    if (this.version[0] > other.version[0])
-      return 1;
-    else if (this.version[0] < other.version[0])
-      return -1;
-    if (this.version[1] > other.version[1])
-      return 1;
-    else if (this.version[1] < other.version[1])
-      return -1;
-    return Integer.compare(this.version[2], other.version[2]);
+    for (int i = 0; i < 3; i++) {
+      if (this.version[i] > other.version[i])
+        return 1;
+      if (this.version[i] < other.version[i])
+        return -1;
+    }
+    return Integer.compare(this.postFix.getPriority(), other.postFix.getPriority());
   }
   
   @Override
   public String toString() {
-    return this.version[0] + "." + this.version[1] + "." + this.version[2];
+    return this.version[0] + "." + this.version[1] + "." + this.version[2] + (this.postFix == PostFix.RELEASE ? "" : "-" + this.postFix.name());
+  }
+  
+  private enum PostFix {
+    
+    ALPHA, BETA, RELEASE, SPECIAL;
+    
+    private int getPriority() {
+      return switch (this) {
+        case ALPHA -> 0;
+        case BETA -> 1;
+        case RELEASE -> 2;
+        case SPECIAL -> 3;
+      };
+    }
   }
   
 }

@@ -112,7 +112,7 @@ public class Debug {
       Logger.log(title);
       Logger.log(informativeMessage);
       Logger.nl();
-      if (exception != null) {
+      if (exception != null && exception.getMessage() != null) {
         Logger.log(Component.text("Exception: " + exception.getMessage(), NamedTextColor.RED));
         exception.printStackTrace();
         Logger.nl();

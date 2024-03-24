@@ -3,6 +3,7 @@ package com.imnotstable.qualityeconomy.storage.storageformats;
 import com.imnotstable.qualityeconomy.commands.CommandManager;
 import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.storage.EasySQL;
@@ -28,9 +29,13 @@ public class SQLStorageType extends EasySQL implements StorageType {
   
   @Override
   public boolean initStorageProcesses() {
-    if (dataSource == null || dataSource.isClosed())
+    if (dataSource != null && !dataSource.isClosed()) {
+      new Debug.QualityError("Attempted to open datasource when datasource already exists").log();
       return false;
+    }
+    open();
     try (Connection connection = getConnection()) {
+      createPlayerDataTable(connection);
       toggleCurrencyTable(connection);
       toggleColumns(connection);
     } catch (SQLException exception) {
@@ -43,6 +48,14 @@ public class SQLStorageType extends EasySQL implements StorageType {
   
   @Override
   public void endStorageProcesses() {
+    if (dataSource == null) {
+      new Debug.QualityError("Attempted to close datasource when datasource doesn't exist").log();
+      return;
+    }
+    if (dataSource.isClosed()) {
+      new Debug.QualityError("Attempted to close datasource when datasource is already closed").log();
+      return;
+    }
     close();
   }
   
@@ -52,8 +65,8 @@ public class SQLStorageType extends EasySQL implements StorageType {
       dropPlayerDataTable(connection);
       if (Configuration.isCustomCurrenciesEnabled())
         dropCurrencyTable(connection);
-      close();
-      open();
+      endStorageProcesses();
+      initStorageProcesses();
     } catch (SQLException exception) {
       new Debug.QualityError("Failed to wipe database", exception).log();
     }
@@ -131,14 +144,14 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public synchronized void updateAccounts(@NotNull Collection<Account> accounts) {
-    if (accounts.isEmpty())
-      return;
-    
+  public synchronized void saveAllAccounts() {
     try (Connection connection = getConnection()) {
       try (PreparedStatement preparedStatement = connection.prepareStatement(getUpdateStatement())) {
         connection.setAutoCommit(false);
-        for (Account account : accounts) {
+        for (Account account : AccountManager.getAllAccounts()) {
+          if (!account.requiresUpdate())
+            continue;
+          account.update();
           preparedStatement.setString(1, account.getUsername());
           preparedStatement.setDouble(2, account.getBalance());
           if (Configuration.isCommandEnabled("pay"))

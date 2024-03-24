@@ -15,14 +15,12 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 
 public class BalanceTopCommand extends BaseCommand {
   
-  public static List<Account> orderedPlayerList = new ArrayList<>();
+  public static Account[] orderedPlayerList;
   private String serverTotal = "0.0";
   private int maxPage;
   private final CommandTree command = new CommandTree("balancetop")
@@ -56,16 +54,16 @@ public class BalanceTopCommand extends BaseCommand {
   private void viewBalanceTop(CommandSender sender, CommandArguments args) {
     int page = Math.min((int) args.getOrDefault("page", 1), maxPage);
     int startIndex = (page - 1) * 10;
-    int endIndex = Math.min(startIndex + 10, orderedPlayerList.size());
+    int endIndex = Math.min(startIndex + 10, orderedPlayerList.length);
     
     Messages.sendParsedMessage(sender, MessageType.BALANCETOP_TITLE,
       String.valueOf(maxPage), String.valueOf(page));
     Messages.sendParsedMessage(sender, MessageType.BALANCETOP_SERVER_TOTAL,
       serverTotal);
     
-    if (!orderedPlayerList.isEmpty())
+    if (maxPage != 0)
       for (int i = startIndex; i < endIndex; i++) {
-        Account account = orderedPlayerList.get(i);
+        Account account = orderedPlayerList[i];
         Messages.sendParsedMessage(sender, MessageType.BALANCETOP_BALANCE_VIEW,
           Number.format(account.getBalance(), Number.FormatType.COMMAS), String.valueOf(i + 1), account.getUsername());
       }
@@ -84,9 +82,9 @@ public class BalanceTopCommand extends BaseCommand {
       .sum(), Number.FormatType.COMMAS);
     orderedPlayerList = accounts.stream()
       .sorted(Comparator.comparingDouble(Account::getBalance).reversed())
-      .toList();
+      .toArray(Account[]::new);
+    maxPage = (int) Math.ceil(orderedPlayerList.length / 10.0);
     
-    maxPage = (int) Math.ceil(orderedPlayerList.size() / 10.0);
     timer.end();
   }
   

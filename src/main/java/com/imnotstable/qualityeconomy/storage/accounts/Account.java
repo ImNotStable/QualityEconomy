@@ -19,6 +19,7 @@ public class Account {
   private boolean isPayable = true;
   @Getter
   private boolean isRequestable = false;
+  private Boolean requiresUpdate = null;
   
   public Account(UUID uniqueId) {
     this.uniqueId = uniqueId;
@@ -36,6 +37,7 @@ public class Account {
   
   public Account setUsername(@NotNull String username) {
     this.username = username;
+    this.requiresUpdate = true;
     return this;
   }
   
@@ -45,6 +47,7 @@ public class Account {
   
   public Account setBalance(double balance) {
     this.balance = Number.round(balance);
+    this.requiresUpdate = true;
     return this;
   }
   
@@ -58,21 +61,34 @@ public class Account {
   
   public Account setCustomBalances(@NotNull Map<String, Double> balanceMap) {
     balanceMap.forEach(this::setCustomBalance);
+    this.requiresUpdate = true;
     return this;
   }
   
   public Account setCustomBalance(@NotNull String currency, double balance) {
     otherBalances.put(currency, Number.round(balance));
+    this.requiresUpdate = true;
     return this;
   }
   
   public Account setPayable(boolean isPayable) {
     this.isPayable = isPayable;
+    this.requiresUpdate = true;
     return this;
   }
   
   public Account setRequestable(boolean isRequestable) {
     this.isRequestable = isRequestable;
+    this.requiresUpdate = true;
+    return this;
+  }
+  
+  public boolean requiresUpdate() {
+    return requiresUpdate != null;
+  }
+  
+  public Account update() {
+    requiresUpdate = null;
     return this;
   }
   

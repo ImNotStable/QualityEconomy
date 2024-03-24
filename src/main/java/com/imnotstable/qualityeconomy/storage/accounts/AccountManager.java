@@ -47,7 +47,7 @@ public class AccountManager {
   
   public static void saveAllAccounts() {
     Debug.Timer timer = new Debug.Timer("saveAllAccounts() [" + accounts.size() + "]");
-    StorageManager.getActiveStorageType().updateAccounts(AccountManager.accounts.values());
+    StorageManager.getActiveStorageType().saveAllAccounts();
     timer.end();
   }
   
@@ -84,7 +84,7 @@ public class AccountManager {
     Misc.runAsync(() -> {
       Debug.Timer timer = new Debug.Timer("changeAllAccounts()");
       Random random = new Random();
-      Collection<String> currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
+      String[] currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0]) : null;
       accounts.values().forEach(account -> {
         HashMap<String, Double> customBalances = new HashMap<>();
         for (String currency : currencies) {
@@ -92,8 +92,6 @@ public class AccountManager {
         }
         account.setBalance(random.nextDouble(1_000_000_000_000_000.0)).setCustomBalances(customBalances);
       });
-      StorageManager.getActiveStorageType().updateAccounts(accounts.values());
-      setupAccounts();
       timer.end();
     });
   }

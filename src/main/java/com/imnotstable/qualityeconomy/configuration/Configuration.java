@@ -60,14 +60,14 @@ public class Configuration {
     if (configuration.getBoolean("banknotes", false))
       enabledCommands.add("withdraw");
     for (String command : new String[]{"balance", "balancetop", "economy", "pay", "request", "custombalance", "customeconomy"})
-      if (configuration.getBoolean("commands." + command, Debug.DEBUG_MODE))
+      if (configuration.getBoolean("commands." + command, false))
         enabledCommands.add(command);
     customCurrenciesEnabled = configuration.getBoolean("custom-currencies", false);
     if (!customCurrenciesEnabled) {
       enabledCommands.remove("custombalance");
       enabledCommands.remove("customeconomy");
     }
-    backupInterval = (long) (configuration.getDouble("backup-interval", 1) * 72000);
+    backupInterval = (long) (configuration.getDouble("backup-interval", 6) * 72000.0);
     balancetopInterval = configuration.getInt("balancetop-interval", 5) * 20L;
     autoSaveAccountsInterval = configuration.getInt("autosave-accounts-interval", 60) * 20L;
     databaseInfo = List.of(

@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.CommandMinecart;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -30,13 +31,7 @@ public class TransactionLogger {
     
     CommandSender sender = transaction.getSender();
     if (sender != null) {
-      File dataFile = null;
-      if (sender instanceof Player player)
-        dataFile = new File(dir, player.getUniqueId() + ".txt");
-      else if (sender instanceof ConsoleCommandSender)
-        dataFile = new File(dir, "console.txt");
-      else if (sender instanceof BlockCommandSender || sender instanceof CommandMinecart)
-        dataFile = new File(dir, "command_block.txt");
+      File dataFile = getFile(sender);
       if (dataFile != null && createPlayerData(dataFile))
         log(dataFile, message);
     }
@@ -46,6 +41,20 @@ public class TransactionLogger {
       if (createPlayerData(dataFile))
         log(dataFile, message);
     }
+  }
+  
+  @Nullable
+  private static File getFile(CommandSender sender) {
+    File dataFile = null;
+    if (sender instanceof Player player)
+      dataFile = new File(dir, player.getUniqueId() + ".txt");
+    else if (sender instanceof ConsoleCommandSender)
+      dataFile = new File(dir, "console.txt");
+    else if (sender instanceof BlockCommandSender block)
+      dataFile = new File(dir, "command_block-" + block.getBlock().getLocation() + ".txt");
+    else if (sender instanceof CommandMinecart minecart)
+      dataFile = new File(dir, "command_minecart-" + minecart.getUniqueId() + ".txt");
+    return dataFile;
   }
   
   private static void log(File file, String message) {
