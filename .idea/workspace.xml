@@ -5,11 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dee9b785-01d5-4cd8-bd28-3b2549051344" name="Changes" comment="Small Changes">
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/QualityEconomy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/QualityEconomy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/configuration/MessageType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/configuration/MessageType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/MongoStorageType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/storage/storageformats/MongoStorageType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/HookManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/HookManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/PlaceholderHook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/PlaceholderHook.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/VaultHook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/VaultHook.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/Debug.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/Debug.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/QualityException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/QualityException.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

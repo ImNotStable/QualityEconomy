@@ -2,6 +2,7 @@ package com.imnotstable.qualityeconomy.util;
 
 public class QualityException extends Exception {
   
+  
   public QualityException(String message, Exception subException, boolean useQualityError) {
     super(message, subException);
     if (useQualityError)
@@ -18,6 +19,10 @@ public class QualityException extends Exception {
   
   public QualityException(String message) {
     this(message, true);
+  }
+  
+  public QualityException() {
+    super();
   }
   
 }
