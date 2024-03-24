@@ -220,9 +220,7 @@ public enum EconomicTransactionType {
   }
   
   public boolean callEvent(EconomicTransaction transaction) {
-    EconomyEvent event = this.event.apply(transaction);
-    Bukkit.getPluginManager().callEvent(event);
-    return event.isCancelled();
+    return !event.apply(transaction).callEvent();
   }
   
   public void execute(EconomicTransaction transaction) {
