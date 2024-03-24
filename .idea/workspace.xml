@@ -5,13 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dee9b785-01d5-4cd8-bd28-3b2549051344" name="Changes" comment="Small Changes">
-      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/HookManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/HookManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/PlaceholderHook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/PlaceholderHook.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/VaultHook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/hooks/VaultHook.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/Debug.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/Debug.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/QualityException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/imnotstable/qualityeconomy/util/QualityException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -460,14 +455,6 @@
       <option name="project" value="LOCAL" />
       <updated>1690409873668</updated>
     </task>
-    <task id="LOCAL-00015" summary="Seperated executors seperated from command registration, Added H2 storage, Added DEBUG_MODE functionality, Other changes as well">
-      <option name="closed" value="true" />
-      <created>1700354413734</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1700354413734</updated>
-    </task>
     <task id="LOCAL-00016" summary="Moved most functionality to QualityEconomyAPI, Added methods to QualityEconomyAPI, Added custom-currencies config option, Created Misc utility class, Made commands simpler, More changes...">
       <option name="closed" value="true" />
       <created>1700447901565</created>
@@ -828,7 +815,15 @@
       <option name="project" value="LOCAL" />
       <updated>1710465160702</updated>
     </task>
-    <option name="localTasksCounter" value="61" />
+    <task id="LOCAL-00061" summary="Small Changes">
+      <option name="closed" value="true" />
+      <created>1711313657077</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1711313657077</updated>
+    </task>
+    <option name="localTasksCounter" value="62" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

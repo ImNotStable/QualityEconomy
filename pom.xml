@@ -6,7 +6,7 @@
 
     <groupId>com.imnotstable</groupId>
     <artifactId>QualityEconomy</artifactId>
-    <version>1.4.7-BETA</version>
+    <version>1.4.7</version>
     <packaging>jar</packaging>
 
     <name>QualityEconomy</name>
@@ -102,10 +102,6 @@
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
-        <repository>
-            <id>codemc-repo</id>
-            <url>https://repo.codemc.io/repository/maven-public/</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -162,7 +158,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
+            <version>1.18.32</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
