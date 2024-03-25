@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Config {
-
+  
   private final QualityEconomy plugin;
   private final File file;
   public String STORAGE_TYPE;
@@ -33,7 +33,7 @@ public class Config {
   public long AUTO_SAVE_ACCOUNTS_INTERVAL;
   public Map<String, String> DATABASE_INFORMATION = new HashMap<>();
   public Map<String, Object> DATABASE_INFORMATION_ADVANCED_SETTINGS;
-
+  
   
   public Config(QualityEconomy plugin) {
     this.plugin = plugin;
@@ -46,8 +46,7 @@ public class Config {
       plugin.saveResource("config.yml", false);
     else
       update();
-    if (requiresDrasticUpdate())
-      drasticUpdate();
+    makeSafe();
     YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
     STORAGE_TYPE = config.getString("storage-type", "sqlite").toLowerCase();
     DECIMAL_PLACES = Math.max(config.getInt("decimal-places", 4), 0);
@@ -94,21 +93,31 @@ public class Config {
         save = true;
       }
       
-      if (save)
-        try {
-          config.save(file);
-        } catch (IOException exception) {
-          new Debug.QualityError("Failed to update config.yml", exception).log();
-        }
+      if (!save)
+        return;
+      try {
+        config.save(file);
+      } catch (IOException exception) {
+        new Debug.QualityError("Failed to update config.yml", exception).log();
+      }
     }
   }
   
-  private boolean requiresDrasticUpdate() {
-    return false;
+  private void makeSafe() {
+    YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+    boolean save = false;
+    int BACKUP_INTERVAL = config.getInt("backup-interval");
+    if (BACKUP_INTERVAL < 1800) {
+      config.set("backup-interval", BACKUP_INTERVAL * 3600);
+      save = true;
+    }
+    if (!save)
+      return;
+    try {
+      config.save(file);
+    } catch (IOException exception) {
+      new Debug.QualityError("Failed to update config.yml during safety analysis", exception).log();
+    }
   }
   
-  private void drasticUpdate() {
-  
-  }
-
 }
