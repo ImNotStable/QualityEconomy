@@ -1,8 +1,7 @@
 package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
@@ -60,7 +59,7 @@ public class MainCommand extends BaseCommand {
         .withRequirement(sender -> Debug.DEBUG_MODE)
         .executes(this::changeAllEntries)))
     .then(new LiteralArgument("economy")
-      .withRequirement(sender -> Configuration.isCustomCurrenciesEnabled())
+      .withRequirement(sender -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
       .then(new LiteralArgument("createCustomCurrency")
         .then(new StringArgument("name")
           .executes(this::createCustomCurrency)))
@@ -82,7 +81,7 @@ public class MainCommand extends BaseCommand {
     Misc.runAsync(() -> {
       Debug.Timer timer = new Debug.Timer("reload()");
       StorageManager.endStorageProcesses();
-      Configuration.load();
+      QualityEconomy.getQualityConfig().load();
       Messages.load();
       CommandManager.unregisterCommands();
       StorageManager.initStorageProcesses();

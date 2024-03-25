@@ -1,4 +1,4 @@
-package com.imnotstable.qualityeconomy.configuration;
+package com.imnotstable.qualityeconomy.config;
 
 import lombok.Getter;
 

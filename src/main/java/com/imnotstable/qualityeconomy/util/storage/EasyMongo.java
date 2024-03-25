@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy.util.storage;
 
-import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -12,6 +12,7 @@ import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class EasyMongo extends EasyCurrencies {
@@ -22,11 +23,12 @@ public class EasyMongo extends EasyCurrencies {
   protected MongoCollection<Document> currencyCollection = null;
   
   protected String getConnectionString() {
-    String database = Configuration.getDatabaseInfo(0, "qualityeconomy");
-    String address = Configuration.getDatabaseInfo(1, "localhost");
-    String port = Configuration.getDatabaseInfo(2, "27017");
-    String username = Configuration.getDatabaseInfo(3, "");
-    String password = Configuration.getDatabaseInfo(4, "");
+    Map<String, String> databaseInfo = QualityEconomy.getQualityConfig().DATABASE_INFORMATION;
+    String database = databaseInfo.getOrDefault("database", "qualityeconomy");
+    String address = databaseInfo.getOrDefault("address", "localhost");
+    String port = databaseInfo.getOrDefault("port", "27017");
+    String username = databaseInfo.getOrDefault("username", "");
+    String password = databaseInfo.getOrDefault("password", "");
     StringBuilder connectionStringBuilder = new StringBuilder("mongodb://");
     if (!username.isEmpty() && !password.isEmpty())
       connectionStringBuilder.append(username).append(":").append(password).append("@");
@@ -40,11 +42,11 @@ public class EasyMongo extends EasyCurrencies {
     Document document = new Document("UUID", account.getUniqueId());
     document.put("USERNAME", account.getUsername());
     document.put("BALANCE", account.getBalance());
-    if (Configuration.isCommandEnabled("pay"))
+    if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
       document.put("PAYABLE", account.isPayable());
-    if (Configuration.isCommandEnabled("request"))
+    if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
       document.put("REQUESTABLE", account.isRequestable());
-    if (Configuration.isCustomCurrenciesEnabled())
+    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
       for (String currency : currencies)
         document.put(currency, account.getCustomBalance(currency));
     return document;

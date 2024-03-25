@@ -4,9 +4,8 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.commands.RequestCommand;
 import com.imnotstable.qualityeconomy.commands.WithdrawCommand;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.configuration.MessageType;
-import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.config.MessageType;
+import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.economy.events.*;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
@@ -73,7 +72,7 @@ public enum EconomicTransactionType {
           Number.format(transaction.getAmount(), Number.FormatType.COMMAS), sender.getName());
       QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), transaction.getAmount());
     }, (transaction) -> String.format("$%s was transferred from %s to %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getEconomyPlayers()[1].getUsername())),
-  CUSTOM_BALANCE_RESET(Configuration::isCustomCurrenciesEnabled, CustomBalanceResetEvent::new,
+  CUSTOM_BALANCE_RESET(() -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES, CustomBalanceResetEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.setCustomBalance(target.getUniqueId(), transaction.getCurrency(), 0);
@@ -81,7 +80,7 @@ public enum EconomicTransactionType {
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_RESET,
           target.getUsername());
     }, (transaction) -> String.format("%s's custom balance (%s) was reset by %s", transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency(), transaction.getSender().getName())),
-  CUSTOM_BALANCE_SET(Configuration::isCustomCurrenciesEnabled, CustomBalanceSetEvent::new,
+  CUSTOM_BALANCE_SET(() -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES, CustomBalanceSetEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.setCustomBalance(target.getUniqueId(), transaction.getCurrency(), transaction.getAmount());
@@ -89,7 +88,7 @@ public enum EconomicTransactionType {
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_SET,
           Number.format(transaction.getAmount(), Number.FormatType.COMMAS), target.getUsername());
     }, (transaction) -> String.format("%s's custom balance (%s) was set to $%s by %s", transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getSender().getName())),
-  CUSTOM_BALANCE_ADD(Configuration::isCustomCurrenciesEnabled, CustomBalanceAddEvent::new,
+  CUSTOM_BALANCE_ADD(() -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES, CustomBalanceAddEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.addCustomBalance(target.getUniqueId(), transaction.getCurrency(), transaction.getAmount());
@@ -97,7 +96,7 @@ public enum EconomicTransactionType {
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_ADD,
           Number.format(transaction.getAmount(), Number.FormatType.COMMAS), target.getUsername());
     }, (transaction) -> String.format("$%s was added to %s's custom balance (%s) by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency(), transaction.getSender().getName())),
-  CUSTOM_BALANCE_REMOVE(Configuration::isCustomCurrenciesEnabled, CustomBalanceRemoveEvent::new,
+  CUSTOM_BALANCE_REMOVE(() -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES, CustomBalanceRemoveEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.removeCustomBalance(target.getUniqueId(), transaction.getCurrency(), transaction.getAmount());
@@ -105,7 +104,7 @@ public enum EconomicTransactionType {
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_REMOVE,
           Number.format(transaction.getAmount(), Number.FormatType.COMMAS), target.getUsername());
     }, (transaction) -> String.format("$%s was removed from %s's custom balance (%s) by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency(), transaction.getSender().getName())),
-  REQUEST(() -> Configuration.isCommandEnabled("request"), 2, RequestEvent::new,
+  REQUEST(() -> QualityEconomy.getQualityConfig().COMMANDS_REQUEST, 2, RequestEvent::new,
     transaction -> {
       Player requester = transaction.getEconomyPlayers()[0].getOfflineplayer().getPlayer();
       Player requestee = transaction.getEconomyPlayers()[1].getOfflineplayer().getPlayer();
@@ -123,7 +122,7 @@ public enum EconomicTransactionType {
         CommandAPI.updateRequirements(requestee);
       }, 1200);
     }, (transaction) -> String.format("%s requested $%s from %s", transaction.getEconomyPlayers()[0].getUsername(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[1].getUsername())),
-  REQUEST_ACCEPT(() -> Configuration.isCommandEnabled("request"), 2, RequestAcceptEvent::new,
+  REQUEST_ACCEPT(() -> QualityEconomy.getQualityConfig().COMMANDS_REQUEST, 2, RequestAcceptEvent::new,
     transaction -> {
       OfflinePlayer requester = transaction.getEconomyPlayers()[0].getOfflineplayer();
       Player requestee = transaction.getEconomyPlayers()[1].getOfflineplayer().getPlayer();
@@ -139,7 +138,7 @@ public enum EconomicTransactionType {
       QualityEconomyAPI.acceptRequest(requester.getUniqueId(), requestee.getUniqueId());
       CommandAPI.updateRequirements(requestee);
     }, (transaction) -> String.format("%s accepted %s's request for $%s", transaction.getEconomyPlayers()[1].getUsername(), transaction.getEconomyPlayers()[0].getUsername(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS))),
-  REQUEST_DENY(() -> Configuration.isCommandEnabled("request"), 2, RequestDenyEvent::new,
+  REQUEST_DENY(() -> QualityEconomy.getQualityConfig().COMMANDS_REQUEST, 2, RequestDenyEvent::new,
     transaction -> {
       OfflinePlayer requester = transaction.getEconomyPlayers()[0].getOfflineplayer();
       Player requestee = transaction.getEconomyPlayers()[1].getOfflineplayer().getPlayer();
@@ -153,7 +152,7 @@ public enum EconomicTransactionType {
       QualityEconomyAPI.denyRequest(requester.getUniqueId(), requestee.getUniqueId());
       CommandAPI.updateRequirements(requestee);
     }, (transaction) -> String.format("%s denied %s's request for $%s", transaction.getEconomyPlayers()[1].getUsername(), transaction.getEconomyPlayers()[0].getUsername(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS))),
-  WITHDRAW(() -> Configuration.isCommandEnabled("withdraw"), false, WithdrawEvent::new,
+  WITHDRAW(() -> QualityEconomy.getQualityConfig().BANKNOTES, false, WithdrawEvent::new,
     transaction -> {
       Player sender = transaction.getEconomyPlayers()[0].getOfflineplayer().getPlayer();
       double amount = transaction.getAmount();
@@ -164,7 +163,7 @@ public enum EconomicTransactionType {
           Number.format(amount, Number.FormatType.COMMAS)
         );
     }, (transaction) -> String.format("$%s was withdrawn by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername())),
-  WITHDRAW_CLAIM(() -> Configuration.isCommandEnabled("withdraw"), false, WithdrawClaimEvent::new,
+  WITHDRAW_CLAIM(() -> QualityEconomy.getQualityConfig().BANKNOTES, false, WithdrawClaimEvent::new,
     transaction -> {
       Player player = transaction.getEconomyPlayers()[0].getOfflineplayer().getPlayer();
       ItemStack itemStack = player.getInventory().getItem(player.getInventory().getHeldItemSlot());
@@ -229,14 +228,14 @@ public enum EconomicTransactionType {
         if (!transaction.isCancelled())
           executor.accept(transaction);
         
-        if (Configuration.isTransactionLoggingEnabled())
+        if (QualityEconomy.getQualityConfig().TRANSACTION_LOGGING)
           TransactionLogger.log(transaction);
       });
     else {
       if (!transaction.isCancelled())
         executor.accept(transaction);
       
-      if (Configuration.isTransactionLoggingEnabled())
+      if (QualityEconomy.getQualityConfig().TRANSACTION_LOGGING)
         TransactionLogger.log(transaction);
     }
   }

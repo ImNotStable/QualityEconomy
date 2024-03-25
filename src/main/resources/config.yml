@@ -32,12 +32,9 @@ commands:
 # Whether you want custom currency functionality enabled.
 custom-currencies: false
 
-# Number in hours (decimals allowed)
-# 0 to disable
-backup-interval: 6
-
 # Number in seconds
 # 0 to disable
+backup-interval: 21600
 balancetop-interval: 5
 autosave-accounts-interval: 60
 

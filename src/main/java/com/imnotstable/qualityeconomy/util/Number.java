@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy.util;
 
-import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -46,17 +46,17 @@ public class Number {
   }
   
   public static double round(double n) {
-    if (Configuration.getDecimalPlaces() == -1)
+    if (QualityEconomy.getQualityConfig().DECIMAL_PLACES == -1)
       return n;
-    double multiplier = Math.pow(10, Configuration.getDecimalPlaces());
+    double multiplier = Math.pow(10, QualityEconomy.getQualityConfig().DECIMAL_PLACES);
     return Math.floor(n * multiplier) / multiplier;
   }
   
   public static double getMinimumValue() {
-    if (Configuration.getDecimalPlaces() <= 0)
+    if (QualityEconomy.getQualityConfig().DECIMAL_PLACES <= 0)
       return 0.0;
     else
-      return Math.pow(10, -Configuration.getDecimalPlaces());
+      return Math.pow(10, -QualityEconomy.getQualityConfig().DECIMAL_PLACES);
   }
   
   @AllArgsConstructor

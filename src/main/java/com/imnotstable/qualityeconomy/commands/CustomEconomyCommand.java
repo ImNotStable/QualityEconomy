@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy.commands;
 
-import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
 import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
@@ -29,7 +29,7 @@ public class CustomEconomyCommand extends BaseCommand {
   
   @SuppressWarnings("SimplifiableConditionalExpression")
   public void register() {
-    super.register(command, Configuration.isCustomCurrenciesEnabled() ? !StorageManager.getActiveStorageType().getCurrencies().isEmpty() : false);
+    super.register(command, (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES ? !StorageManager.getActiveStorageType().getCurrencies().isEmpty() : false) && QualityEconomy.getQualityConfig().COMMANDS_CUSTOMECONOMY);
   }
   
   public void unregister() {

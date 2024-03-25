@@ -6,7 +6,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.commands.CommandManager;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.storage.storageformats.JsonStorageType;
@@ -48,7 +47,7 @@ public class StorageManager implements Listener {
     if (activeStorageType != null)
       return;
     Debug.Timer timer = new Debug.Timer("initStorageProcesses()");
-    switch (Configuration.getStorageType()) {
+    switch (QualityEconomy.getQualityConfig().STORAGE_TYPE) {
       case "h2" -> activeStorageType = new SQLStorageType(1);
       case "sqlite" -> activeStorageType = new SQLStorageType(2);
       case "mysql" -> activeStorageType = new SQLStorageType(3);
@@ -58,7 +57,7 @@ public class StorageManager implements Listener {
       case "json" -> activeStorageType = new JsonStorageType();
       case "yaml" -> activeStorageType = new YamlStorageType();
       default -> {
-        new Debug.QualityError("Unexpected Storage Type: " + Configuration.getStorageType()).log();
+        new Debug.QualityError("Unexpected Storage Type: " + QualityEconomy.getQualityConfig().STORAGE_TYPE).log();
         timer.interrupt();
         Bukkit.getPluginManager().disablePlugin(QualityEconomy.getInstance());
         return;
@@ -70,17 +69,17 @@ public class StorageManager implements Listener {
       return;
     }
     AccountManager.setupAccounts();
-    if (Configuration.getAutoSaveAccountsInterval() > 0)
+    if (QualityEconomy.getQualityConfig().AUTO_SAVE_ACCOUNTS_INTERVAL > 0)
       accountSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(),
         AccountManager::saveAllAccounts,
-        Configuration.getAutoSaveAccountsInterval(),
-        Configuration.getAutoSaveAccountsInterval()
+        QualityEconomy.getQualityConfig().AUTO_SAVE_ACCOUNTS_INTERVAL,
+        QualityEconomy.getQualityConfig().AUTO_SAVE_ACCOUNTS_INTERVAL
       ).getTaskId();
-    if (Configuration.getBackupInterval() > 0)
+    if (QualityEconomy.getQualityConfig().BACKUP_INTERVAL > 0)
       backupSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(),
         () -> exportDatabase("plugins/QualityEconomy/backups/"),
-        Configuration.getBackupInterval(),
-        Configuration.getBackupInterval()
+        QualityEconomy.getQualityConfig().BACKUP_INTERVAL,
+        QualityEconomy.getQualityConfig().BACKUP_INTERVAL
       ).getTaskId();
     timer.end();
   }
@@ -162,7 +161,7 @@ public class StorageManager implements Listener {
         }
       Gson gson = new Gson();
       JsonObject root = new JsonObject();
-      if (Configuration.isCustomCurrenciesEnabled())
+      if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
         root.add("CUSTOM-CURRENCIES", gson.toJsonTree(getActiveStorageType().getCurrencies()));
       getActiveStorageType().getAllAccounts().forEach((uuid, account) -> {
         JsonObject accountJson = new JsonObject();
@@ -185,7 +184,7 @@ public class StorageManager implements Listener {
   
   public static void addCurrency(String currency) {
     currency = currency.toUpperCase();
-    if (!Configuration.isCustomCurrenciesEnabled()) {
+    if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
       new Debug.QualityError("This feature is disabled within QualityEconomy's configuration").log();
       return;
     }
@@ -205,7 +204,7 @@ public class StorageManager implements Listener {
   
   public static void removeCurrency(String currency) {
     currency = currency.toUpperCase();
-    if (!Configuration.isCustomCurrenciesEnabled()) {
+    if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
       new Debug.QualityError("This feature is disabled within QualityEconomy's configuration").log();
       return;
     }

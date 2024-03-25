@@ -2,9 +2,8 @@ package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.configuration.MessageType;
-import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.config.MessageType;
+import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
 import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
@@ -52,13 +51,13 @@ public class WithdrawCommand extends BaseCommand {
   }
   
   public void register() {
-    super.register(command);
+    super.register(command, QualityEconomy.getQualityConfig().BANKNOTES);
     Bukkit.getPluginManager().registerEvents(new Listener() {
       
       @SneakyThrows
       @EventHandler
       public void on(PlayerInteractEvent event) {
-        if (!Configuration.isCommandEnabled(command.getName()) || !event.getAction().isRightClick() || event.getItem() == null || !event.getItem().getType().equals(Material.PAPER))
+        if (!QualityEconomy.getQualityConfig().BANKNOTES || !event.getAction().isRightClick() || event.getItem() == null || !event.getItem().getType().equals(Material.PAPER))
           return;
         PersistentDataContainer persistentDataContainer = event.getItem().getItemMeta().getPersistentDataContainer();
         if (!persistentDataContainer.has(amountKey) || !persistentDataContainer.has(ownerKey))

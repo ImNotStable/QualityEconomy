@@ -1,6 +1,5 @@
 package com.imnotstable.qualityeconomy.commands;
 
-import com.imnotstable.qualityeconomy.configuration.Configuration;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 
@@ -17,7 +16,7 @@ public abstract class BaseCommand {
   }
   
   protected boolean register(CommandTree command, boolean conditions) {
-    if (isRegistered || !Configuration.isCommandEnabled(command.getName()) || !conditions)
+    if (isRegistered || !conditions)
       return false;
     command.register();
     isRegistered = true;

@@ -1,8 +1,9 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.configuration.MessageType;
-import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.config.MessageType;
+import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
 import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
@@ -47,7 +48,7 @@ public class RequestCommand extends BaseCommand {
           .executesPlayer(this::request))));
   
   public void register() {
-    if (!super.register(command))
+    if (!super.register(command, QualityEconomy.getQualityConfig().COMMANDS_REQUEST))
       return;
     requests = new ConcurrentHashMap<>();
   }

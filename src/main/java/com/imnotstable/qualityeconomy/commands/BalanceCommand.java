@@ -1,8 +1,9 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.configuration.MessageType;
-import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.config.MessageType;
+import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandTree;
@@ -20,7 +21,7 @@ public class BalanceCommand extends BaseCommand {
     .executesPlayer(this::viewOwnBalance);
   
   public void register() {
-    super.register(command);
+    super.register(command, QualityEconomy.getQualityConfig().COMMANDS_BALANCE);
   }
   
   public void unregister() {

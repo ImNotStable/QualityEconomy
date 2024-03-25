@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
@@ -86,11 +86,11 @@ public class JsonStorageType extends EasyJson implements StorageType {
       Account account = new Account(uuid)
         .setUsername(accountJson.get("USERNAME").getAsString())
         .setBalance(accountJson.get("BALANCE").getAsDouble());
-      if (Configuration.isCommandEnabled("pay"))
+      if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
         account.setPayable(accountJson.get("PAYABLE").getAsBoolean());
-      if (Configuration.isCommandEnabled("request"))
+      if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
         account.setPayable(accountJson.get("REQUESTABLE").getAsBoolean());
-      if (Configuration.isCustomCurrenciesEnabled())
+      if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
         for (String currency : getCurrencies())
           account.setCustomBalance(currency, accountJson.get(currency).getAsDouble());
       accounts.put(uuid, account);

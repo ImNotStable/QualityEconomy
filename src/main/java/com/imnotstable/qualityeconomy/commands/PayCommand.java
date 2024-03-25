@@ -1,8 +1,9 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.configuration.MessageType;
-import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.config.MessageType;
+import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
 import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
@@ -25,7 +26,7 @@ public class PayCommand extends BaseCommand {
         .executesPlayer(this::pay)));
   
   public void register() {
-    super.register(command);
+    super.register(command, QualityEconomy.getQualityConfig().COMMANDS_PAY);
   }
   
   public void unregister() {

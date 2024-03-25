@@ -1,7 +1,7 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.commands.CommandManager;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
@@ -63,7 +63,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   public synchronized void wipeDatabase() {
     try (Connection connection = getConnection()) {
       dropPlayerDataTable(connection);
-      if (Configuration.isCustomCurrenciesEnabled())
+      if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
         dropCurrencyTable(connection);
       endStorageProcesses();
       initStorageProcesses();
@@ -124,11 +124,11 @@ public class SQLStorageType extends EasySQL implements StorageType {
         Account account = new Account(uuid)
           .setUsername(resultSet.getString("USERNAME"))
           .setBalance(resultSet.getDouble("BALANCE"));
-        if (Configuration.isCommandEnabled("pay"))
+        if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
           account.setPayable(resultSet.getBoolean("PAYABLE"));
-        if (Configuration.isCommandEnabled("request"))
+        if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
           account.setRequestable(resultSet.getBoolean("REQUESTABLE"));
-        if (Configuration.isCustomCurrenciesEnabled()) {
+        if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
           Map<String, Double> customCurrencies = new HashMap<>();
           for (String currency : currencies) {
             customCurrencies.put(currency, resultSet.getDouble(currency));
@@ -154,11 +154,11 @@ public class SQLStorageType extends EasySQL implements StorageType {
           account.update();
           preparedStatement.setString(1, account.getUsername());
           preparedStatement.setDouble(2, account.getBalance());
-          if (Configuration.isCommandEnabled("pay"))
+          if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
             preparedStatement.setBoolean(columns.indexOf("PAYABLE"), account.isPayable());
-          if (Configuration.isCommandEnabled("request"))
+          if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
             preparedStatement.setBoolean(columns.indexOf("REQUESTABLE"), account.isRequestable());
-          if (Configuration.isCustomCurrenciesEnabled())
+          if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
             for (String currency : currencies)
               preparedStatement.setDouble(columns.indexOf(currency), account.getCustomBalance(currency));
           preparedStatement.setString(columns.size(), account.getUniqueId().toString());
@@ -223,15 +223,15 @@ public class SQLStorageType extends EasySQL implements StorageType {
           currencies.add(resultSet.getString(1));
       }
     }
-    if (Configuration.isCustomCurrenciesEnabled() && !tableExists)
+    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES && !tableExists)
       createCurrencyTable(connection);
-    else if (!Configuration.isCustomCurrenciesEnabled() && tableExists)
+    else if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES && tableExists)
       dropCurrencyTable(connection);
   }
   
   private void toggleColumns(Connection connection) throws SQLException {
     DatabaseMetaData metaData = connection.getMetaData();
-    if (Configuration.isCustomCurrenciesEnabled()) {
+    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
       CommandManager.getCommand("custombalance").register();
       CommandManager.getCommand("customeconomy").register();
       for (String currency : currencies)
@@ -245,14 +245,14 @@ public class SQLStorageType extends EasySQL implements StorageType {
           dropColumn(connection, currency);
     }
     boolean payableExists = columnExists(metaData, "PAYABLE");
-    if (Configuration.isCommandEnabled("pay") && !payableExists)
+    if (QualityEconomy.getQualityConfig().COMMANDS_PAY && !payableExists)
       addColumn(connection, "PAYABLE", "BOOLEAN", "TRUE");
-    else if (!Configuration.isCommandEnabled("pay") && payableExists)
+    else if (!QualityEconomy.getQualityConfig().COMMANDS_PAY && payableExists)
       dropColumn(connection, "PAYABLE");
     boolean requestableExists = columnExists(metaData, "REQUESTABLE");
-    if (Configuration.isCommandEnabled("request") && !requestableExists)
+    if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST && !requestableExists)
       addColumn(connection, "REQUESTABLE", "BOOLEAN", "FALSE");
-    else if (!Configuration.isCommandEnabled("request") && requestableExists)
+    else if (!QualityEconomy.getQualityConfig().COMMANDS_REQUEST && requestableExists)
       dropColumn(connection, "REQUESTABLE");
   }
   

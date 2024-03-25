@@ -1,4 +1,4 @@
-package com.imnotstable.qualityeconomy.configuration;
+package com.imnotstable.qualityeconomy.config;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.util.Debug;

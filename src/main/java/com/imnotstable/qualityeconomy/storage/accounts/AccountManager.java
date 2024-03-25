@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy.storage.accounts;
 
-import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Misc;
@@ -62,7 +62,7 @@ public class AccountManager {
       Debug.Timer timer = new Debug.Timer(String.format("createFakeAccounts(%d)", entries));
       Collection<Account> accounts = new ArrayList<>();
       Random random = new Random();
-      Collection<String> currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
+      Collection<String> currencies = QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES ? StorageManager.getActiveStorageType().getCurrencies() : new ArrayList<>();
       for (int i = 0; i < entries; ++i) {
         UUID uuid = UUID.randomUUID();
         HashMap<String, Double> customBalances = new HashMap<>();
@@ -84,7 +84,7 @@ public class AccountManager {
     Misc.runAsync(() -> {
       Debug.Timer timer = new Debug.Timer("changeAllAccounts()");
       Random random = new Random();
-      String[] currencies = Configuration.isCustomCurrenciesEnabled() ? StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0]) : null;
+      String[] currencies = QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES ? StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0]) : null;
       accounts.values().forEach(account -> {
         HashMap<String, Double> customBalances = new HashMap<>();
         for (String currency : currencies) {

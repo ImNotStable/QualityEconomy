@@ -6,7 +6,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.util.Debug;
 
@@ -26,17 +25,17 @@ public class EasyJson extends EasyCurrencies {
     JsonObject json = new JsonObject();
     json.addProperty("USERNAME", account.getUsername());
     json.addProperty("BALANCE", account.getBalance());
-    if (Configuration.isCommandEnabled("pay"))
+    if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
       json.addProperty("PAYABLE", account.isPayable());
-    if (Configuration.isCommandEnabled("request"))
+    if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
       json.addProperty("REQUESTABLE", account.isRequestable());
-    if (Configuration.isCustomCurrenciesEnabled())
+    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
       account.getCustomBalances().forEach(json::addProperty);
     return json;
   }
   
   protected void toggleCustomCurrencies() {
-    if (Configuration.isCustomCurrenciesEnabled()) {
+    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
       if (!json.has("custom-currencies"))
         json.add("custom-currencies", new JsonArray());
       json.getAsJsonArray("custom-currencies").forEach(currency -> currencies.add(currency.getAsString()));

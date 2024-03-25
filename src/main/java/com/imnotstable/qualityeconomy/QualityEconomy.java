@@ -1,8 +1,8 @@
 package com.imnotstable.qualityeconomy;
 
 import com.imnotstable.qualityeconomy.commands.CommandManager;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.config.Config;
+import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.hooks.HookManager;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
@@ -22,6 +22,8 @@ public final class QualityEconomy extends JavaPlugin {
   
   @Getter
   private static QualityEconomy instance;
+  @Getter
+  private static Config qualityConfig;
   
   @Override
   public void onLoad() {
@@ -42,7 +44,7 @@ public final class QualityEconomy extends JavaPlugin {
     instance = this;
     CommandAPI.onEnable();
     
-    Configuration.load();
+    qualityConfig = new Config(this);
     Messages.load();
     
     StorageManager.initStorageProcesses();
@@ -64,4 +66,5 @@ public final class QualityEconomy extends JavaPlugin {
     CommandAPI.onDisable();
     timer.end();
   }
+  
 }

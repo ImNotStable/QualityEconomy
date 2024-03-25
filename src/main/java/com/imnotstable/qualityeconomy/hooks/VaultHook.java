@@ -2,7 +2,6 @@ package com.imnotstable.qualityeconomy.hooks;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.Number;
@@ -64,7 +63,7 @@ public class VaultHook {
     
     @Override
     public int fractionalDigits() {
-      return Configuration.getDecimalPlaces();
+      return QualityEconomy.getQualityConfig().DECIMAL_PLACES;
     }
     
     @Override

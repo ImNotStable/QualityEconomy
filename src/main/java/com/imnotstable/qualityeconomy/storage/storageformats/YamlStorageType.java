@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
-import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
@@ -79,11 +79,11 @@ public class YamlStorageType extends EasyYaml implements StorageType {
       Account account = new Account(UUID.fromString(uuid));
       account.setUsername(yaml.getString(uuid + ".USERNAME"));
       account.setBalance(yaml.getDouble(uuid + ".BALANCE"));
-      if (Configuration.isCommandEnabled("pay"))
+      if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
         account.setPayable(yaml.getBoolean(uuid + ".PAYABLE"));
-      if (Configuration.isCommandEnabled("request"))
+      if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
         account.setRequestable(yaml.getBoolean(uuid + ".REQUESTABLE"));
-      if (Configuration.isCustomCurrenciesEnabled())
+      if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
         for (String currency : getCurrencies())
           account.setCustomBalance(currency, yaml.getDouble(uuid + "." + currency));
       accounts.put(account.getUniqueId(), account);

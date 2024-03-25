@@ -1,9 +1,9 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.configuration.MessageType;
-import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.config.MessageType;
+import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
@@ -24,7 +24,7 @@ public class CustomBalanceCommand extends BaseCommand {
   
   @SuppressWarnings("SimplifiableConditionalExpression")
   public void register() {
-    super.register(command, Configuration.isCustomCurrenciesEnabled() ? !StorageManager.getActiveStorageType().getCurrencies().isEmpty() : false);
+    super.register(command, (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES ? !StorageManager.getActiveStorageType().getCurrencies().isEmpty() : false) && QualityEconomy.getQualityConfig().COMMANDS_CUSTOMBALANCE);
   }
   
   public void unregister() {

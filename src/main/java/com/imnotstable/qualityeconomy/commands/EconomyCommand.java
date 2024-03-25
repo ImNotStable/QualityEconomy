@@ -1,5 +1,6 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
 import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
@@ -23,7 +24,7 @@ public class EconomyCommand extends BaseCommand {
       .then(new LiteralArgument("remove").then(CommandUtils.AmountArgument().executes(this::removeBalance))));
   
   public void register() {
-    super.register(command);
+    super.register(command, QualityEconomy.getQualityConfig().COMMANDS_ECONOMY);
   }
   
   public void unregister() {

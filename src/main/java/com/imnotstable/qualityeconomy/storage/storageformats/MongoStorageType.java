@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
-import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
@@ -76,9 +76,9 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   
   @Override
   public synchronized void saveAllAccounts() {
-    boolean isPayEnabled = Configuration.isCommandEnabled("pay");
-    boolean isRequestEnabled = Configuration.isCommandEnabled("request");
-    boolean isCustomCurrenciesEnabled = Configuration.isCustomCurrenciesEnabled();
+    boolean isPayEnabled = QualityEconomy.getQualityConfig().COMMANDS_PAY;
+    boolean isRequestEnabled = QualityEconomy.getQualityConfig().COMMANDS_REQUEST;
+    boolean isCustomCurrenciesEnabled = QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES;
     String[] currencies = isCustomCurrenciesEnabled ? getCurrencies().toArray(new String[0]) : null;
     
     List<WriteModel<Document>> updates = new ArrayList<>(AccountManager.getAllAccounts().size());
@@ -113,11 +113,11 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     playerDataCollection.find().forEach(document -> {
       UUID uuid = document.get("UUID", UUID.class);
       Account account = new Account(uuid).setUsername(document.getString("USERNAME")).setBalance(document.getDouble("BALANCE"));
-      if (Configuration.isCommandEnabled("pay"))
+      if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
         account.setPayable(document.getBoolean("PAYABLE"));
-      if (Configuration.isCommandEnabled("request"))
+      if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
         account.setRequestable(document.getBoolean("REQUESTABLE"));
-      if (Configuration.isCustomCurrenciesEnabled())
+      if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
         for (String currency : currencies)
           account.setCustomBalance(currency, document.getDouble(currency));
       accounts.put(uuid, account);
@@ -158,11 +158,11 @@ public class MongoStorageType extends EasyMongo implements StorageType {
         collection.find().forEach(document -> currencies.add((String) document.get("CURRENCY")));
         break;
       }
-    if (Configuration.isCustomCurrenciesEnabled() && !collectionExists) {
+    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES && !collectionExists) {
       super.currencies.addAll(currencies);
       data.createCollection("CURRENCIES");
       currencyCollection = data.getCollection("CURRENCIES");
-    } else if (!Configuration.isCustomCurrenciesEnabled() && collectionExists) {
+    } else if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES && collectionExists) {
       currencies.forEach(super::wipeEntry);
       data.getCollection("CURRENCIES").drop();
       currencyCollection = null;
@@ -170,14 +170,14 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   }
   
   private void togglePayable() {
-    if (Configuration.isCommandEnabled("pay"))
+    if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
       setDefaultValue("PAYABLE", true);
     else
       wipeEntry("PAYABLE");
   }
   
   private void toggleRequestable() {
-    if (Configuration.isCommandEnabled("request"))
+    if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
       setDefaultValue("REQUESTABLE", false);
     else
       wipeEntry("REQUESTABLE");

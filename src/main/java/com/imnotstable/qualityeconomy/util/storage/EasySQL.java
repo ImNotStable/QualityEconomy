@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy.util.storage;
 
-import com.imnotstable.qualityeconomy.configuration.Configuration;
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Misc;
@@ -85,20 +85,21 @@ public class EasySQL extends EasyCurrencies {
   }
   
   private void setupDatasource(HikariConfig hikariConfig, String type) {
-    String database = Configuration.getDatabaseInfo(0, "qualityeconomy");
-    String address = Configuration.getDatabaseInfo(1, "localhost");
-    String port = Configuration.getDatabaseInfo(2, "3306");
-    String username = Configuration.getDatabaseInfo(3, "root");
-    String password = Configuration.getDatabaseInfo(4, "root");
+    Map<String, String> databaseInfo = QualityEconomy.getQualityConfig().DATABASE_INFORMATION;
+    String database = databaseInfo.getOrDefault("database", "qualityeconomy");
+    String address = databaseInfo.getOrDefault("address", "localhost");
+    String port = databaseInfo.getOrDefault("port", "3306");
+    String username = databaseInfo.getOrDefault("username", "root");
+    String password = databaseInfo.getOrDefault("password", "root");
     hikariConfig.setJdbcUrl(String.format("jdbc:%s://%s:%s/%s", type, address, port, database));
     hikariConfig.setUsername(username);
     hikariConfig.setPassword(password);
-    Map<String, Integer> settings = Configuration.getAdvancedSettings();
-    hikariConfig.setMaximumPoolSize(settings.get("maximum-pool-size"));
-    hikariConfig.setMinimumIdle(settings.get("minimum-idle"));
-    hikariConfig.setMaxLifetime(settings.get("maximum-liftime"));
-    hikariConfig.setKeepaliveTime(settings.get("keepalive-time"));
-    hikariConfig.setConnectionTimeout(settings.get("connection-timeout"));
+    Map<String, Object> settings = QualityEconomy.getQualityConfig().DATABASE_INFORMATION_ADVANCED_SETTINGS;
+    hikariConfig.setMaximumPoolSize((int) settings.getOrDefault("maximum-pool-size", 10));
+    hikariConfig.setMinimumIdle((int) settings.getOrDefault("minimum-idle", 10));
+    hikariConfig.setMaxLifetime((int) settings.getOrDefault("maximum-liftime", 1800000));
+    hikariConfig.setKeepaliveTime((int) settings.getOrDefault("keepalive-time", 0));
+    hikariConfig.setConnectionTimeout((int) settings.getOrDefault("connection-timeout", 5000));
   }
   
   protected void createPlayerDataTable(Connection connection) throws SQLException {
@@ -172,11 +173,11 @@ public class EasySQL extends EasyCurrencies {
     preparedStatement.setString(1, uuid.toString());
     preparedStatement.setString(2, account.getUsername());
     preparedStatement.setDouble(3, account.getBalance());
-    if (Configuration.isCommandEnabled("pay"))
+    if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
       preparedStatement.setBoolean(columns.indexOf("PAYABLE") + 1, account.isPayable());
-    if (Configuration.isCommandEnabled("request"))
+    if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
       preparedStatement.setBoolean(columns.indexOf("REQUESTABLE") + 1, account.isRequestable());
-    if (Configuration.isCustomCurrenciesEnabled())
+    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
       for (String currency : currencies)
         preparedStatement.setDouble(columns.indexOf(currency) + 1, account.getCustomBalance(currency));
   }

@@ -1,9 +1,8 @@
 package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
-import com.imnotstable.qualityeconomy.configuration.MessageType;
-import com.imnotstable.qualityeconomy.configuration.Messages;
+import com.imnotstable.qualityeconomy.config.MessageType;
+import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
@@ -36,10 +35,11 @@ public class BalanceTopCommand extends BaseCommand {
   private Integer taskID = null;
   
   public void register() {
-    if (!super.register(command))
+    if (!super.register(command, QualityEconomy.getQualityConfig().COMMANDS_BALANCETOP))
       return;
-    if (Configuration.getBalancetopInterval() != 0)
-      taskID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(), this::updateBalanceTop, 0L, Configuration.getBalancetopInterval()).getTaskId();
+    long interval = QualityEconomy.getQualityConfig().BALANCETOP_INTERVAL;
+    if (interval != 0)
+      taskID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(), this::updateBalanceTop, 0L, interval).getTaskId();
   }
   
   public void unregister() {

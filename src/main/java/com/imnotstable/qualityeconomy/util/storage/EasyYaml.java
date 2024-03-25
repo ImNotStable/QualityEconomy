@@ -1,7 +1,6 @@
 package com.imnotstable.qualityeconomy.util.storage;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.util.Debug;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -21,16 +20,16 @@ public class EasyYaml extends EasyCurrencies {
     UUID uuid = account.getUniqueId();
     yaml.set(uuid + ".USERNAME", account.getUsername());
     yaml.set(uuid + ".BALANCE", account.getBalance());
-    if (Configuration.isCommandEnabled("pay"))
+    if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
       yaml.set(uuid + ".PAYABLE", account.isPayable());
-    if (Configuration.isCommandEnabled("request"))
+    if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
       yaml.set(uuid + ".REQUESTABLE", account.isRequestable());
-    if (Configuration.isCustomCurrenciesEnabled())
+    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
       account.getCustomBalances().forEach((currency, balance) -> yaml.set(uuid + "." + currency, balance));
   }
   
   protected void toggleCustomCurrencies() {
-    if (Configuration.isCustomCurrenciesEnabled()) {
+    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
       if (!yaml.contains("custom-currencies"))
         yaml.set("custom-currencies", new ArrayList<String>());
       currencies.addAll(yaml.getStringList("custom-currencies"));

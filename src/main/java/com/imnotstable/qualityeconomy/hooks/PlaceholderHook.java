@@ -3,7 +3,6 @@ package com.imnotstable.qualityeconomy.hooks;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
-import com.imnotstable.qualityeconomy.configuration.Configuration;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.Misc;
@@ -102,7 +101,7 @@ public class PlaceholderHook {
             return Number.format(QualityEconomyAPI.getBalance(uuid), Number.FormatType.NORMAL);
           }
           case "cbalance" -> {
-            if (!Configuration.isCustomCurrenciesEnabled())
+            if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
               return "Feature is disabled";
             if (!QualityEconomyAPI.doesCustomCurrencyExist(elements[1]))
               return "Currency does not exist";
@@ -118,9 +117,7 @@ public class PlaceholderHook {
             return String.valueOf(QualityEconomyAPI.isRequestable(uuid));
           }
         }
-      } catch (Exception ignored) {
-        return null;
-      }
+      } catch (Exception ignored) {}
       
       return null;
     }
