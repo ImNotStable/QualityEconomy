@@ -24,6 +24,8 @@ public final class QualityEconomy extends JavaPlugin {
   private static QualityEconomy instance;
   @Getter
   private static Config qualityConfig;
+  @Getter
+  private static Messages qualityMessages;
   
   @Override
   public void onLoad() {
@@ -32,8 +34,8 @@ public final class QualityEconomy extends JavaPlugin {
       Logger.log(Component.text("Enabled DEBUG_MODE", NamedTextColor.GRAY));
     }
     CommandAPI.onLoad(new CommandAPIBukkitConfig(this)
-        .verboseOutput(Debug.DEBUG_MODE)
-        .silentLogs(!Debug.DEBUG_MODE)
+      .verboseOutput(Debug.DEBUG_MODE)
+      .silentLogs(!Debug.DEBUG_MODE)
     );
   }
   
@@ -44,7 +46,7 @@ public final class QualityEconomy extends JavaPlugin {
     CommandAPI.onEnable();
     
     qualityConfig = new Config(this);
-    Messages.load();
+    qualityMessages = new Messages(this);
     
     StorageManager.initStorageProcesses();
     CommandManager.registerCommands();

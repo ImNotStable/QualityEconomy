@@ -1,7 +1,6 @@
 package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
@@ -82,7 +81,7 @@ public class MainCommand extends BaseCommand {
       Debug.Timer timer = new Debug.Timer("reload()");
       StorageManager.endStorageProcesses();
       QualityEconomy.getQualityConfig().load();
-      Messages.load();
+      QualityEconomy.getQualityMessages().load();
       CommandManager.unregisterCommands();
       StorageManager.initStorageProcesses();
       CommandManager.registerCommands();
@@ -92,7 +91,7 @@ public class MainCommand extends BaseCommand {
   }
   
   private void reloadMessages(CommandSender sender, CommandArguments args) {
-    Messages.load();
+    QualityEconomy.getQualityMessages().load();
     sender.sendMessage(Component.text("Reloading QualityEconomy messages.yml...", NamedTextColor.GRAY));
   }
   
