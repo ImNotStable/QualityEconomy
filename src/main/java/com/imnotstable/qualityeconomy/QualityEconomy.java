@@ -6,7 +6,6 @@ import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.hooks.HookManager;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
-import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.UpdateChecker;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
@@ -31,7 +30,7 @@ public final class QualityEconomy extends JavaPlugin {
   public void onLoad() {
     if (new File(getDataFolder(), "debug_mode").exists()) {
       Debug.DEBUG_MODE = true;
-      Logger.log(Component.text("Enabled DEBUG_MODE", NamedTextColor.GRAY));
+      Debug.Logger.log(Component.text("Enabled DEBUG_MODE", NamedTextColor.GRAY));
     }
     CommandAPI.onLoad(new CommandAPIBukkitConfig(this)
       .verboseOutput(Debug.DEBUG_MODE)

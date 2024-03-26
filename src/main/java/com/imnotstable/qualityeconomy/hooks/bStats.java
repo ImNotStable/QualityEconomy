@@ -12,6 +12,7 @@ public class bStats {
     metrics.addCustomChart(new SimplePie("custom_currency_usage", () -> String.valueOf(QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)));
     metrics.addCustomChart(new SimplePie("vault_usage", () -> String.valueOf(HookManager.isVaultEnabled())));
     metrics.addCustomChart(new SimplePie("placeholderapi_usage", () -> String.valueOf(HookManager.isPlaceholderapiEnabled())));
+    metrics.addCustomChart(new SimplePie("update_notifications_usage", () -> String.valueOf(QualityEconomy.getQualityConfig().UPDATE_NOTIFICATIONS)));
     metrics.addCustomChart(new SimplePie("command_usage_balance", () -> String.valueOf(QualityEconomy.getQualityConfig().COMMANDS_BALANCE)));
     metrics.addCustomChart(new SimplePie("command_usage_balancetop", () -> String.valueOf(QualityEconomy.getQualityConfig().COMMANDS_BALANCETOP)));
     metrics.addCustomChart(new SimplePie("command_usage_custombalance", () -> String.valueOf(QualityEconomy.getQualityConfig().COMMANDS_CUSTOMBALANCE)));

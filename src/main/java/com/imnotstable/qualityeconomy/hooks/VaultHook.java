@@ -3,7 +3,6 @@ package com.imnotstable.qualityeconomy.hooks;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.util.Debug;
-import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.QualityException;
 import net.kyori.adventure.text.Component;
@@ -41,7 +40,7 @@ public class VaultHook {
       
       economyProvider = registeredServiceProvider.getProvider();
       
-      Logger.log(Component.text("Successfully registered economy with Vault", NamedTextColor.GREEN));
+      Debug.Logger.log(Component.text("Successfully registered economy with Vault", NamedTextColor.GREEN));
       return true;
     } catch (QualityException exception) {
       new Debug.QualityError("Failed to register QualityEconomy with Vault", exception).log();

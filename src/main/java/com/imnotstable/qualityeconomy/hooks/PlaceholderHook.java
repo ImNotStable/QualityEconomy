@@ -4,7 +4,6 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
 import com.imnotstable.qualityeconomy.util.Debug;
-import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -24,7 +23,7 @@ public class PlaceholderHook {
       return false;
     
     if (new HookProvider().register()) {
-      Logger.log(Component.text("Successfully registered expansion with PlaceholderAPI", NamedTextColor.GREEN));
+      Debug.Logger.log(Component.text("Successfully registered expansion with PlaceholderAPI", NamedTextColor.GREEN));
       return true;
     }
     return false;

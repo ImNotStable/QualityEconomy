@@ -50,3 +50,6 @@ database-information:
     maximum-lifetime: 1800000
     keepalive-time: 0
     connection-timeout: 5000
+
+# Notify admins when there is a new version of QualityEconomy
+update-notifications: true

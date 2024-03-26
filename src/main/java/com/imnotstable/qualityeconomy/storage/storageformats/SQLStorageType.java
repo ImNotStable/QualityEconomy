@@ -5,10 +5,7 @@ import com.imnotstable.qualityeconomy.commands.CommandManager;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
-import com.imnotstable.qualityeconomy.util.Logger;
 import com.imnotstable.qualityeconomy.util.storage.EasySQL;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
@@ -42,7 +39,6 @@ public class SQLStorageType extends EasySQL implements StorageType {
       new Debug.QualityError("Error while initiating storage processes", exception).log();
       return false;
     }
-    Logger.log(Component.text("Successfully initiated storage processes", NamedTextColor.GREEN));
     return true;
   }
   

@@ -73,6 +73,7 @@ public class WithdrawCommand extends BaseCommand {
   
   public void unregister() {
     super.unregister(command);
+    PlayerInteractEvent.getHandlerList().unregister(QualityEconomy.getInstance());
   }
   
   @SneakyThrows

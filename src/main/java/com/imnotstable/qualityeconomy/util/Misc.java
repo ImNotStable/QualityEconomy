@@ -23,8 +23,4 @@ public class Misc {
     Bukkit.getScheduler().runTaskAsynchronously(QualityEconomy.getInstance(), runnable);
   }
   
-  public static void runSync(Runnable runnable) {
-    Bukkit.getScheduler().runTask(QualityEconomy.getInstance(), runnable);
-  }
-  
 }
