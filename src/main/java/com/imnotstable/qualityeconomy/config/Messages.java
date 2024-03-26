@@ -2,6 +2,7 @@ package com.imnotstable.qualityeconomy.config;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
@@ -20,22 +21,22 @@ public class Messages {
   private static final File file = new File(QualityEconomy.getInstance().getDataFolder(), "messages.yml");
   private static final HashMap<String, String> messages = new HashMap<>();
   
-  public static void sendParsedMessage(CommandSender sender, MessageType id) {
-    sender.sendMessage(MiniMessage.miniMessage().deserialize(messages.get(id.getValue())));
-  }
-  
   public static void sendParsedMessage(CommandSender sender, MessageType id, String... tags) {
     sender.sendMessage(getParsedMessage(id, tags));
   }
   
   public static Component getParsedMessage(MessageType id, String... tags) {
-    int tagsRequirement = id.getTags().length;
-    if (tags.length != tagsRequirement)
-      throw new IllegalArgumentException("Found " + tags.length + " tags when required " + tagsRequirement);
-    TagResolver[] tagResolvers = new TagResolver[tagsRequirement];
-    for (int i = 0; i < tagsRequirement; i++)
-      tagResolvers[i] = TagResolver.resolver(id.getTags()[i], Tag.selfClosingInserting(Component.text(tags[i])));
-    return MiniMessage.miniMessage().deserialize(messages.get(id.getValue()), tagResolvers);
+    if (tags.length > 0) {
+      if (tags.length % 2 != 0)
+        throw new IllegalArgumentException("Invalid number of tags, found odd length when even is required");
+      else
+        Logger.log("Length of tags is " + tags.length);
+      TagResolver[] tagResolvers = new TagResolver[tags.length / 2];
+      for (int i = 0; i < tags.length; i += 2)
+        tagResolvers[i / 2] = TagResolver.resolver(tags[i], Tag.selfClosingInserting(Component.text(tags[i + 1])));
+      return MiniMessage.miniMessage().deserialize(messages.get(id.getValue()), tagResolvers);
+    }
+    return MiniMessage.miniMessage().deserialize(messages.get(id.getValue()));
   }
   
   public static void load() {

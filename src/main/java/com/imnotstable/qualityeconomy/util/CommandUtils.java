@@ -28,7 +28,8 @@ public class CommandUtils {
     return new CustomArgument<>(new StringArgument("currency"), info -> {
       String currency = info.input();
       if (!StorageManager.getActiveStorageType().getCurrencies().contains(currency))
-        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.CURRENCY_NOT_FOUND, currency));
+        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.CURRENCY_NOT_FOUND,
+          "currency", currency));
       return currency;
     }).replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0])));
   }
@@ -37,9 +38,11 @@ public class CommandUtils {
     return new CustomArgument<>(new OfflinePlayerArgument("target"), info -> {
       OfflinePlayer target = info.currentInput();
       if (!QualityEconomyAPI.hasAccount(target.getUniqueId()))
-        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.PLAYER_NOT_FOUND, target.getName()));
+        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.PLAYER_NOT_FOUND,
+          "player", target.getName()));
       if (mustBeOnline && !target.isOnline())
-        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.PLAYER_NOT_ONLINE, target.getName()));
+        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.PLAYER_NOT_ONLINE,
+          "player", target.getName()));
       return target;
     }).replaceSuggestions(ArgumentSuggestions.strings(info -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)));
   }
@@ -51,7 +54,8 @@ public class CommandUtils {
       try {
         amount = Number.unformat(rawAmount);
       } catch (NumberFormatException exception) {
-        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.INVALID_NUMBER, rawAmount));
+        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.INVALID_NUMBER,
+          "amount", rawAmount));
       }
       return Number.round(amount);
     }).replaceSuggestions(ArgumentSuggestions.strings("<amount>")

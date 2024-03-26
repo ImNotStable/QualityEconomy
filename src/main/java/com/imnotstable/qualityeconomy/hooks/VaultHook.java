@@ -46,7 +46,7 @@ public class VaultHook {
     } catch (QualityException exception) {
       new Debug.QualityError("Failed to register QualityEconomy with Vault", exception).log();
       return false;
-      }
+    }
   }
   
   private static class HookProvider implements Economy {

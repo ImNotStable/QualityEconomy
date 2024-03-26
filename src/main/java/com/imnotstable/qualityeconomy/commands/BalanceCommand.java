@@ -31,12 +31,13 @@ public class BalanceCommand extends BaseCommand {
   private void viewOtherBalance(CommandSender sender, CommandArguments args) {
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     Messages.sendParsedMessage(sender, MessageType.BALANCE_OTHER_BALANCE,
-      Number.format(QualityEconomyAPI.getBalance(target.getUniqueId()), Number.FormatType.COMMAS), target.getName());
+      "balance", Number.format(QualityEconomyAPI.getBalance(target.getUniqueId()), Number.FormatType.COMMAS),
+      "player", target.getName());
   }
   
   private void viewOwnBalance(Player sender, CommandArguments args) {
     Messages.sendParsedMessage(sender, MessageType.BALANCE_OWN_BALANCE,
-      Number.format(QualityEconomyAPI.getBalance(sender.getUniqueId()), Number.FormatType.COMMAS));
+      "balance", Number.format(QualityEconomyAPI.getBalance(sender.getUniqueId()), Number.FormatType.COMMAS));
   }
   
 }

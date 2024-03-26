@@ -57,19 +57,23 @@ public class BalanceTopCommand extends BaseCommand {
     int endIndex = Math.min(startIndex + 10, orderedPlayerList.length);
     
     Messages.sendParsedMessage(sender, MessageType.BALANCETOP_TITLE,
-      String.valueOf(maxPage), String.valueOf(page));
+      "maxpage", String.valueOf(maxPage),
+      "page", String.valueOf(page));
     Messages.sendParsedMessage(sender, MessageType.BALANCETOP_SERVER_TOTAL,
-      serverTotal);
+      "servertotal", serverTotal);
     
     if (maxPage != 0)
       for (int i = startIndex; i < endIndex; i++) {
         Account account = orderedPlayerList[i];
         Messages.sendParsedMessage(sender, MessageType.BALANCETOP_BALANCE_VIEW,
-          Number.format(account.getBalance(), Number.FormatType.COMMAS), String.valueOf(i + 1), account.getUsername());
+          "place", String.valueOf(i + 1),
+          "player", account.getUsername(),
+          "balance", Number.format(account.getBalance(), Number.FormatType.COMMAS));
       }
     
     Messages.sendParsedMessage(sender, MessageType.BALANCETOP_NEXT_PAGE,
-      args.fullInput().split(" ")[0].substring(1), String.valueOf(page + 1));
+      "command", args.fullInput().split(" ")[0].substring(1),
+      "nextpage", String.valueOf(page + 1));
   }
   
   private void updateBalanceTop() {

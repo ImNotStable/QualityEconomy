@@ -26,7 +26,7 @@ request:
   toggle-on: "<gray>Requests are now <green>enabled <gray>from other players"
   toggle-off: "<gray>Requests are now <red>disabled <gray>from other players"
   send: "<gray>Requested <yellow>$<amount> <gray>from <yellow><requestee>"
-  receive: "<gray>Request from <yellow><requester> <gray>for <yellow>$<amount>"
+  receive: "<gray>You have received a request from <yellow><requester> <gray>for <yellow>$<amount>"
   accept-send: "<gray>Request for <yellow>$<amount> <gray>was accepted by <yellow><requestee>"
   accept-receive: "<gray>Accepted request for <yellow>$<amount> <gray>from <yellow><requester>"
   deny-send: "<gray>Request for <yellow>$<amount> <gray>was denied by <yellow><requestee>"

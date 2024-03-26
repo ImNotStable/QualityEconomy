@@ -117,7 +117,8 @@ public class PlaceholderHook {
             return String.valueOf(QualityEconomyAPI.isRequestable(uuid));
           }
         }
-      } catch (Exception ignored) {}
+      } catch (Exception ignored) {
+      }
       
       return null;
     }

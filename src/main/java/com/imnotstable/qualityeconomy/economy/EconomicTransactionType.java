@@ -6,7 +6,20 @@ import com.imnotstable.qualityeconomy.commands.RequestCommand;
 import com.imnotstable.qualityeconomy.commands.WithdrawCommand;
 import com.imnotstable.qualityeconomy.config.MessageType;
 import com.imnotstable.qualityeconomy.config.Messages;
-import com.imnotstable.qualityeconomy.economy.events.*;
+import com.imnotstable.qualityeconomy.economy.events.BalanceAddEvent;
+import com.imnotstable.qualityeconomy.economy.events.BalanceRemoveEvent;
+import com.imnotstable.qualityeconomy.economy.events.BalanceSetEvent;
+import com.imnotstable.qualityeconomy.economy.events.BalanceTransferEvent;
+import com.imnotstable.qualityeconomy.economy.events.CustomBalanceAddEvent;
+import com.imnotstable.qualityeconomy.economy.events.CustomBalanceRemoveEvent;
+import com.imnotstable.qualityeconomy.economy.events.CustomBalanceResetEvent;
+import com.imnotstable.qualityeconomy.economy.events.CustomBalanceSetEvent;
+import com.imnotstable.qualityeconomy.economy.events.EconomyEvent;
+import com.imnotstable.qualityeconomy.economy.events.RequestAcceptEvent;
+import com.imnotstable.qualityeconomy.economy.events.RequestDenyEvent;
+import com.imnotstable.qualityeconomy.economy.events.RequestEvent;
+import com.imnotstable.qualityeconomy.economy.events.WithdrawClaimEvent;
+import com.imnotstable.qualityeconomy.economy.events.WithdrawEvent;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
@@ -32,7 +45,7 @@ public enum EconomicTransactionType {
       QualityEconomyAPI.setBalance(target.getUniqueId(), 0);
       if (!transaction.isSilent())
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_RESET,
-          target.getUsername());
+          "player", target.getUsername());
     }, (transaction) -> String.format("%s's balance was reset by %s", transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
   BALANCE_SET(() -> true, BalanceSetEvent::new,
     transaction -> {
@@ -40,7 +53,8 @@ public enum EconomicTransactionType {
       QualityEconomyAPI.setBalance(target.getUniqueId(), transaction.getAmount());
       if (!transaction.isSilent())
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_SET,
-          Number.format(transaction.getAmount(), Number.FormatType.COMMAS), target.getUsername());
+          "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+          "player", target.getUsername());
     }, (transaction) -> String.format("%s's balance was set to $%s by %s", transaction.getEconomyPlayers()[0].getUsername(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getSender().getName())),
   BALANCE_ADD(() -> true, BalanceAddEvent::new,
     transaction -> {
@@ -48,7 +62,8 @@ public enum EconomicTransactionType {
       QualityEconomyAPI.addBalance(target.getUniqueId(), transaction.getAmount());
       if (!transaction.isSilent())
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_ADD,
-          Number.format(transaction.getAmount(), Number.FormatType.COMMAS), target.getUsername());
+          "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+          "player", target.getUsername());
     }, (transaction) -> String.format("$%s was added to %s's balance by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
   BALANCE_REMOVE(() -> true, BalanceRemoveEvent::new,
     transaction -> {
@@ -56,7 +71,8 @@ public enum EconomicTransactionType {
       QualityEconomyAPI.removeBalance(target.getUniqueId(), transaction.getAmount());
       if (!transaction.isSilent())
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_REMOVE,
-          Number.format(transaction.getAmount(), Number.FormatType.COMMAS), target.getUsername());
+          "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+          "player", target.getUsername());
     }, (transaction) -> String.format("$%s was removed from %s's balance by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
   BALANCE_TRANSFER(() -> true, 2, BalanceTransferEvent::new,
     transaction -> {
@@ -64,12 +80,13 @@ public enum EconomicTransactionType {
       EconomyPlayer target = transaction.getEconomyPlayers()[1];
       if (!transaction.isSilent())
         Messages.sendParsedMessage(sender, MessageType.PAY_SEND,
-          Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
-          target.getUsername()
+          "amount", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+          "receiver", target.getUsername()
         );
       if (!transaction.isSilent() && target.getOfflineplayer().isOnline())
         Messages.sendParsedMessage(target.getOfflineplayer().getPlayer(), MessageType.PAY_RECEIVE,
-          Number.format(transaction.getAmount(), Number.FormatType.COMMAS), sender.getName());
+          "amount", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+          "sender", sender.getName());
       QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), transaction.getAmount());
     }, (transaction) -> String.format("$%s was transferred from %s to %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getEconomyPlayers()[1].getUsername())),
   CUSTOM_BALANCE_RESET(() -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES, CustomBalanceResetEvent::new,
@@ -78,7 +95,7 @@ public enum EconomicTransactionType {
       QualityEconomyAPI.setCustomBalance(target.getUniqueId(), transaction.getCurrency(), 0);
       if (!transaction.isSilent())
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_RESET,
-          target.getUsername());
+          "player", target.getUsername());
     }, (transaction) -> String.format("%s's custom balance (%s) was reset by %s", transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency(), transaction.getSender().getName())),
   CUSTOM_BALANCE_SET(() -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES, CustomBalanceSetEvent::new,
     transaction -> {
@@ -86,7 +103,8 @@ public enum EconomicTransactionType {
       QualityEconomyAPI.setCustomBalance(target.getUniqueId(), transaction.getCurrency(), transaction.getAmount());
       if (!transaction.isSilent())
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_SET,
-          Number.format(transaction.getAmount(), Number.FormatType.COMMAS), target.getUsername());
+          "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+          "player", target.getUsername());
     }, (transaction) -> String.format("%s's custom balance (%s) was set to $%s by %s", transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getSender().getName())),
   CUSTOM_BALANCE_ADD(() -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES, CustomBalanceAddEvent::new,
     transaction -> {
@@ -94,7 +112,8 @@ public enum EconomicTransactionType {
       QualityEconomyAPI.addCustomBalance(target.getUniqueId(), transaction.getCurrency(), transaction.getAmount());
       if (transaction.isSilent())
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_ADD,
-          Number.format(transaction.getAmount(), Number.FormatType.COMMAS), target.getUsername());
+          "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+          "player", target.getUsername());
     }, (transaction) -> String.format("$%s was added to %s's custom balance (%s) by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency(), transaction.getSender().getName())),
   CUSTOM_BALANCE_REMOVE(() -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES, CustomBalanceRemoveEvent::new,
     transaction -> {
@@ -102,19 +121,22 @@ public enum EconomicTransactionType {
       QualityEconomyAPI.removeCustomBalance(target.getUniqueId(), transaction.getCurrency(), transaction.getAmount());
       if (!transaction.isSilent())
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_REMOVE,
-          Number.format(transaction.getAmount(), Number.FormatType.COMMAS), target.getUsername());
+          "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+          "player", target.getUsername());
     }, (transaction) -> String.format("$%s was removed from %s's custom balance (%s) by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency(), transaction.getSender().getName())),
   REQUEST(() -> QualityEconomy.getQualityConfig().COMMANDS_REQUEST, 2, RequestEvent::new,
     transaction -> {
       Player requester = transaction.getEconomyPlayers()[0].getOfflineplayer().getPlayer();
       Player requestee = transaction.getEconomyPlayers()[1].getOfflineplayer().getPlayer();
       double amount = transaction.getAmount();
-      if (!transaction.isSilent())
+      if (!transaction.isSilent()) {
         Messages.sendParsedMessage(requester, MessageType.REQUEST_SEND,
-          Number.format(amount, Number.FormatType.COMMAS), requestee.getName());
-      if (!transaction.isSilent())
+          "amount", Number.format(amount, Number.FormatType.COMMAS),
+          "requestee", requestee.getName());
         Messages.sendParsedMessage(requestee, MessageType.REQUEST_RECEIVE,
-          Number.format(amount, Number.FormatType.COMMAS), requester.getName());
+          "amount", Number.format(amount, Number.FormatType.COMMAS),
+          "requester", requester.getName());
+      }
       QualityEconomyAPI.createRequest(requester.getUniqueId(), requestee.getUniqueId(), amount);
       CommandAPI.updateRequirements(requestee);
       Bukkit.getScheduler().runTaskLaterAsynchronously(QualityEconomy.getInstance(), () -> {
@@ -127,14 +149,15 @@ public enum EconomicTransactionType {
       OfflinePlayer requester = transaction.getEconomyPlayers()[0].getOfflineplayer();
       Player requestee = transaction.getEconomyPlayers()[1].getOfflineplayer().getPlayer();
       double amount = transaction.getAmount();
-      if (!transaction.isSilent())
-        Messages.sendParsedMessage(requestee, MessageType.REQUEST_ACCEPT_SEND,
-          Number.format(amount, Number.FormatType.COMMAS),
-          requester.getName()
-        );
-      if (!transaction.isSilent() && requester.isOnline())
-        Messages.sendParsedMessage(requester.getPlayer(), MessageType.REQUEST_ACCEPT_RECEIVE,
-          Number.format(amount, Number.FormatType.COMMAS), requestee.getName());
+      if (!transaction.isSilent()) {
+        Messages.sendParsedMessage(requestee, MessageType.REQUEST_ACCEPT_RECEIVE,
+          "amount", Number.format(amount, Number.FormatType.COMMAS),
+          "requester", requester.getName());
+        if (!requester.isOnline())
+          Messages.sendParsedMessage(requester.getPlayer(), MessageType.REQUEST_ACCEPT_SEND,
+            "amount", Number.format(amount, Number.FormatType.COMMAS),
+            "requestee", requestee.getName());
+      }
       QualityEconomyAPI.acceptRequest(requester.getUniqueId(), requestee.getUniqueId());
       CommandAPI.updateRequirements(requestee);
     }, (transaction) -> String.format("%s accepted %s's request for $%s", transaction.getEconomyPlayers()[1].getUsername(), transaction.getEconomyPlayers()[0].getUsername(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS))),
@@ -144,11 +167,13 @@ public enum EconomicTransactionType {
       Player requestee = transaction.getEconomyPlayers()[1].getOfflineplayer().getPlayer();
       double amount = transaction.getAmount();
       if (!transaction.isSilent())
-        Messages.sendParsedMessage(requestee, MessageType.REQUEST_DENY_SEND,
-          Number.format(amount, Number.FormatType.COMMAS), requester.getName());
+        Messages.sendParsedMessage(requestee, MessageType.REQUEST_DENY_RECEIVE,
+          "amount", Number.format(amount, Number.FormatType.COMMAS),
+          "requester", requester.getName());
       if (!transaction.isSilent() && requester.isOnline())
-        Messages.sendParsedMessage(requester.getPlayer(), MessageType.REQUEST_DENY_RECEIVE,
-          Number.format(amount, Number.FormatType.COMMAS), requestee.getName());
+        Messages.sendParsedMessage(requester.getPlayer(), MessageType.REQUEST_DENY_SEND,
+          "amount", Number.format(amount, Number.FormatType.COMMAS),
+          "requestee", requestee.getName());
       QualityEconomyAPI.denyRequest(requester.getUniqueId(), requestee.getUniqueId());
       CommandAPI.updateRequirements(requestee);
     }, (transaction) -> String.format("%s denied %s's request for $%s", transaction.getEconomyPlayers()[1].getUsername(), transaction.getEconomyPlayers()[0].getUsername(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS))),
@@ -160,8 +185,7 @@ public enum EconomicTransactionType {
       sender.getInventory().addItem(WithdrawCommand.getBankNote(amount, sender));
       if (!transaction.isSilent())
         Messages.sendParsedMessage(sender, MessageType.WITHDRAW_MESSAGE,
-          Number.format(amount, Number.FormatType.COMMAS)
-        );
+          "amount", Number.format(amount, Number.FormatType.COMMAS));
     }, (transaction) -> String.format("$%s was withdrawn by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername())),
   WITHDRAW_CLAIM(() -> QualityEconomy.getQualityConfig().BANKNOTES, false, WithdrawClaimEvent::new,
     transaction -> {
@@ -178,7 +202,8 @@ public enum EconomicTransactionType {
       itemStack.subtract();
       if (!transaction.isSilent())
         Messages.sendParsedMessage(player, MessageType.WITHDRAW_CLAIM,
-          Number.format(amount, Number.FormatType.COMMAS), container.get(WithdrawCommand.getOwnerKey(), PersistentDataType.STRING));
+          "amount", Number.format(amount, Number.FormatType.COMMAS),
+          "player", container.get(WithdrawCommand.getOwnerKey(), PersistentDataType.STRING));
     }, (transaction) -> String.format("$%s was claimed by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername()));
   
   @Getter
