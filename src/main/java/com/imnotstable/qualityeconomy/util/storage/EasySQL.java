@@ -7,6 +7,7 @@ import com.imnotstable.qualityeconomy.util.Misc;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
+import org.apache.logging.log4j.util.Strings;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -54,13 +55,6 @@ public class EasySQL extends EasyCurrencies {
   
   protected void open() {
     openDataSource();
-    try (Connection connection = getConnection()) {
-      columns = getColumns(connection);
-    } catch (SQLException exception) {
-      new Debug.QualityError("Failed to start database", exception).log();
-      return;
-    }
-    generateStatements();
   }
   
   protected void close() {
@@ -173,8 +167,12 @@ public class EasySQL extends EasyCurrencies {
     preparedStatement.setString(1, uuid.toString());
     preparedStatement.setString(2, account.getUsername());
     preparedStatement.setDouble(3, account.getBalance());
-    if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
+    Debug.Logger.log(Strings.join(columns, ','));
+    Debug.Logger.log(uuid + "," + account.getUsername() + "," + account.getBalance());
+    if (QualityEconomy.getQualityConfig().COMMANDS_PAY) {
+      Debug.Logger.log("isPayable: " + account.isPayable());
       preparedStatement.setBoolean(columns.indexOf("PAYABLE") + 1, account.isPayable());
+    }
     if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
       preparedStatement.setBoolean(columns.indexOf("REQUESTABLE") + 1, account.isRequestable());
     if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
@@ -182,7 +180,7 @@ public class EasySQL extends EasyCurrencies {
         preparedStatement.setDouble(columns.indexOf(currency) + 1, account.getCustomBalance(currency));
   }
   
-  private void generateStatements() {
+  protected void generateStatements() {
     //Create Account
     StringBuilder insert1 = new StringBuilder("UUID,USERNAME,BALANCE");
     StringBuilder insert2 = new StringBuilder("?,?,?");

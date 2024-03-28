@@ -35,6 +35,8 @@ public class SQLStorageType extends EasySQL implements StorageType {
       createPlayerDataTable(connection);
       toggleCurrencyTable(connection);
       toggleColumns(connection);
+      columns = getColumns(connection);
+      generateStatements();
     } catch (SQLException exception) {
       new Debug.QualityError("Error while initiating storage processes", exception).log();
       return false;
@@ -76,10 +78,10 @@ public class SQLStorageType extends EasySQL implements StorageType {
       int affectedRows = preparedStatement.executeUpdate();
       
       if (affectedRows == 0) {
-        new Debug.QualityError("Failed to create account (" + account.getUniqueId().toString() + ")").log();
+        new Debug.QualityError("Failed to create account (" + account.getUniqueId() + ")").log();
       }
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to create account (" + account.getUniqueId().toString() + ")", exception).log();
+      new Debug.QualityError("Failed to create account (" + account.getUniqueId() + ")", exception).log();
     }
   }
   

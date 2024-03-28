@@ -24,14 +24,15 @@ public final class Messages extends BaseConfig {
   }
   
   public static Component getParsedMessage(MessageType id, String... tags) {
+    String message = QualityEconomy.getQualityMessages().MESSAGES.get(id.getValue());
     if (tags.length == 0)
-      return MiniMessage.miniMessage().deserialize(QualityEconomy.getQualityMessages().MESSAGES.get(id.getValue()));
+      return MiniMessage.miniMessage().deserialize(message);
     if (tags.length % 2 != 0)
       throw new IllegalArgumentException("Invalid number of tags, found odd length when even is required");
     TagResolver[] tagResolvers = new TagResolver[tags.length / 2];
     for (int i = 0; i < tags.length; i += 2)
       tagResolvers[i / 2] = TagResolver.resolver(tags[i], Tag.selfClosingInserting(Component.text(tags[i + 1])));
-    return MiniMessage.miniMessage().deserialize(QualityEconomy.getQualityMessages().MESSAGES.get(id.getValue()), tagResolvers);
+    return MiniMessage.miniMessage().deserialize(message, tagResolvers);
   }
   
   public void load() {

@@ -7,8 +7,6 @@ import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -21,12 +19,7 @@ public class PlaceholderHook {
   public static boolean load() {
     if (!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
       return false;
-    
-    if (new HookProvider().register()) {
-      Debug.Logger.log(Component.text("Successfully registered expansion with PlaceholderAPI", NamedTextColor.GREEN));
-      return true;
-    }
-    return false;
+    return new HookProvider().register();
   }
   
   private static class HookProvider extends PlaceholderExpansion {

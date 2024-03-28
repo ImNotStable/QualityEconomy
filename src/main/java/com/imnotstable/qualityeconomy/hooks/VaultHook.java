@@ -5,8 +5,6 @@ import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.QualityException;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -40,7 +38,6 @@ public class VaultHook {
       
       economyProvider = registeredServiceProvider.getProvider();
       
-      Debug.Logger.log(Component.text("Successfully registered economy with Vault", NamedTextColor.GREEN));
       return true;
     } catch (QualityException exception) {
       new Debug.QualityError("Failed to register QualityEconomy with Vault", exception).log();
