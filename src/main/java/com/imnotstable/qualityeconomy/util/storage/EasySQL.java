@@ -7,7 +7,6 @@ import com.imnotstable.qualityeconomy.util.Misc;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
-import org.apache.logging.log4j.util.Strings;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -167,12 +166,8 @@ public class EasySQL extends EasyCurrencies {
     preparedStatement.setString(1, uuid.toString());
     preparedStatement.setString(2, account.getUsername());
     preparedStatement.setDouble(3, account.getBalance());
-    Debug.Logger.log(Strings.join(columns, ','));
-    Debug.Logger.log(uuid + "," + account.getUsername() + "," + account.getBalance());
-    if (QualityEconomy.getQualityConfig().COMMANDS_PAY) {
-      Debug.Logger.log("isPayable: " + account.isPayable());
+    if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
       preparedStatement.setBoolean(columns.indexOf("PAYABLE") + 1, account.isPayable());
-    }
     if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
       preparedStatement.setBoolean(columns.indexOf("REQUESTABLE") + 1, account.isRequestable());
     if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)

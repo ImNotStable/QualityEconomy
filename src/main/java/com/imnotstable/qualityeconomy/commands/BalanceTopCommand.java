@@ -23,6 +23,7 @@ public class BalanceTopCommand extends BaseCommand {
   private String serverTotal = "0.0";
   private int maxPage;
   private final CommandTree command = new CommandTree("balancetop")
+    .withPermission("qualityeconomy.balancetop")
     .withAliases("baltop")
     .then(new LiteralArgument("update")
       .withPermission("qualityeconomy.balancetop.update")

@@ -8,7 +8,7 @@ Works without any configuration, just drop it in your plugins folder and you're 
 - **Easy to use**: QualityEconomy is easy to use and works right out of the box.
 - **Free**: QualityEconomy is free and open-source.
 - **No dependencies**: QualityEconomy doesn't require any other plugins to function.
-- **No bloat**: QualityEconomy isn't bloated with features, you can disable nearly every feature!
+- **Not bloated**: QualityEconomy isn't bloated with features, you can disable nearly every feature!
 
 ## Commands
 - `/qualityeconomy` find out what it does by using it

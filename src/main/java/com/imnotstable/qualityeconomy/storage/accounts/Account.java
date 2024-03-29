@@ -33,6 +33,7 @@ public class Account {
     this.otherBalances = account.otherBalances;
     this.isPayable = account.isPayable;
     this.isRequestable = account.isRequestable;
+    this.requiresUpdate = account.requiresUpdate;
   }
   
   public Account setUsername(@NotNull String username) {

@@ -31,6 +31,7 @@ public class RequestCommand extends BaseCommand {
   private static ConcurrentMap<UUID, ConcurrentMap<UUID, Double>> requests = null;
   
   private final CommandTree command = new CommandTree("request")
+    .withPermission("qualityeconomy.request")
     .then(new LiteralArgument("toggle")
       .executesPlayer(this::toggleRequests))
     .then(new MultiLiteralArgument("answer", "accept", "deny")

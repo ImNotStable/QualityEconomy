@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 public class CustomBalanceCommand extends BaseCommand {
   
   private final CommandTree command = new CommandTree("custombalance")
+    .withPermission("qualityeconomy.custombalance")
     .withAliases("cbalance", "custombal", "cbal")
     .then(CommandUtils.CurrencyArgument()
       .then(CommandUtils.TargetArgument(false)

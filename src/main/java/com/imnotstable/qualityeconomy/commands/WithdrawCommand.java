@@ -34,6 +34,7 @@ public class WithdrawCommand extends BaseCommand {
   @Getter
   private static final NamespacedKey ownerKey = new NamespacedKey(QualityEconomy.getInstance(), "owner");
   private final CommandTree command = new CommandTree("withdraw")
+    .withPermission("qualityeconomy.withdraw")
     .then(CommandUtils.AmountArgument()
       .executesPlayer(this::withdraw));
   

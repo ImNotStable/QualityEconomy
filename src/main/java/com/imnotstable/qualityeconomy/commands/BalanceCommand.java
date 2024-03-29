@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 public class BalanceCommand extends BaseCommand {
   
   private final CommandTree command = new CommandTree("balance")
+    .withPermission("qualityeconomy.balance")
     .withAliases("bal")
     .then(CommandUtils.TargetArgument(false)
       .executes(this::viewOtherBalance))

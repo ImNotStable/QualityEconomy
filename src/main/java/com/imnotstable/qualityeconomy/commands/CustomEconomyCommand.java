@@ -18,6 +18,7 @@ import org.bukkit.command.CommandSender;
 public class CustomEconomyCommand extends BaseCommand {
   
   private final CommandTree command = new CommandTree("customeconomy")
+    .withPermission("qualityeconomy.customeconomy")
     .withAliases("ceconomy", "customeco", "ceco")
     .withPermission("qualityeconomy.customeconomy")
     .then(CommandUtils.CurrencyArgument()

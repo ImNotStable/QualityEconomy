@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 public class PayCommand extends BaseCommand {
   
   private final CommandTree command = new CommandTree("pay")
+    .withPermission("qualityeconomy.pay")
     .then(new LiteralArgument("toggle")
       .executesPlayer(this::togglePay))
     .then(CommandUtils.TargetArgument(false)
