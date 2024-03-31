@@ -43,7 +43,7 @@ public class StorageManager implements Listener {
   private static Integer backupSchedulerID = null;
   private static Integer accountSchedulerID = null;
   
-  public static void initStorageProcesses() {
+  public static void initStorageProcesses(QualityEconomy plugin) {
     if (activeStorageType != null)
       return;
     Debug.Timer timer = new Debug.Timer("initStorageProcesses()");
@@ -57,9 +57,8 @@ public class StorageManager implements Listener {
       case "json" -> activeStorageType = new JsonStorageType();
       case "yaml" -> activeStorageType = new YamlStorageType();
       default -> {
-        new Debug.QualityError("Unexpected Storage Type: " + QualityEconomy.getQualityConfig().STORAGE_TYPE).log();
-        timer.interrupt();
-        Bukkit.getPluginManager().disablePlugin(QualityEconomy.getInstance());
+        new Debug.QualityError("Unexpected Storage Type: " + QualityEconomy.getQualityConfig().STORAGE_TYPE, "Defaulting to H2").log();
+        activeStorageType = new SQLStorageType(1);
         return;
       }
     }
@@ -69,18 +68,14 @@ public class StorageManager implements Listener {
       return;
     }
     AccountManager.setupAccounts();
-    if (QualityEconomy.getQualityConfig().AUTO_SAVE_ACCOUNTS_INTERVAL > 0)
-      accountSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(),
-        AccountManager::saveAllAccounts,
-        QualityEconomy.getQualityConfig().AUTO_SAVE_ACCOUNTS_INTERVAL,
-        QualityEconomy.getQualityConfig().AUTO_SAVE_ACCOUNTS_INTERVAL
-      ).getTaskId();
-    if (QualityEconomy.getQualityConfig().BACKUP_INTERVAL > 0)
-      backupSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(),
-        () -> exportDatabase("plugins/QualityEconomy/backups/"),
-        QualityEconomy.getQualityConfig().BACKUP_INTERVAL,
-        QualityEconomy.getQualityConfig().BACKUP_INTERVAL
-      ).getTaskId();
+    long interval = QualityEconomy.getQualityConfig().AUTO_SAVE_ACCOUNTS_INTERVAL;
+    if (interval > 0)
+      accountSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin,
+        AccountManager::saveAllAccounts, interval, interval).getTaskId();
+    interval = QualityEconomy.getQualityConfig().BACKUP_INTERVAL;
+    if (interval > 0)
+      backupSchedulerID = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin,
+        () -> exportDatabase("plugins/QualityEconomy/backups/"), interval, interval).getTaskId();
     timer.end();
   }
   

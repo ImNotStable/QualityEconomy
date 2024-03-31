@@ -1,0 +1,61 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+compileJava {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+    options.encoding = 'UTF-8'
+}
+
+group = 'com.imnotstable'
+version = '1.4.9'
+
+repositories {
+    mavenCentral()
+    maven {url 'https://repo.papermc.io/repository/maven-public/'}
+    maven {url 'https://oss.sonatype.org/content/groups/public/'}
+    maven {url 'https://jitpack.io'}
+    maven {url 'https://repo.extendedclip.com/content/repositories/placeholderapi/'}
+}
+
+dependencies {
+    compileOnly "io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT"
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    implementation 'dev.jorel:commandapi-bukkit-shade:9.3.0'
+    compileOnly('me.clip:placeholderapi:2.11.5') {
+        exclude group: 'org.bstats', module: 'bstats-bukkit'
+        exclude group: 'net.kyori', module: 'adventure-platform-bukkit'
+        exclude group: 'org.jetbrains', module: 'annotations'
+    }
+    compileOnly('com.github.MilkBowl:VaultAPI:1.7') {
+        exclude group: 'org.bukkit', module: 'bukkit'
+    }
+    implementation 'org.bstats:bstats-bukkit:3.0.2'
+    //Loaded via. SpigotLibraryLoader
+    compileOnly 'com.zaxxer:HikariCP:5.1.0'
+    compileOnly 'com.h2database:h2:2.2.224'
+    compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
+    compileOnly 'org.postgresql:postgresql:42.7.2'
+    compileOnly 'org.mongodb:mongodb-driver-sync:5.0.0'
+    compileOnly 'com.google.code.gson:gson:2.10.1'
+}
+
+processResources {
+    filter(ReplaceTokens, tokens: [version: version])
+}
+
+build {
+    dependsOn(shadowJar)
+}
+
+shadowJar {
+    archiveFileName = project.name + "-" + project.version + ".jar"
+    archiveClassifier = null
+    relocate 'de.tr7zw.changeme.nbtapi', 'com.imnotstable.nbtapi'
+    relocate 'dev.jorel.commandapi', 'com.imnotstable.commandapi'
+}

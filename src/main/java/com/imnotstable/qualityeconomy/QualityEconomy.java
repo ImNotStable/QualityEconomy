@@ -47,7 +47,7 @@ public final class QualityEconomy extends JavaPlugin {
     qualityConfig = new Config(this);
     qualityMessages = new Messages(this);
     
-    StorageManager.initStorageProcesses();
+    StorageManager.initStorageProcesses(this);
     CommandManager.registerCommands();
     
     HookManager.loadHooks();

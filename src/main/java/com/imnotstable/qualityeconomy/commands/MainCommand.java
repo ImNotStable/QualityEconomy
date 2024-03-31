@@ -83,7 +83,7 @@ public class MainCommand extends BaseCommand {
       QualityEconomy.getQualityConfig().load();
       QualityEconomy.getQualityMessages().load();
       CommandManager.unregisterCommands();
-      StorageManager.initStorageProcesses();
+      StorageManager.initStorageProcesses(QualityEconomy.getInstance());
       CommandManager.registerCommands();
       timer.end();
       sender.sendMessage(Component.text("Reloading QualityEconomy...", NamedTextColor.GRAY));

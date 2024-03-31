@@ -34,11 +34,11 @@ public class BaseConfig {
     try (InputStream inputStream = plugin.getResource(file.getName());
          InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
       internalMessages = YamlConfiguration.loadConfiguration(inputStreamReader);
-      messages = YamlConfiguration.loadConfiguration(file);
     } catch (IOException exception) {
       new Debug.QualityError("Failed to load internal " + file.getName(), exception).log();
       return;
     }
+    messages = YamlConfiguration.loadConfiguration(file);
     
     for (String key : internalMessages.getKeys(true))
       if (!messages.contains(key)) {

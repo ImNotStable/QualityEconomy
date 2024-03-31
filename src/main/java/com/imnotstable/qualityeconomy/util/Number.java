@@ -2,7 +2,6 @@ package com.imnotstable.qualityeconomy.util;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -20,7 +19,7 @@ public class Number {
   private static final Pattern COMMA_PATTERN = Pattern.compile("^(?:[1-9][0-9]{0,2}|1000)(?:,\\d{3})*(?:\\.\\d*)?$");
   
   public static String format(double value, FormatType formatType) {
-    return formatType.getFormatter().apply(value);
+    return formatType.format(value);
   }
   
   public static double unformat(String value) throws NumberFormatException {
@@ -33,16 +32,13 @@ public class Number {
       double multiplier = Math.pow(1000, index);
       return Double.parseDouble(number) * multiplier;
     }
-    if (COMMA_PATTERN.matcher(value).matches()) {
+    if (COMMA_PATTERN.matcher(value).matches())
       return Double.parseDouble(value.replaceAll(",", ""));
-    }
     return Double.parseDouble(value);
   }
   
   public static double roundObj(Object obj) {
-    if (obj instanceof Double n)
-      return round(n);
-    return 0.0;
+    return (obj instanceof Double n) ? round(n) : 0.0;
   }
   
   public static double round(double n) {
@@ -55,12 +51,10 @@ public class Number {
   public static double getMinimumValue() {
     if (QualityEconomy.getQualityConfig().DECIMAL_PLACES <= 0)
       return 0.0;
-    else
-      return Math.pow(10, -QualityEconomy.getQualityConfig().DECIMAL_PLACES);
+    return Math.pow(10, -QualityEconomy.getQualityConfig().DECIMAL_PLACES);
   }
   
   @AllArgsConstructor
-  @Getter
   public enum FormatType {
     NORMAL(NORMAL_FORMAT::format),
     SUFFIX(value -> {
@@ -73,6 +67,10 @@ public class Number {
     COMMAS(COMMA_FORMAT::format);
     
     private final Function<Double, String> formatter;
+    
+    public String format(double value) {
+      return formatter.apply(value);
+    }
   }
   
 }
