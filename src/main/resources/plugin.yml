@@ -1,10 +1,11 @@
 name: QualityEconomy
 author: "ImNotStable"
 main: com.imnotstable.qualityeconomy.QualityEconomy
-version: '${project.version}'
+version: '@version@'
 api-version: 1.18
 load: STARTUP
 softdepend: [ PlaceholderAPI, Vault ]
+
 libraries:
   - com.zaxxer:HikariCP:5.1.0
   - org.mariadb.jdbc:mariadb-java-client:3.3.3
@@ -12,6 +13,7 @@ libraries:
   - com.h2database:h2:2.2.224
   - org.mongodb:mongodb-driver-sync:5.0.0
   - com.google.code.gson:gson:2.10.1
+
 permissions:
   qualityeconomy.balance:
     description: "Allows the player to check their balance."

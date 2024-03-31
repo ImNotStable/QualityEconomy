@@ -59,7 +59,6 @@ public class StorageManager implements Listener {
       default -> {
         new Debug.QualityError("Unexpected Storage Type: " + QualityEconomy.getQualityConfig().STORAGE_TYPE, "Defaulting to H2").log();
         activeStorageType = new SQLStorageType(1);
-        return;
       }
     }
     if (!activeStorageType.initStorageProcesses()) {
