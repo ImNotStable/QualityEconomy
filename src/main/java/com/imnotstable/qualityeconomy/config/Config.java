@@ -50,9 +50,9 @@ public final class Config extends BaseConfig {
     COMMANDS_CUSTOMBALANCE = config.getBoolean("commands.custombalance", true);
     COMMANDS_CUSTOMECONOMY = config.getBoolean("commands.customeconomy", true);
     CUSTOM_CURRENCIES = config.getBoolean("custom-currencies", false);
-    BACKUP_INTERVAL = config.getLong("backup-interval", 21600);
-    BALANCETOP_INTERVAL = config.getLong("balancetop-interval", 5);
-    AUTO_SAVE_ACCOUNTS_INTERVAL = config.getLong("auto-save-accounts-interval", 60);
+    BACKUP_INTERVAL = config.getLong("backup-interval", 21600) * 20;
+    BALANCETOP_INTERVAL = config.getLong("balancetop-interval", 5) * 20;
+    AUTO_SAVE_ACCOUNTS_INTERVAL = config.getLong("auto-save-accounts-interval", 60) * 20;
     config.getConfigurationSection("database-information").getValues(false).forEach((key, value) -> DATABASE_INFORMATION.put(key, value.toString()));
     DATABASE_INFORMATION_ADVANCED_SETTINGS = config.getConfigurationSection("database-information.advanced-settings").getValues(false);
     UPDATE_NOTIFICATIONS = config.getBoolean("update-notifications", true);
