@@ -8,16 +8,6 @@
   "automerge": true,
   "automergeType": "pr",
   "automergeSchedule": ["after 7am and before 7pm on weekdays"],
-  "packageRules": [
-    {
-      "matchUpdateTypes": ["major", "minor"],
-      "automerge": false
-    },
-    {
-      "matchUpdateTypes": ["patch"],
-      "automerge": true
-    }
-  ],
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0
 }
