@@ -12,7 +12,7 @@ compileJava {
     jar.enabled = false
 }
 
-group = 'com.imnotstable'
+group = 'com.imnotstable.qualityeconomy'
 version = '1.4.9'
 
 repositories {
@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly "io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT"
+    compileOnly 'io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT'
     compileOnly 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
     implementation 'dev.jorel:commandapi-bukkit-shade:9.3.0'
@@ -41,7 +41,7 @@ dependencies {
     compileOnly 'com.zaxxer:HikariCP:5.1.0'
     compileOnly 'com.h2database:h2:2.2.224'
     compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
-    compileOnly 'org.postgresql:postgresql:42.7.2'
+    compileOnly 'org.postgresql:postgresql:42.7.3'
     compileOnly 'org.mongodb:mongodb-driver-sync:5.0.0'
     compileOnly 'com.google.code.gson:gson:2.10.1'
 }
@@ -58,7 +58,8 @@ shadowJar {
     destinationDirectory = file("M:/QualityEconomy/plugins/")
     archiveFileName = project.name + "-" + project.version + ".jar"
     archiveClassifier = null
-    relocate 'org.bstats', 'com.imnotstable.bstats'
-    relocate 'de.tr7zw.changeme.nbtapi', 'com.imnotstable.nbtapi'
-    relocate 'dev.jorel.commandapi', 'com.imnotstable.commandapi'
+    relocate 'org.bstats', 'com.imnotstable.qualityeconomy.bstats'
+    relocate 'de.tr7zw.changeme.nbtapi', 'com.imnotstable.qualityeconomy.nbtapi'
+    relocate 'dev.jorel.commandapi', 'com.imnotstable.qualityeconomy.commandapi'
+    exclude 'META-INF/**', 'LICENSE', 'module-info.class'
 }
