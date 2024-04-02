@@ -5,6 +5,13 @@
   ],
   "dependencyDashboard": false,
   "dependencyDashboardApproval": false,
+  "automerge": true,
+  "automergeType": "pr",
   "automergeSchedule": "every day",
-  "automerge": true
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "automerge": true
+    }
+  ]
 }
