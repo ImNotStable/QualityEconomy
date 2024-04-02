@@ -13,5 +13,7 @@
       "matchUpdateTypes": ["major", "minor", "patch"],
       "automerge": true
     }
-  ]
+  ],
+  "prConcurrentLimit": 0,
+  "prHourlyLimit": 0
 }
