@@ -7,10 +7,14 @@
   "dependencyDashboardApproval": false,
   "automerge": true,
   "automergeType": "pr",
-  "automergeSchedule": "every day",
+  "automergeSchedule": ["after 7am and before 7pm on weekdays"],
   "packageRules": [
     {
-      "matchUpdateTypes": ["major", "minor", "patch"],
+      "matchUpdateTypes": ["major", "minor"],
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": ["patch"],
       "automerge": true
     }
   ],
