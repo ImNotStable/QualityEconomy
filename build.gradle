@@ -33,7 +33,7 @@ dependencies {
         exclude group: 'net.kyori', module: 'adventure-platform-bukkit'
         exclude group: 'org.jetbrains', module: 'annotations'
     }
-    compileOnly('com.github.MilkBowl:VaultAPI:1.7') {
+    compileOnly('com.github.MilkBowl:VaultAPI:1.7.1') {
         exclude group: 'org.bukkit', module: 'bukkit'
     }
     implementation 'org.bstats:bstats-bukkit:3.0.2'
