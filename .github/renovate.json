@@ -4,6 +4,7 @@
     "config:recommended"
   ],
   "dependencyDashboard": false,
+  "dependencyDashboardApproval": false,
   "automergeSchedule": "every day",
   "automerge": true
 }
