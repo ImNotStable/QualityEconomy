@@ -1,1 +1,4 @@
 rootProject.name = 'QualityEconomy'
+include(
+        'paper'
+)

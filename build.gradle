@@ -12,54 +12,42 @@ compileJava {
     jar.enabled = false
 }
 
-group = 'com.imnotstable.qualityeconomy'
-version = '1.4.9'
+group 'com.imnotstable.qualityeconomy'
+version '1.4.9'
 
-repositories {
-    mavenCentral()
-    maven {url 'https://repo.papermc.io/repository/maven-public/'}
-    maven {url 'https://oss.sonatype.org/content/groups/public/'}
-    maven {url 'https://jitpack.io'}
-    maven {url 'https://repo.extendedclip.com/content/repositories/placeholderapi/'}
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    compileJava.sourceCompatibility = '17'
+    compileJava.targetCompatibility = '17'
+    compileJava.options.encoding = 'UTF-8'
+    jar.enabled = false
+
 }
 
-dependencies {
-    compileOnly 'io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT'
-    compileOnly 'org.projectlombok:lombok:1.18.32'
-    annotationProcessor 'org.projectlombok:lombok:1.18.32'
-    implementation 'dev.jorel:commandapi-bukkit-shade:9.3.0'
-    compileOnly('me.clip:placeholderapi:2.11.5') {
-        exclude group: 'org.bstats', module: 'bstats-bukkit'
-        exclude group: 'net.kyori', module: 'adventure-platform-bukkit'
-        exclude group: 'org.jetbrains', module: 'annotations'
+subprojects {
+
+    shadowJar {
+        from '../LICENSE'
+        archiveFileName = "${rootProject.name}-${rootProject.version}-${project.name.capitalize()}.jar"
+        archiveClassifier = null
+        destinationDirectory = file('../libs')
     }
-    compileOnly('com.github.MilkBowl:VaultAPI:1.7.1') {
-        exclude group: 'org.bukkit', module: 'bukkit'
+
+    build {
+        dependsOn shadowJar
     }
-    implementation 'org.bstats:bstats-bukkit:3.0.2'
-    //Loaded via. SpigotLibraryLoader
-    compileOnly 'com.zaxxer:HikariCP:5.1.0'
-    compileOnly 'com.h2database:h2:2.2.224'
-    compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
-    compileOnly 'org.postgresql:postgresql:42.7.3'
-    compileOnly 'org.mongodb:mongodb-driver-sync:5.0.0'
-    compileOnly 'com.google.code.gson:gson:2.10.1'
-}
 
-processResources {
-    filter(ReplaceTokens, tokens: [version: version])
-}
+    processResources {
+        filter(ReplaceTokens, tokens: [version: rootProject.version])
+    }
 
-build {
-    dependsOn(shadowJar)
-}
+    repositories {
+        mavenCentral()
+        maven { url 'https://repo.papermc.io/repository/maven-public/' }
+        maven { url 'https://oss.sonatype.org/content/groups/public/' }
+        maven { url 'https://jitpack.io' }
+        maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+    }
 
-shadowJar {
-    destinationDirectory = file("M:/QualityEconomy/plugins/")
-    archiveFileName = project.name + "-" + project.version + ".jar"
-    archiveClassifier = null
-    relocate 'org.bstats', 'com.imnotstable.qualityeconomy.bstats'
-    relocate 'de.tr7zw.changeme.nbtapi', 'com.imnotstable.qualityeconomy.nbtapi'
-    relocate 'dev.jorel.commandapi', 'com.imnotstable.qualityeconomy.commandapi'
-    exclude 'META-INF/**', 'LICENSE', 'module-info.class'
 }
