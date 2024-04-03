@@ -17,7 +17,7 @@ dependencies {
     compileOnly 'com.h2database:h2:2.2.224'
     compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
     compileOnly 'org.postgresql:postgresql:42.7.3'
-    compileOnly 'org.mongodb:mongodb-driver-sync:5.0.0'
+    compileOnly 'org.mongodb:mongodb-driver-sync:5.0.1'
     compileOnly 'com.google.code.gson:gson:2.10.1'
 }
 
