@@ -1,0 +1,55 @@
+# This is the storage type the plugin will use
+# Choose one of the options below
+# h2, sqlite, mysql, mariadb
+storage-type: h2
+
+# Amount of decimal places allowed within balances
+# -1 to disable rounding
+decimal-places: 3
+
+# Whether you want players to be able to withdraw
+# they're money to 'checks' or 'banknotes'
+banknotes: false
+
+# Whether you want QualityEconomy's custom bukkit events
+# to be enabled, this is for developers specifically
+custom-events: false
+
+# Whether you want all transactions to be logged
+# within a player specific file
+transaction-logging: false
+
+# Whether you want these commands enabled
+commands:
+  balance: true
+  balancetop: true
+  economy: true
+  pay: true
+  request: false
+  custombalance: false
+  customeconomy: false
+
+# Whether you want custom currency functionality enabled.
+custom-currencies: false
+
+# Number in seconds
+# 0 to disable
+backup-interval: 21600
+balancetop-interval: 5
+autosave-accounts-interval: 60
+
+database-information:
+  database: database-name
+  address: localhost
+  port: 0
+  username: username
+  password: password
+  advanced-settings:
+    maximum-pool-size: 10
+    minimum-idle: 10
+    maximum-lifetime: 1800000
+    keepalive-time: 0
+    connection-timeout: 5000
+
+# Notify admins when there is a new version of QualityEconomy
+update-notifications: true

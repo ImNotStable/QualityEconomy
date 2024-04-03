@@ -1,4 +1,5 @@
 rootProject.name = 'QualityEconomy'
 include(
-        'paper'
+        'paper',
+        'spigot'
 )

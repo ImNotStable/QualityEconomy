@@ -23,6 +23,15 @@ allprojects {
     compileJava.options.encoding = 'UTF-8'
     jar.enabled = false
 
+    repositories {
+        mavenCentral()
+        maven { url 'https://repo.papermc.io/repository/maven-public/' }
+        maven { url 'https://oss.sonatype.org/content/groups/public/' }
+        maven { url 'https://jitpack.io' }
+        maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+        maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    }
+
 }
 
 subprojects {
@@ -40,14 +49,6 @@ subprojects {
 
     processResources {
         filter(ReplaceTokens, tokens: [version: rootProject.version])
-    }
-
-    repositories {
-        mavenCentral()
-        maven { url 'https://repo.papermc.io/repository/maven-public/' }
-        maven { url 'https://oss.sonatype.org/content/groups/public/' }
-        maven { url 'https://jitpack.io' }
-        maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
     }
 
 }

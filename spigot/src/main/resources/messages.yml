@@ -1,0 +1,43 @@
+balancetop:
+  title: "&7&l&m•              &r&6&l BalanceTop&7 &l&m            &r&e %page%&7/&e%maxpage% &7&m             •"
+  server-total: "&8[&e&l!&r&8] &6&lBalanceTop &r&7→ Server Total: $%servertotal%"
+  balance-view: "&7%place%. %player%, &e$%balance%"
+  next-page: "&8[&e&l!&r&8] &6&lBalanceTop &r&7→ Use /%command% %nextpage% to view the next page."
+balance:
+  own-balance: "&7Balance: &e$%balance%"
+  other-balance: "&7%player%'s Balance: &e$%balance%"
+economy:
+  set: "&7Set &e%player%'s &7balance to &e$%balance%"
+  add: "&7Added &e$%balance% &7to &e%player%'s &7balance"
+  remove: "&7Removed &e$%balance% &7from &e%player%'s &7balance"
+  reset: "&7Reset &e%player%'s &7balance"
+pay:
+  toggle-on: "&7Payments are now &aenabled &7from other players"
+  toggle-off: "&7Payments are now &cdisabled &7from other players"
+  send: "&7Sent &e$%amount% &7to &e%receiver%"
+  receive: "&7Received &e$%amount% &7from &e%sender%"
+withdraw:
+  message: "&7You withdrew &e$%amount%"
+  claim: "&7You claimed &e$%amount%"
+  banknote-item:
+    displayname: "&e$%amount% &7Banknote"
+    lore: "||&7From: &e%player%"
+request:
+  toggle-on: "&7Requests are now &aenabled &7from other players"
+  toggle-off: "&7Requests are now &cdisabled &7from other players"
+  send: "&7Requested &e$%amount% &7from &e%requestee%"
+  receive: "&7You have received a request from &e%requester% &7for &e$%amount%"
+  accept-send: "&7Request for &e$%amount% &7was accepted by &e%requestee%"
+  accept-receive: "&7Accepted request for &e$%amount% &7from &e%requester%"
+  deny-send: "&7Request for &e$%amount% &7was denied by &e%requestee%"
+  deny-receive: "&7Denied request for &e$%amount% &7from &e%requester%"
+errors:
+  player-not-found: "&cPlayer not found: %player%"
+  player-not-online: "&cPlayer not online: %player%"
+  currency-not-found: "&cCurrency does not exist: %currency%"
+  not-enough-money:
+    self: "&cYou do not have enough money"
+    other: "&cThey do not have enough money"
+  not-accepting-payments: "&cThis player is not accepting payments"
+  not-accepting-requests: "&cThis player is not accepting requests"
+  invalid-number: "&cInvalid amount: %amount%"

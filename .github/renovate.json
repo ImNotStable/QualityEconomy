@@ -6,6 +6,7 @@
   "dependencyDashboard": false,
   "dependencyDashboardApproval": false,
   "automerge": true,
+  "ignoreTests": true,
   "automergeType": "pr",
   "automergeSchedule": ["after 7am and before 7pm on weekdays"],
   "prConcurrentLimit": 0,

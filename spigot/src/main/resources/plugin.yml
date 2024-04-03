@@ -1,0 +1,47 @@
+name: QualityEconomy
+author: "ImNotStable"
+main: com.imnotstable.qualityeconomy.QualityEconomy
+version: '@version@'
+api-version: 1.18
+load: STARTUP
+softdepend: [ PlaceholderAPI, Vault ]
+
+libraries:
+  - com.zaxxer:HikariCP:5.1.0
+  - org.mariadb.jdbc:mariadb-java-client:3.3.3
+  - org.postgresql:postgresql:42.7.2
+  - com.h2database:h2:2.2.224
+  - org.mongodb:mongodb-driver-sync:5.0.0
+  - com.google.code.gson:gson:2.10.1
+
+permissions:
+  qualityeconomy.balance:
+    description: "Allows the player to check their balance."
+    default: true
+  qualityeconomy.balancetop:
+    description: "Allows the player to check the top balances."
+    default: true
+  qualityeconomy.balancetop.exempt:
+    description: "Exempts the player from being shown in the top balances."
+    default: false
+  qualityeconomy.pay:
+    description: "Allows the player to pay another player."
+    default: true
+  qualityeconomy.request:
+    description: "Allows the player to request money from another player."
+    default: true
+  qualityeconomy.withdraw:
+    description: "Allows the player to withdraw money from their account."
+    default: true
+  qualityeconomy.admin:
+    description: "Allows the player to access admin features."
+    default: false
+  qualityeconomy.economy:
+    description: "Allows administrators to change a players balance."
+    default: false
+  qualityeconomy.custombalance:
+    description: "Allows the player to view their balance in a specific currency."
+    default: true
+  qualityeconomy.customeconomy:
+    description: "Allows administrators to change a players balance in a specific currency."
+    default: true
