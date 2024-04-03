@@ -15,11 +15,12 @@ import java.net.URL;
 
 public class UpdateChecker {
   
-  public static void load() {
+  public static void load(String rawCurrentVersion) {
     String latestVersion = getLatestVersion();
     if (latestVersion == null)
       return;
-    if (Version.compare(Version.getPluginVersion(), new Version(latestVersion)) == -1) {
+    Version currentVersion = new Version(rawCurrentVersion);
+    if (Version.compare(currentVersion, new Version(latestVersion)) == -1) {
       new Debug.QualityLogger("QualityEconomy is out of date. Please update it at the link below.", "https://github.com/ImNotStable/QualityEconomy/releases/latest").log();
       if (QualityEconomy.getQualityConfig().UPDATE_NOTIFICATIONS)
         Bukkit.getPluginManager().registerEvents(new Listener() {

@@ -54,7 +54,7 @@ public final class QualityEconomy extends JavaPlugin {
     
     Bukkit.getPluginManager().registerEvents(new StorageManager(), this);
     
-    UpdateChecker.load();
+    UpdateChecker.load(QualityEconomy.getInstance().getDescription().getVersion());
     
     timer.end();
   }

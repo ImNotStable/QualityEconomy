@@ -36,6 +36,13 @@ allprojects {
 
 subprojects {
 
+    dependencies {
+        compileOnly 'org.projectlombok:lombok:1.18.32'
+        annotationProcessor 'org.projectlombok:lombok:1.18.32'
+        compileOnly 'org.jetbrains:annotations:24.1.0'
+        annotationProcessor 'org.jetbrains:annotations:24.1.0'
+    }
+
     shadowJar {
         from '../LICENSE'
         archiveFileName = "${rootProject.name}-${rootProject.version}-${project.name.capitalize()}.jar"

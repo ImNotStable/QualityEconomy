@@ -1,12 +1,9 @@
 package com.imnotstable.qualityeconomy.util;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
-import lombok.Getter;
 import org.jetbrains.annotations.Range;
 
 public class Version {
   
-  private static final @Getter Version pluginVersion = new Version(QualityEconomy.getInstance().getDescription().getVersion());
   private final int[] version = new int[3];
   private final PostFix postFix;
   
