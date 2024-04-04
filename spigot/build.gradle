@@ -1,5 +1,4 @@
 dependencies {
-    implementation project(path: ':common', configuration: 'shadow')
     compileOnly 'org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT'
     implementation 'dev.jorel:commandapi-bukkit-shade:9.3.0'
     compileOnly('me.clip:placeholderapi:2.11.5') {
