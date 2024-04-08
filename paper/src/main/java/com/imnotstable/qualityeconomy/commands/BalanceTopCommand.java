@@ -5,8 +5,8 @@ import com.imnotstable.qualityeconomy.config.MessageType;
 import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
-import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Number;
+import com.imnotstable.qualityeconomy.util.debug.Timer;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
@@ -78,7 +78,7 @@ public class BalanceTopCommand extends BaseCommand {
   }
   
   private void updateBalanceTop() {
-    Debug.Timer timer = new Debug.Timer("updateBalanceTop()");
+    Timer timer = new Timer("updateBalanceTop()");
     
     Collection<Account> accounts = AccountManager.getAllAccounts();
     

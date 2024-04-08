@@ -1,6 +1,5 @@
 package com.imnotstable.qualityeconomy.storage.accounts;
 
-import com.imnotstable.qualityeconomy.util.Number;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,6 +13,7 @@ public class Account {
   private final Map<String, Double> otherBalances;
   @Getter
   private String username = "";
+  @Getter
   private double balance = 0.0;
   @Getter
   private boolean isPayable = true;
@@ -42,12 +42,8 @@ public class Account {
     return this;
   }
   
-  public double getBalance() {
-    return Number.round(balance);
-  }
-  
   public Account setBalance(double balance) {
-    this.balance = Number.round(balance);
+    this.balance = balance;
     this.requiresUpdate = true;
     return this;
   }
@@ -57,17 +53,17 @@ public class Account {
   }
   
   public Map<String, Double> getCustomBalances() {
-    return otherBalances;
+    return new HashMap<>(otherBalances);
   }
   
   public Account setCustomBalances(@NotNull Map<String, Double> balanceMap) {
-    balanceMap.forEach(this::setCustomBalance);
+    otherBalances.putAll(balanceMap);
     this.requiresUpdate = true;
     return this;
   }
   
   public Account setCustomBalance(@NotNull String currency, double balance) {
-    otherBalances.put(currency, Number.round(balance));
+    otherBalances.put(currency, balance);
     this.requiresUpdate = true;
     return this;
   }

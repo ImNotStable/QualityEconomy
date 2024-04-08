@@ -1,7 +1,7 @@
 package com.imnotstable.qualityeconomy.config;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -35,7 +35,7 @@ public class BaseConfig {
          InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
       internalMessages = YamlConfiguration.loadConfiguration(inputStreamReader);
     } catch (IOException exception) {
-      new Debug.QualityError("Failed to load internal " + file.getName(), exception).log();
+      Logger.logError("Failed to load internal " + file.getName(), exception);
       return;
     }
     messages = YamlConfiguration.loadConfiguration(file);
@@ -56,7 +56,7 @@ public class BaseConfig {
         try {
           messages.save(file);
         } catch (IOException exception) {
-          new Debug.QualityError("Failed to update " + file.getName(), exception).log();
+          Logger.logError("Failed to update " + file.getName(), exception);
         }
     }
   }

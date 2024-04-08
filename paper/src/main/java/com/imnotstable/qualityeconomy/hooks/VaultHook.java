@@ -2,9 +2,9 @@ package com.imnotstable.qualityeconomy.hooks;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.QualityException;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -40,7 +40,7 @@ public class VaultHook {
       
       return true;
     } catch (QualityException exception) {
-      new Debug.QualityError("Failed to register QualityEconomy with Vault", exception).log();
+      Logger.logError("Failed to register QualityEconomy with Vault", exception);
       return false;
     }
   }

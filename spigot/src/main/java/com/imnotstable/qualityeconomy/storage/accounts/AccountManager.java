@@ -3,13 +3,13 @@ package com.imnotstable.qualityeconomy.storage.accounts;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.util.Debug;
-import com.imnotstable.qualityeconomy.util.Misc;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -58,7 +58,7 @@ public class AccountManager {
   }
   
   public static void createFakeAccounts(int entries) {
-    Misc.runAsync(() -> {
+    CompletableFuture.runAsync(() -> {
       Debug.Timer timer = new Debug.Timer(String.format("createFakeAccounts(%d)", entries));
       Collection<Account> accounts = new ArrayList<>();
       Random random = new Random();
@@ -81,7 +81,7 @@ public class AccountManager {
   }
   
   public static void changeAllAccounts() {
-    Misc.runAsync(() -> {
+    CompletableFuture.runAsync(() -> {
       Debug.Timer timer = new Debug.Timer("changeAllAccounts()");
       Random random = new Random();
       String[] currencies = QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES ? StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0]) : null;

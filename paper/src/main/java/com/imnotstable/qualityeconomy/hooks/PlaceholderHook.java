@@ -3,9 +3,9 @@ package com.imnotstable.qualityeconomy.hooks;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
-import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,7 +19,11 @@ public class PlaceholderHook {
   public static boolean load() {
     if (!Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI"))
       return false;
-    return new HookProvider().register();
+    if (!new HookProvider().register()) {
+      Logger.logError("Failed to register PlaceholderAPI hook");
+      return false;
+    }
+    return true;
   }
   
   private static class HookProvider extends PlaceholderExpansion {
@@ -78,7 +82,7 @@ public class PlaceholderHook {
                 return null;
               place = Integer.parseInt(elements[index].substring(1)) - 1;
             } catch (NumberFormatException exception) {
-              new Debug.QualityError("Invalid input for \"balancetop_#<integer>\": " + input, exception).log();
+              Logger.logError("Invalid input for \"balancetop_#<integer>\": " + input, exception);
               return null;
             }
             if (place == -1 || BalanceTopCommand.orderedPlayerList.length < place + 1)

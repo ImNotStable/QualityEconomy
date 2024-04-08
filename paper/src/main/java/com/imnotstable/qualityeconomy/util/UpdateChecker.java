@@ -3,6 +3,7 @@ package com.imnotstable.qualityeconomy.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -25,7 +26,8 @@ public class UpdateChecker {
       return;
     Version currentVersion = new Version(rawCurrentVersion);
     if (Version.compare(currentVersion, new Version(latestVersion)) == -1) {
-      new Debug.QualityLogger("QualityEconomy is out of date. Please update it at the link below.", "https://github.com/ImNotStable/QualityEconomy/releases/latest").log();
+      Logger.log("QualityEconomy is out of date. Please update it at the link below.");
+      Logger.log("https://github.com/ImNotStable/QualityEconomy/releases/latest");
       if (QualityEconomy.getQualityConfig().UPDATE_NOTIFICATIONS)
         Bukkit.getPluginManager().registerEvents(new Listener() {
           @EventHandler
@@ -51,7 +53,7 @@ public class UpdateChecker {
       JsonObject jsonObject = new Gson().fromJson(reader, JsonObject.class);
       return jsonObject.get("tag_name").getAsString();
     } catch (Exception exception) {
-      new Debug.QualityError("Failed to check for update.", exception).log();
+      Logger.logError("Failed to check for update.", exception);
     }
     return null;
   }

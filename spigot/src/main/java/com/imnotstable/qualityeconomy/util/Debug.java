@@ -20,28 +20,28 @@ public class Debug {
       id = incrementer;
       start = System.nanoTime();
       this.message = message;
-      Logger.log(String.format("&8[#%d] &7%s", id, message));
+      Debug.Logger.log(String.format("&8[#%d] &7%s", id, message));
     }
     
     public void interrupt() {
       if (!DEBUG_MODE)
         return;
       long now = System.nanoTime();
-      Logger.log(String.format("&4[#%d] &c%s {%fms}", id, message, (now - start) / 1000000.0));
+      Debug.Logger.log(String.format("&4[#%d] &c%s {%fms}", id, message, (now - start) / 1000000.0));
     }
     
     public void progress() {
       if (!DEBUG_MODE)
         return;
       long now = System.nanoTime();
-      Logger.log(String.format("&6[#%d] &e%s {%fms}", id, message, (now - start) / 1000000.0));
+      Debug.Logger.log(String.format("&6[#%d] &e%s {%fms}", id, message, (now - start) / 1000000.0));
     }
     
     public void end() {
       if (!DEBUG_MODE)
         return;
       long now = System.nanoTime();
-      Logger.log(String.format("&2[#%d] &a%s {%fms}", id, message, (now - start) / 1000000.0));
+      Debug.Logger.log(String.format("&2[#%d] &a%s {%fms}", id, message, (now - start) / 1000000.0));
     }
     
   }
@@ -61,8 +61,8 @@ public class Debug {
     
     public void log() {
       Logger.nl();
-      Logger.log(title);
-      Logger.log(messages);
+      Debug.Logger.log(title);
+      Debug.Logger.log(messages);
       Logger.nl();
     }
     
@@ -91,15 +91,15 @@ public class Debug {
     
     public void log() {
       Logger.nl();
-      Logger.log(title);
-      Logger.log(informativeMessage);
+      Debug.Logger.log(title);
+      Debug.Logger.log(informativeMessage);
       Logger.nl();
       if (exception != null && exception.getMessage() != null) {
-        Logger.log("&cException: " + exception.getMessage());
+        Debug.Logger.log("&cException: " + exception.getMessage());
         exception.printStackTrace();
         Logger.nl();
       } else if (extraInformation != null) {
-        Logger.log("&cExtra Information: " + extraInformation);
+        Debug.Logger.log("&cExtra Information: " + extraInformation);
         Logger.nl();
       }
     }

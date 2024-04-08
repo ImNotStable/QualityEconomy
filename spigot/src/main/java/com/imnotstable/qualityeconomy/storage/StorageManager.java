@@ -144,7 +144,7 @@ public class StorageManager implements Listener {
   }
   
   public static void exportDatabase(final String path) {
-    Misc.runAsync(() -> {
+    CompletableFuture.runAsync(() -> {
       Debug.Timer timer = new Debug.Timer("exportDatabase()");
       AccountManager.saveAllAccounts();
       File dir = new File(path);

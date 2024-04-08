@@ -20,7 +20,6 @@ import com.imnotstable.qualityeconomy.economy.events.RequestDenyEvent;
 import com.imnotstable.qualityeconomy.economy.events.RequestEvent;
 import com.imnotstable.qualityeconomy.economy.events.WithdrawClaimEvent;
 import com.imnotstable.qualityeconomy.economy.events.WithdrawEvent;
-import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import dev.jorel.commandapi.CommandAPI;
 import lombok.AllArgsConstructor;
@@ -32,6 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -249,7 +249,7 @@ public enum EconomicTransactionType {
   
   public void execute(EconomicTransaction transaction) {
     if (isAsync)
-      Misc.runAsync(() -> {
+      CompletableFuture.runAsync(() -> {
         if (!transaction.isCancelled())
           executor.accept(transaction);
         

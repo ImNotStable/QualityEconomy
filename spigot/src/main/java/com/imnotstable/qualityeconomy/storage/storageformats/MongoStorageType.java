@@ -4,7 +4,6 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Debug;
-import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.storage.EasyMongo;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -22,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class MongoStorageType extends EasyMongo implements StorageType {
   
@@ -36,7 +36,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     client = MongoClients.create(settings);
     data = client.getDatabase("DATA");
     playerDataCollection = data.getCollection("PLAYERDATA");
-    Misc.runAsync(() -> {
+    CompletableFuture.runAsync(() -> {
       toggleCurrencyCollection();
       togglePayable();
       toggleRequestable();

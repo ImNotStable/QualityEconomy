@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
-import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -56,7 +56,7 @@ public class EasyJson extends EasyCurrencies {
     try (FileWriter fileWriter = new FileWriter(file)) {
       fileWriter.write(gson.toJson(json));
     } catch (IOException exception) {
-      new Debug.QualityError("Failed to save playerdata.json", exception).log();
+      Logger.logError("Failed to save playerdata.json", exception);
     }
   }
   

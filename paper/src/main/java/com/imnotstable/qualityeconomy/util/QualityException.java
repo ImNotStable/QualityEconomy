@@ -1,12 +1,14 @@
 package com.imnotstable.qualityeconomy.util;
 
+import com.imnotstable.qualityeconomy.util.debug.Logger;
+
 public class QualityException extends Exception {
   
   
   public QualityException(String message, Exception subException, boolean useQualityError) {
     super(message, subException);
     if (useQualityError)
-      new Debug.QualityError(message, subException).log();
+      Logger.logError(message, subException);
   }
   
   public QualityException(String message, Exception subException) {

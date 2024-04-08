@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
-import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.imnotstable.qualityeconomy.util.storage.EasyJson;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +36,7 @@ public class JsonStorageType extends EasyJson implements StorageType {
       toggleCustomCurrencies();
       save();
     } catch (IOException exception) {
-      new Debug.QualityError("Failed to initiate storage processes", exception).log();
+      Logger.logError("Failed to initiate storage processes", exception);
       return false;
     }
     return true;

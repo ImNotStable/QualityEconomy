@@ -13,8 +13,8 @@ import com.imnotstable.qualityeconomy.storage.storageformats.MongoStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.YamlStorageType;
-import com.imnotstable.qualityeconomy.util.Debug;
-import com.imnotstable.qualityeconomy.util.Misc;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
+import com.imnotstable.qualityeconomy.util.debug.Timer;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -46,7 +46,7 @@ public class StorageManager implements Listener {
   public static void initStorageProcesses(QualityEconomy plugin) {
     if (activeStorageType != null)
       return;
-    Debug.Timer timer = new Debug.Timer("initStorageProcesses()");
+    Timer timer = new Timer("initStorageProcesses()");
     switch (QualityEconomy.getQualityConfig().STORAGE_TYPE) {
       case "h2" -> activeStorageType = new SQLStorageType(1);
       case "sqlite" -> activeStorageType = new SQLStorageType(2);
@@ -57,12 +57,12 @@ public class StorageManager implements Listener {
       case "json" -> activeStorageType = new JsonStorageType();
       case "yaml" -> activeStorageType = new YamlStorageType();
       default -> {
-        new Debug.QualityError("Unexpected Storage Type: " + QualityEconomy.getQualityConfig().STORAGE_TYPE, "Defaulting to H2").log();
+        Logger.logError("Unexpected Storage Type: " + QualityEconomy.getQualityConfig().STORAGE_TYPE, "Defaulting to H2");
         activeStorageType = new SQLStorageType(1);
       }
     }
     if (!activeStorageType.initStorageProcesses()) {
-      new Debug.QualityError("Failed to initiate storage processes").log();
+      Logger.logError("Failed to initiate storage processes");
       timer.interrupt();
       return;
     }
@@ -81,7 +81,7 @@ public class StorageManager implements Listener {
   public static void endStorageProcesses() {
     if (activeStorageType == null)
       return;
-    Debug.Timer timer = new Debug.Timer("endStorageProcesses()");
+    Timer timer = new Timer("endStorageProcesses()");
     AccountManager.saveAllAccounts();
     
     if (accountSchedulerID != null) {
@@ -100,7 +100,7 @@ public class StorageManager implements Listener {
   
   public static CompletableFuture<Boolean> importDatabase(String fileName) {
     return CompletableFuture.supplyAsync(() -> {
-      Debug.Timer timer = new Debug.Timer("importDatabase()");
+      Timer timer = new Timer("importDatabase()");
       AccountManager.clearAccounts();
       getActiveStorageType().wipeDatabase();
       Collection<Account> accounts = new ArrayList<>();
@@ -135,7 +135,7 @@ public class StorageManager implements Listener {
         getActiveStorageType().createAccounts(accounts);
         AccountManager.setupAccounts();
       } catch (IOException exception) {
-        new Debug.QualityError("Error while importing playerdata", exception).log();
+        Logger.logError("Error while importing playerdata", exception);
         return false;
       }
       timer.end();
@@ -144,13 +144,13 @@ public class StorageManager implements Listener {
   }
   
   public static void exportDatabase(final String path) {
-    Misc.runAsync(() -> {
-      Debug.Timer timer = new Debug.Timer("exportDatabase()");
+    CompletableFuture.runAsync(() -> {
+      Timer timer = new Timer("exportDatabase()");
       AccountManager.saveAllAccounts();
       File dir = new File(path);
       if (!dir.exists() || !dir.isDirectory())
         if (!dir.mkdir()) {
-          new Debug.QualityError("Failed to create directory \"" + path + "\"").log();
+          Logger.logError("Failed to create directory \"" + path + "\"");
           return;
         }
       Gson gson = new Gson();
@@ -170,7 +170,7 @@ public class StorageManager implements Listener {
       try (FileWriter writer = new FileWriter(file)) {
         writer.write(gson.toJson(root));
       } catch (IOException exception) {
-        new Debug.QualityError("Error while exporting database", exception).log();
+        Logger.logError("Error while exporting database", exception);
       }
       timer.end();
     });
@@ -179,15 +179,15 @@ public class StorageManager implements Listener {
   public static void addCurrency(String currency) {
     currency = currency.toUpperCase();
     if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
-      new Debug.QualityError("This feature is disabled within QualityEconomy's configuration").log();
+      Logger.logError("This feature is disabled within QualityEconomy's configuration");
       return;
     }
     if (List.of("UUID", "NAME", "BALANCE", "PAYABLE", "REQUESTABLE").contains(currency)) {
-      new Debug.QualityError("Failed to create currency \"" + currency + "\"", "Name cannot be \"UUID\", \"NAME\", \"BALANCE\", \"PAYABLE\", \"REQUESTABLE\"").log();
+      Logger.logError("Failed to create currency \"" + currency + "\"", "Name cannot be \"UUID\", \"NAME\", \"BALANCE\", \"PAYABLE\", \"REQUESTABLE\"");
       return;
     }
     if (getActiveStorageType().getCurrencies().contains(currency)) {
-      new Debug.QualityError("Failed to create currency \"" + currency + "\"", "Currency already exists").log();
+      Logger.logError("Failed to create currency \"" + currency + "\"", "Currency already exists");
       return;
     }
     if (getActiveStorageType().addCurrency(currency)) {
@@ -199,11 +199,11 @@ public class StorageManager implements Listener {
   public static void removeCurrency(String currency) {
     currency = currency.toUpperCase();
     if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
-      new Debug.QualityError("This feature is disabled within QualityEconomy's configuration").log();
+      Logger.logError("This feature is disabled within QualityEconomy's configuration");
       return;
     }
     if (!getActiveStorageType().getCurrencies().contains(currency)) {
-      new Debug.QualityError("Failed to delete currency \"" + currency + "\"", "Currency doesn't exist").log();
+      Logger.logError("Failed to delete currency \"" + currency + "\"", "Currency doesn't exist");
       return;
     }
     if (getActiveStorageType().removeCurrency(currency))
@@ -215,7 +215,7 @@ public class StorageManager implements Listener {
   
   @EventHandler
   public void on(AsyncPlayerPreLoginEvent event) {
-    Debug.Timer timer = new Debug.Timer("onAsyncPlayerPreLoginEvent()");
+    Timer timer = new Timer("onAsyncPlayerPreLoginEvent()");
     AccountManager.getAccount(event.getUniqueId()).setUsername(event.getPlayerProfile().getName());
     timer.end();
   }

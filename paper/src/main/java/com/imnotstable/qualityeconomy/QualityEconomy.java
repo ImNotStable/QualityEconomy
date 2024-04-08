@@ -5,8 +5,10 @@ import com.imnotstable.qualityeconomy.config.Config;
 import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.hooks.HookManager;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
-import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.UpdateChecker;
+import com.imnotstable.qualityeconomy.util.debug.Debug;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
+import com.imnotstable.qualityeconomy.util.debug.Timer;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import lombok.Getter;
@@ -30,7 +32,7 @@ public final class QualityEconomy extends JavaPlugin {
   public void onLoad() {
     if (new File(getDataFolder(), "debug_mode").exists()) {
       Debug.DEBUG_MODE = true;
-      Debug.Logger.log(Component.text("Enabled DEBUG_MODE", NamedTextColor.GRAY));
+      Logger.log(Component.text("Enabled DEBUG_MODE", NamedTextColor.GRAY));
     }
     CommandAPI.onLoad(new CommandAPIBukkitConfig(this)
       .verboseOutput(Debug.DEBUG_MODE)
@@ -40,7 +42,7 @@ public final class QualityEconomy extends JavaPlugin {
   
   @Override
   public void onEnable() {
-    Debug.Timer timer = new Debug.Timer("onEnable()");
+    Timer timer = new Timer("onEnable()");
     instance = this;
     CommandAPI.onEnable();
     
@@ -61,7 +63,7 @@ public final class QualityEconomy extends JavaPlugin {
   
   @Override
   public void onDisable() {
-    Debug.Timer timer = new Debug.Timer("onDisable()");
+    Timer timer = new Timer("onDisable()");
     StorageManager.endStorageProcesses();
     CommandAPI.onDisable();
     timer.end();

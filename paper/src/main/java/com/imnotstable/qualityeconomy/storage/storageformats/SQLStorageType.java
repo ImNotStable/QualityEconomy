@@ -4,7 +4,7 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.commands.CommandManager;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
-import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.imnotstable.qualityeconomy.util.storage.EasySQL;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +27,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   @Override
   public boolean initStorageProcesses() {
     if (dataSource != null && !dataSource.isClosed()) {
-      new Debug.QualityError("Attempted to open datasource when datasource already exists").log();
+      Logger.logError("Attempted to open datasource when datasource already exists");
       return false;
     }
     open();
@@ -38,7 +38,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
       columns = getColumns(connection);
       generateStatements();
     } catch (SQLException exception) {
-      new Debug.QualityError("Error while initiating storage processes", exception).log();
+      Logger.logError("Error while initiating storage processes", exception);
       return false;
     }
     return true;
@@ -47,11 +47,11 @@ public class SQLStorageType extends EasySQL implements StorageType {
   @Override
   public void endStorageProcesses() {
     if (dataSource == null) {
-      new Debug.QualityError("Attempted to close datasource when datasource doesn't exist").log();
+      Logger.logError("Attempted to close datasource when datasource doesn't exist");
       return;
     }
     if (dataSource.isClosed()) {
-      new Debug.QualityError("Attempted to close datasource when datasource is already closed").log();
+      Logger.logError("Attempted to close datasource when datasource is already closed");
       return;
     }
     close();
@@ -66,7 +66,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
       endStorageProcesses();
       initStorageProcesses();
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to wipe database", exception).log();
+      Logger.logError("Failed to wipe database", exception);
     }
   }
   
@@ -78,10 +78,10 @@ public class SQLStorageType extends EasySQL implements StorageType {
       int affectedRows = preparedStatement.executeUpdate();
       
       if (affectedRows == 0) {
-        new Debug.QualityError("Failed to create account (" + account.getUniqueId() + ")").log();
+        Logger.logError("Failed to create account (" + account.getUniqueId() + ")");
       }
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to create account (" + account.getUniqueId() + ")", exception).log();
+      Logger.logError("Failed to create account (" + account.getUniqueId() + ")", exception);
     }
   }
   
@@ -102,11 +102,11 @@ public class SQLStorageType extends EasySQL implements StorageType {
         preparedStatement.executeBatch();
         connection.commit();
       } catch (SQLException exception) {
-        new Debug.QualityError("Failed to create accounts", exception).log();
+        Logger.logError("Failed to create accounts", exception);
         connection.rollback();
       }
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to rollback transaction", exception).log();
+      Logger.logError("Failed to rollback transaction", exception);
     }
   }
   
@@ -136,7 +136,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to get all accounts", exception);
+      Logger.logError("Failed to get all accounts", exception);
     }
     return accounts;
   }
@@ -165,11 +165,11 @@ public class SQLStorageType extends EasySQL implements StorageType {
         preparedStatement.executeBatch();
         connection.commit();
       } catch (SQLException exception) {
-        new Debug.QualityError("Failed to update accounts", exception).log();
+        Logger.logError("Failed to update accounts", exception);
         connection.rollback();
       }
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to rollback transaction", exception).log();
+      Logger.logError("Failed to rollback transaction", exception);
     }
   }
   
@@ -181,12 +181,12 @@ public class SQLStorageType extends EasySQL implements StorageType {
         preparedStatement.executeUpdate();
         addColumn(connection, currency, "FLOAT(53)", "0.0");
       } catch (SQLException exception) {
-        new Debug.QualityError("Failed to add currency to database (" + currency + ")", exception).log();
+        Logger.logError("Failed to add currency to database (" + currency + ")", exception);
         connection.rollback();
         return false;
       }
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to retrieve connection to database or rollback", exception).log();
+      Logger.logError("Failed to retrieve connection to database or rollback", exception);
       return false;
     }
     super.currencies.add(currency);
@@ -201,12 +201,12 @@ public class SQLStorageType extends EasySQL implements StorageType {
         preparedStatement.executeUpdate();
         dropColumn(connection, currency);
       } catch (SQLException exception) {
-        new Debug.QualityError("Failed to remove currency from database (" + currency + ")", exception).log();
+        Logger.logError("Failed to remove currency from database (" + currency + ")", exception);
         connection.rollback();
         return false;
       }
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to retrieve connection to database or rollback", exception).log();
+      Logger.logError("Failed to retrieve connection to database or rollback", exception);
       return false;
     }
     super.currencies.remove(currency);

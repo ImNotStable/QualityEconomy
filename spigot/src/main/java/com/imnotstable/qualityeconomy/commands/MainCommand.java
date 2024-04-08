@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
@@ -75,7 +76,7 @@ public class MainCommand extends BaseCommand {
   }
   
   private void reload(CommandSender sender, CommandArguments args) {
-    Misc.runAsync(() -> {
+    CompletableFuture.runAsync(() -> {
       Debug.Timer timer = new Debug.Timer("reload()");
       StorageManager.endStorageProcesses();
       QualityEconomy.getQualityConfig().load();
@@ -117,7 +118,7 @@ public class MainCommand extends BaseCommand {
   }
   
   private void transferPluginData(String plugin, CommandSender sender) {
-    Misc.runAsync(() -> {
+    CompletableFuture.runAsync(() -> {
       Debug.Timer timer = new Debug.Timer("transferPluginData()");
       Collection<Account> accounts = new ArrayList<>();
       if (plugin.equals("Essentials")) {

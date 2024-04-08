@@ -1,8 +1,8 @@
 package com.imnotstable.qualityeconomy.economy;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.QualityException;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -24,7 +24,7 @@ public class TransactionLogger {
   public static void log(EconomicTransaction transaction) {
     if (!dir.exists())
       if (dir.mkdirs()) {
-        new Debug.QualityError("Failed to create transaction log directory").log();
+        Logger.logError("Failed to create transaction log directory");
         return;
       }
     String message = getLogMessage(transaction);
@@ -61,7 +61,7 @@ public class TransactionLogger {
     try (FileWriter writer = new FileWriter(file, true)) {
       writer.write(message);
     } catch (IOException exception) {
-      new Debug.QualityError("Failed to write to transaction log (" + file.getName() + ")", exception).log();
+      Logger.logError("Failed to write to transaction log (" + file.getName() + ")", exception);
     }
   }
   
@@ -87,7 +87,7 @@ public class TransactionLogger {
         throw new QualityException("Unknown Reason");
       return true;
     } catch (IOException | QualityException exception) {
-      new Debug.QualityError("Failed to create transaction log (" + file.getName() + ")", exception).log();
+      Logger.logError("Failed to create transaction log (" + file.getName() + ")", exception);
     }
     return false;
   }

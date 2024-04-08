@@ -2,8 +2,8 @@ package com.imnotstable.qualityeconomy.util.storage;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
-import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Misc;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
@@ -34,7 +34,7 @@ public class EasySQL extends EasyCurrencies {
       DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
       DriverManager.registerDriver(new org.postgresql.Driver());
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to load JBDC Drivers", exception).log();
+      Logger.logError("Failed to load JBDC Drivers", exception);
     }
   }
   
@@ -69,7 +69,7 @@ public class EasySQL extends EasyCurrencies {
       case MARIADB -> setupDatasource(hikariConfig, "mariadb");
       case POSTGRESQL -> setupDatasource(hikariConfig, "postgresql");
       default -> {
-        new Debug.QualityError("Invalid database type: " + databaseType).log();
+        Logger.logError("Invalid database type: " + databaseType);
         return;
       }
     }
@@ -130,7 +130,7 @@ public class EasySQL extends EasyCurrencies {
         columns.add(rs.getString("COLUMN_NAME"));
       }
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to get columns of database", exception).log();
+      Logger.logError("Failed to get columns of database", exception);
       throw exception;
     }
     return columns;
@@ -140,7 +140,7 @@ public class EasySQL extends EasyCurrencies {
     try (ResultSet columns = metaData.getColumns(null, null, "PLAYERDATA", column)) {
       return columns.next();
     } catch (SQLException exception) {
-      new Debug.QualityError("Failed to check if column exists", exception).log();
+      Logger.logError("Failed to check if column exists", exception);
       throw exception;
     }
   }

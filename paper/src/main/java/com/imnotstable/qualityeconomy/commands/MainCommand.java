@@ -4,8 +4,10 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
-import com.imnotstable.qualityeconomy.util.Debug;
 import com.imnotstable.qualityeconomy.util.Misc;
+import com.imnotstable.qualityeconomy.util.debug.Debug;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
+import com.imnotstable.qualityeconomy.util.debug.Timer;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
@@ -27,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
@@ -77,8 +80,8 @@ public class MainCommand extends BaseCommand {
   }
   
   private void reload(CommandSender sender, CommandArguments args) {
-    Misc.runAsync(() -> {
-      Debug.Timer timer = new Debug.Timer("reload()");
+    CompletableFuture.runAsync(() -> {
+      Timer timer = new Timer("reload()");
       StorageManager.endStorageProcesses();
       QualityEconomy.getQualityConfig().load();
       QualityEconomy.getQualityMessages().load();
@@ -109,7 +112,7 @@ public class MainCommand extends BaseCommand {
       try {
         completed = StorageManager.importDatabase(importable).get();
       } catch (InterruptedException | ExecutionException exception) {
-        new Debug.QualityError("Error while importing database", exception).log();
+        Logger.logError("Error while importing database", exception);
       }
       if (completed)
         sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
@@ -119,8 +122,8 @@ public class MainCommand extends BaseCommand {
   }
   
   private void transferPluginData(String plugin, CommandSender sender) {
-    Misc.runAsync(() -> {
-      Debug.Timer timer = new Debug.Timer("transferPluginData()");
+    CompletableFuture.runAsync(() -> {
+      Timer timer = new Timer("transferPluginData()");
       Collection<Account> accounts = new ArrayList<>();
       if (plugin.equals("Essentials")) {
         File[] userdata = new File("plugins/Essentials/userdata").listFiles((dir, name) -> Misc.isUUID(name.split("\\.")[0]));

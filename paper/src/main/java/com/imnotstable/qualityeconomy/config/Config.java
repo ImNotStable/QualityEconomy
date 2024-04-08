@@ -1,7 +1,7 @@
 package com.imnotstable.qualityeconomy.config;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.IOException;
@@ -70,7 +70,7 @@ public final class Config extends BaseConfig {
       try {
         config.save(file);
       } catch (IOException exception) {
-        new Debug.QualityError("Failed to update config.yml during safety analysis", exception).log();
+        Logger.logError("Failed to update config.yml during safety analysis", exception);
       }
     return config;
   }

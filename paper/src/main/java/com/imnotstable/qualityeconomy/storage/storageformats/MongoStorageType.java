@@ -3,8 +3,7 @@ package com.imnotstable.qualityeconomy.storage.storageformats;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
-import com.imnotstable.qualityeconomy.util.Debug;
-import com.imnotstable.qualityeconomy.util.Misc;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.imnotstable.qualityeconomy.util.storage.EasyMongo;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -22,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class MongoStorageType extends EasyMongo implements StorageType {
   
@@ -36,7 +36,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     client = MongoClients.create(settings);
     data = client.getDatabase("DATA");
     playerDataCollection = data.getCollection("PLAYERDATA");
-    Misc.runAsync(() -> {
+    CompletableFuture.runAsync(() -> {
       toggleCurrencyCollection();
       togglePayable();
       toggleRequestable();
@@ -63,7 +63,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   public synchronized void createAccount(@NotNull Account account) {
     Document document = createDocument(account);
     if (!playerDataCollection.insertOne(document).wasAcknowledged())
-      new Debug.QualityError("Failed to create account (" + account.getUniqueId() + ")").log();
+      Logger.logError("Failed to create account (" + account.getUniqueId() + ")");
   }
   
   @Override
@@ -71,7 +71,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
     List<Document> documents = new ArrayList<>();
     accounts.forEach(account -> documents.add(createDocument(account)));
     if (!playerDataCollection.insertMany(documents).wasAcknowledged())
-      new Debug.QualityError("Failed to create accounts").log();
+      Logger.logError("Failed to create accounts");
   }
   
   @Override
@@ -128,7 +128,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   @Override
   public boolean addCurrency(@NotNull String currency) {
     if (currencyCollection == null) {
-      new Debug.QualityError("currencies collection database not found.").log();
+      Logger.logError("currencies collection database not found.");
       return false;
     }
     currencyCollection.insertOne(new Document("CURRENCY", currency));
@@ -139,7 +139,7 @@ public class MongoStorageType extends EasyMongo implements StorageType {
   @Override
   public boolean removeCurrency(@NotNull String currency) {
     if (currencyCollection == null) {
-      new Debug.QualityError("currencies collection not found.").log();
+      Logger.logError("currencies collection not found.");
       return false;
     }
     wipeEntry(currency);

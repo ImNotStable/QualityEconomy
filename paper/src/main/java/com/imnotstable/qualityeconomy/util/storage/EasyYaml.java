@@ -2,7 +2,7 @@ package com.imnotstable.qualityeconomy.util.storage;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
-import com.imnotstable.qualityeconomy.util.Debug;
+import com.imnotstable.qualityeconomy.util.debug.Logger;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -48,7 +48,7 @@ public class EasyYaml extends EasyCurrencies {
     try {
       yaml.save(file);
     } catch (IOException exception) {
-      new Debug.QualityError("Failed to save playerdata.yml", exception).log();
+      Logger.logError("Failed to save playerdata.yml", exception);
     }
   }
   
