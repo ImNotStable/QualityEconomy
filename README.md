@@ -1,4 +1,6 @@
 # QualityEconomy
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FImNotStable%2FQualityEconomy.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FImNotStable%2FQualityEconomy?ref=badge_shield)
+
 *Faster Than Essentials*
 
 Works without any configuration, just drop it in your plugins folder and you're good to go!
@@ -36,3 +38,6 @@ Works without any configuration, just drop it in your plugins folder and you're 
 - `isRequestable`: Whether the player is requestable.
 - `isRequestable_<uuid>`: Whether the player with the specified UUID is requestable.
 - `isRequestable_<player>`: Whether the player with the specified name is requestable.
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FImNotStable%2FQualityEconomy.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FImNotStable%2FQualityEconomy?ref=badge_large)
