@@ -6,7 +6,7 @@
   "dependencyDashboard": false,
   "dependencyDashboardApproval": false,
   "automerge": true,
-  "ignoreTests": true,
+  "ignoreTests": false,
   "automergeType": "pr",
   "automergeSchedule": ["hourly"],
   "prConcurrentLimit": 0,
