@@ -1,5 +1,7 @@
 package com.imnotstable.qualityeconomy.storage.accounts;
 
+import com.google.gson.JsonObject;
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -89,4 +91,42 @@ public class Account {
     return this;
   }
   
+  public static @NotNull Object serialize(@NotNull Account account, @NotNull SerializationType type) {
+    return switch (type) {
+      case JSON -> {
+        JsonObject json = new JsonObject();
+        json.addProperty("USERNAME", account.getUsername());
+        json.addProperty("BALANCE", account.getBalance());
+        if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
+          json.addProperty("PAYABLE", account.isPayable());
+        if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
+          json.addProperty("REQUESTABLE", account.isRequestable());
+        if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
+          account.getCustomBalances().forEach(json::addProperty);
+        yield json;
+      }
+      case YAML -> {
+        HashMap<String, Object> yaml = new HashMap<>();
+        yaml.put(account.getUniqueId() + ".USERNAME", account.getUsername());
+        yaml.put(account.getUniqueId() + ".BALANCE", account.getBalance());
+        if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
+          yaml.put(account.getUniqueId() + ".PAYABLE", account.isPayable());
+        if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
+          yaml.put(account.getUniqueId() + ".REQUESTABLE", account.isRequestable());
+        if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
+          account.getCustomBalances().forEach((currency, balance) -> yaml.put(account.getUniqueId() + "." + currency, balance));
+        yield yaml;
+      }
+      default -> throw new UnsupportedOperationException("Unsupported serialization type: " + type);
+    };
+  }
+  
+  public enum SerializationType {
+    
+    SQL,
+    MONGO,
+    JSON,
+    YAML
+    
+  }
 }
