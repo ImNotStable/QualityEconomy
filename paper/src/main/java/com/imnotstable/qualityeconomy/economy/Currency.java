@@ -15,10 +15,16 @@ public class Currency {
   private final String[] viewAliases;
   private final String adminCommand;
   private final String[] adminAliases;
+  private final String transferCommand;
+  private final String[] transferAliases;
   private final String singular;
   private final String plural;
   
-  private Currency(@NotNull String name, double defaultBalance, @NotNull String @NotNull [] viewCommands, @NotNull String @NotNull [] adminCommands, String singular, String plural) {
+  private Currency(@NotNull String name, double defaultBalance,
+                   @NotNull String @NotNull [] viewCommands,
+                   @NotNull String @NotNull [] adminCommands,
+                   @NotNull String @NotNull [] transferCommands,
+                   String singular, String plural) {
     this.name = name;
     this.defaultBalance = defaultBalance;
     if (viewCommands.length > 0)
@@ -39,6 +45,15 @@ public class Currency {
       System.arraycopy(adminCommands, 1, adminAliases, 0, adminAliases.length);
     } else
       this.adminAliases = new String[0];
+    if (transferCommands.length > 0)
+      this.transferCommand = transferCommands[0];
+    else
+      this.transferCommand = null;
+    if (transferCommands.length > 1) {
+      this.transferAliases = new String[transferCommands.length - 1];
+      System.arraycopy(transferCommands, 1, transferAliases, 0, transferAliases.length);
+    } else
+      this.transferAliases = new String[0];
     this.singular = singular;
     this.plural = plural;
   }
@@ -47,8 +62,8 @@ public class Currency {
     return AccountManager.getAccount(uniqueId).getBalance(name);
   }
   
-  public static Currency of(String name, double startingBalance, String[] viewCommands, String[] adminCommands, String singular, String plural) {
-    return new Currency(name, startingBalance, viewCommands, adminCommands, singular, plural);
+  public static Currency of(String name, double startingBalance, String[] viewCommands, String[] adminCommands, String[] transferCommands, String singular, String plural) {
+    return new Currency(name, startingBalance, viewCommands, adminCommands, transferCommands, singular, plural);
   }
   
 }

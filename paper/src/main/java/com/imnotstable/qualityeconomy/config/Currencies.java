@@ -35,9 +35,10 @@ public final class Currencies extends BaseConfig {
       double startingBalance = currencySection.getDouble("starting-balance");
       String[] viewCommands = currencySection.getStringList("view-commands").toArray(new String[0]);
       String[] adminCommands = currencySection.getStringList("admin-commands").toArray(new String[0]);
+      String[] transferCommands = currencySection.getStringList("transfer-commands").toArray(new String[0]);
       String singular = currencySection.getString("singular");
       String plural = currencySection.getString("plural");
-      currencies.put(currencyName, Currency.of(currencyName, startingBalance, viewCommands, adminCommands, singular, plural));
+      currencies.put(currencyName, Currency.of(currencyName, startingBalance, viewCommands, adminCommands, transferCommands, singular, plural));
     }
     loadCommands();
   }
@@ -50,10 +51,6 @@ public final class Currencies extends BaseConfig {
   private void unloadCommands() {
     currencyCommands.forEach(CurrencyCommand::unregister);
     currencyCommands.clear();
-  }
-  
-  public Map<String, Currency> getCurrencyMap() {
-    return new HashMap<>(currencies);
   }
   
   public Set<Currency> getCurrencies() {

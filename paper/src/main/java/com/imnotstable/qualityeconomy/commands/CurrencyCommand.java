@@ -45,11 +45,14 @@ public class CurrencyCommand {
     
     private View(@NotNull Currency currency) {
       this.currency = currency;
-      command = new CommandTree(currency.getViewCommand())
-        .withPermission("qualityeconomy." + currency.getName().toLowerCase())
-        .then(CommandUtils.TargetArgument(false)
-          .executes(this::viewOtherBalance))
-        .executesPlayer(this::viewOwnBalance);
+      if (currency.getViewCommand() == null)
+        command = null;
+      else
+        command = new CommandTree(currency.getViewCommand())
+          .withPermission("qualityeconomy." + currency.getName().toLowerCase())
+          .then(CommandUtils.TargetArgument(false)
+            .executes(this::viewOtherBalance))
+          .executesPlayer(this::viewOwnBalance);
     }
     
     private void viewOtherBalance(CommandSender sender, CommandArguments args) {
@@ -65,7 +68,7 @@ public class CurrencyCommand {
     
     @Override
     public void register() {
-      super.register(command, currency.getViewCommand() != null);
+      super.register(command, command != null);
     }
     
     @Override
@@ -82,49 +85,104 @@ public class CurrencyCommand {
     
     private Admin(@NotNull Currency currency) {
       this.currency = currency;
-      command = new CommandTree(currency.getAdminCommand())
-        .withPermission("qualityeconomy.admin")
-        .withAliases(currency.getAdminAliases())
-        .then(CommandUtils.TargetArgument(false)
-          .then(new LiteralArgument("reset").executes(this::resetBalance))
-          .then(new LiteralArgument("set").then(CommandUtils.AmountArgument().executes(this::setBalance)))
-          .then(new LiteralArgument("add").then(CommandUtils.AmountArgument().executes(this::addBalance)))
-          .then(new LiteralArgument("remove").then(CommandUtils.AmountArgument().executes(this::removeBalance))));
+      if (currency.getAdminCommand() == null)
+        command = null;
+      else
+        command = new CommandTree(currency.getAdminCommand())
+          .withPermission("qualityeconomy.admin")
+          .withAliases(currency.getAdminAliases())
+          .then(CommandUtils.TargetArgument(false)
+            .then(new LiteralArgument("reset").executes(this::resetBalance))
+            .then(new LiteralArgument("set").then(CommandUtils.AmountArgument().executes(this::setBalance)))
+            .then(new LiteralArgument("add").then(CommandUtils.AmountArgument().executes(this::addBalance)))
+            .then(new LiteralArgument("remove").then(CommandUtils.AmountArgument().executes(this::removeBalance))));
     }
     
     @SneakyThrows
     private void resetBalance(CommandSender sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
-      EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_RESET, sender, 0, EconomyPlayer.of(target)).execute();
+      EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_RESET, sender, currency, 0, EconomyPlayer.of(target)).execute();
     }
     
     @SneakyThrows
     private void setBalance(CommandSender sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
       double balance = (double) args.get("amount");
-      EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_SET, sender, balance, EconomyPlayer.of(target)).execute();
+      EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_SET, sender, currency, balance, EconomyPlayer.of(target)).execute();
     }
     
     @SneakyThrows
     private void addBalance(CommandSender sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
       double balance = (double) args.get("amount");
-      EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_ADD, sender, balance, EconomyPlayer.of(target)).execute();
+      EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_ADD, sender, currency, balance, EconomyPlayer.of(target)).execute();
     }
     
     @SneakyThrows
     private void removeBalance(CommandSender sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
       double balance = (double) args.get("amount");
-      EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_REMOVE, sender, balance, EconomyPlayer.of(target)).execute();
+      EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_REMOVE, sender, currency, balance, EconomyPlayer.of(target)).execute();
     }
     
     @Override
     public void register() {
-      super.register(command, currency.getViewCommand() != null);
+      super.register(command, command != null);
     }
     
     @Override
+    public void unregister() {
+      super.unregister(command);
+    }
+    
+  }
+  
+  private static class Transfer extends BaseCommand {
+    
+    private final CommandTree command;
+    private final Currency currency;
+    
+    private Transfer(@NotNull Currency currency) {
+      this.currency = currency;
+      if (currency.getTransferCommand() == null)
+        command = null;
+      else
+        command = new CommandTree("pay")
+          .withPermission("qualityeconomy.pay")
+          .then(new LiteralArgument("toggle")
+            .executesPlayer(this::togglePay))
+          .then(CommandUtils.TargetArgument(false)
+            .then(CommandUtils.AmountArgument()
+              .executesPlayer(this::pay)));
+    }
+    
+    private void togglePay(Player sender, CommandArguments args) {
+      boolean toggle = !QualityEconomyAPI.isPayable(sender.getUniqueId());
+      QualityEconomyAPI.setPayable(sender.getUniqueId(), toggle);
+      if (toggle) {
+        Messages.sendParsedMessage(sender, MessageType.PAY_TOGGLE_ON);
+      } else {
+        Messages.sendParsedMessage(sender, MessageType.PAY_TOGGLE_OFF);
+      }
+    }
+    
+    @SneakyThrows
+    private void pay(Player sender, CommandArguments args) {
+      OfflinePlayer target = (OfflinePlayer) args.get("target");
+      if (CommandUtils.requirement(QualityEconomyAPI.isPayable(target.getUniqueId()), MessageType.NOT_ACCEPTING_PAYMENTS, sender))
+        return;
+      double amount = (double) args.get("amount");
+      if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
+        return;
+      if (CommandUtils.requirement(amount >= Number.getMinimumValue(), MessageType.INVALID_NUMBER, sender))
+        return;
+      EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_TRANSFER, sender, currency, amount, EconomyPlayer.of(sender), EconomyPlayer.of(target)).execute();
+    }
+    
+    public void register() {
+      super.register(command);
+    }
+    
     public void unregister() {
       super.unregister(command);
     }

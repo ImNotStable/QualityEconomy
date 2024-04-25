@@ -24,6 +24,14 @@ public class QualityEconomyAPI {
     return getBalanceEntry(uniqueId, currencyName).getBalance();
   }
   
+  public static boolean hasBalance(@NotNull java.util.UUID uniqueId, double balance) {
+    return hasBalance(uniqueId, "default", balance);
+  }
+  
+  public static boolean hasBalance(@NotNull java.util.UUID uniqueId, @NotNull String currencyName, double balance) {
+    return getBalanceEntry(uniqueId, currencyName).getBalance() >= balance;
+  }
+  
   public static void setBalance(@NotNull java.util.UUID uniqueId, double balance) {
     setBalance(uniqueId, "default", balance);
   }
@@ -57,6 +65,22 @@ public class QualityEconomyAPI {
     com.imnotstable.qualityeconomy.storage.accounts.BalanceEntry receiverEntry = getBalanceEntry(receiverUniqueId, currencyName);
     senderEntry.decreaseBalance(balance);
     receiverEntry.increaseBalance(balance);
+  }
+  
+  public static boolean isPayable(@NotNull java.util.UUID uniqueId) {
+    return isPayable(uniqueId, "default");
+  }
+  
+  public static boolean isPayable(@NotNull java.util.UUID uniqueId, @NotNull String currencyName) {
+    return getBalanceEntry(uniqueId, currencyName).isPayable();
+  }
+  
+  public static void setPayable(@NotNull java.util.UUID uniqueId, boolean payable) {
+    setPayable(uniqueId, "default", payable);
+  }
+  
+  public static void setPayable(@NotNull java.util.UUID uniqueId, @NotNull String currencyName, boolean payable) {
+    getBalanceEntry(uniqueId, currencyName).setPayable(payable);
   }
   
   public static com.imnotstable.qualityeconomy.storage.accounts.BalanceEntry getBalanceEntry(@NotNull java.util.UUID uniqueId, @NotNull String currencyName) {

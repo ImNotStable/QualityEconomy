@@ -17,12 +17,11 @@ import org.bukkit.entity.Player;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 @AllArgsConstructor
 public enum EconomicTransactionType {
   
-  BALANCE_RESET(() -> true, BalanceRemoveEvent::new,
+  BALANCE_RESET(BalanceRemoveEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.setBalance(target.getUniqueId(), 0);
@@ -30,7 +29,7 @@ public enum EconomicTransactionType {
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_RESET,
           "player", target.getUsername());
     }, (transaction) -> String.format("%s's balance was reset by %s", transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
-  BALANCE_SET(() -> true, BalanceSetEvent::new,
+  BALANCE_SET(BalanceSetEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.setBalance(target.getUniqueId(), transaction.getAmount());
@@ -39,7 +38,7 @@ public enum EconomicTransactionType {
           "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
           "player", target.getUsername());
     }, (transaction) -> String.format("%s's balance was set to $%s by %s", transaction.getEconomyPlayers()[0].getUsername(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getSender().getName())),
-  BALANCE_ADD(() -> true, BalanceAddEvent::new,
+  BALANCE_ADD(BalanceAddEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.addBalance(target.getUniqueId(), transaction.getAmount());
@@ -48,7 +47,7 @@ public enum EconomicTransactionType {
           "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
           "player", target.getUsername());
     }, (transaction) -> String.format("$%s was added to %s's balance by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
-  BALANCE_REMOVE(() -> true, BalanceRemoveEvent::new,
+  BALANCE_REMOVE(BalanceRemoveEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.removeBalance(target.getUniqueId(), transaction.getAmount());
@@ -57,7 +56,7 @@ public enum EconomicTransactionType {
           "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
           "player", target.getUsername());
     }, (transaction) -> String.format("$%s was removed from %s's balance by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
-  BALANCE_TRANSFER(() -> true, 2, BalanceTransferEvent::new,
+  BALANCE_TRANSFER(2, BalanceTransferEvent::new,
     transaction -> {
       Player sender = transaction.getEconomyPlayers()[0].getOfflineplayer().getPlayer();
       EconomyPlayer target = transaction.getEconomyPlayers()[1];
@@ -74,8 +73,6 @@ public enum EconomicTransactionType {
     }, (transaction) -> String.format("$%s was transferred from %s to %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getEconomyPlayers()[1].getUsername()));
   
   @Getter
-  private final Supplier<Boolean> configurationRequirement;
-  @Getter
   private final int playerRequirement;
   private final boolean isAsync;
   private final Function<EconomicTransaction, EconomyEvent> event;
@@ -83,8 +80,7 @@ public enum EconomicTransactionType {
   @Getter
   private final Function<EconomicTransaction, String> logMessage;
   
-  EconomicTransactionType(Supplier<Boolean> configurationRequirement, int playerRequirement, Function<EconomicTransaction, EconomyEvent> event, Consumer<EconomicTransaction> executor, Function<EconomicTransaction, String> logMessage) {
-    this.configurationRequirement = configurationRequirement;
+  EconomicTransactionType(int playerRequirement, Function<EconomicTransaction, EconomyEvent> event, Consumer<EconomicTransaction> executor, Function<EconomicTransaction, String> logMessage) {
     this.playerRequirement = playerRequirement;
     this.isAsync = true;
     this.event = event;
@@ -92,17 +88,7 @@ public enum EconomicTransactionType {
     this.logMessage = logMessage;
   }
   
-  EconomicTransactionType(Supplier<Boolean> configurationRequirement, boolean isAsync, Function<EconomicTransaction, EconomyEvent> event, Consumer<EconomicTransaction> executor, Function<EconomicTransaction, String> logMessage) {
-    this.configurationRequirement = configurationRequirement;
-    this.playerRequirement = 1;
-    this.isAsync = isAsync;
-    this.event = event;
-    this.executor = executor;
-    this.logMessage = logMessage;
-  }
-  
-  EconomicTransactionType(Supplier<Boolean> configurationRequirement, Function<EconomicTransaction, EconomyEvent> event, Consumer<EconomicTransaction> executor, Function<EconomicTransaction, String> logMessage) {
-    this.configurationRequirement = configurationRequirement;
+  EconomicTransactionType(Function<EconomicTransaction, EconomyEvent> event, Consumer<EconomicTransaction> executor, Function<EconomicTransaction, String> logMessage) {
     this.playerRequirement = 1;
     this.isAsync = true;
     this.event = event;

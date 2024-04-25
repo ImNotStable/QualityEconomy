@@ -20,7 +20,6 @@ public class EasySQL {
   private static final int SQLITE = 2;
   private static final int MYSQL = 3;
   private static final int MARIADB = 4;
-  private static final int POSTGRESQL = 5;
   
   @Getter
   protected final String INSERT_ACCOUNT = "INSERT INTO ACCOUNTS(UUID,USERNAME) VALUES(?,?);";
@@ -35,7 +34,6 @@ public class EasySQL {
     try {
       DriverManager.registerDriver(new org.h2.Driver());
       DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
-      DriverManager.registerDriver(new org.postgresql.Driver());
     } catch (SQLException exception) {
       Logger.logError("Failed to load JBDC Drivers", exception);
     }
@@ -68,7 +66,6 @@ public class EasySQL {
       case SQLITE -> hikariConfig.setJdbcUrl("jdbc:sqlite:./plugins/QualityEconomy/playerdata.sqlite");
       case MYSQL -> setupDatasource(hikariConfig, "mysql");
       case MARIADB -> setupDatasource(hikariConfig, "mariadb");
-      case POSTGRESQL -> setupDatasource(hikariConfig, "postgresql");
       default -> {
         Logger.logError("Invalid database type: " + databaseType);
         return;

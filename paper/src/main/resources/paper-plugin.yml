@@ -1,0 +1,17 @@
+name: QualityEconomy
+author: "ImNotStable"
+main: com.imnotstable.qualityeconomy.QualityEconomy
+loader: com.imnotstable.qualityeconomy.QualityLoader
+version: '@version@'
+api-version: 1.19
+load: STARTUP
+dependencies:
+  server:
+    PlaceholderAPI:
+      load: BEFORE
+      required: true
+      join-classpath: true
+    Vault:
+      load: BEFORE
+      required: true
+      join-classpath: true
