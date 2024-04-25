@@ -1,9 +1,10 @@
 package com.imnotstable.qualityeconomy.util;
 
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.config.MessageType;
 import com.imnotstable.qualityeconomy.config.Messages;
-import com.imnotstable.qualityeconomy.storage.StorageManager;
+import com.imnotstable.qualityeconomy.economy.Currency;
 import dev.jorel.commandapi.arguments.Argument;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.CustomArgument;
@@ -27,11 +28,11 @@ public class CommandUtils {
   public static Argument<String> CurrencyArgument() {
     return new CustomArgument<>(new StringArgument("currency"), info -> {
       String currency = info.input();
-      if (!StorageManager.getActiveStorageType().getCurrencies().contains(currency))
+      if (QualityEconomy.getCurrencyConfig().getCurrency(currency).isEmpty())
         throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.CURRENCY_NOT_FOUND,
           "currency", currency));
       return currency;
-    }).replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0])));
+    }).replaceSuggestions(ArgumentSuggestions.strings(info -> QualityEconomy.getCurrencyConfig().getCurrencies().stream().map(Currency::getName).toArray(String[]::new)));
   }
   
   public static Argument<OfflinePlayer> TargetArgument(boolean mustBeOnline) {

@@ -36,13 +36,13 @@ public class CustomBalanceCommand extends BaseCommand {
     String currency = (String) args.get("currency");
     OfflinePlayer target = (OfflinePlayer) args.get("target");
     Messages.sendParsedMessage(sender, MessageType.BALANCE_OTHER_BALANCE,
-      Number.format(QualityEconomyAPI.getCustomBalance(target.getUniqueId(), currency), Number.FormatType.COMMAS), target.getName());
+      Number.format(QualityEconomyAPI.getBalance(target.getUniqueId(), currency), Number.FormatType.COMMAS), target.getName());
   }
   
   private void viewOwnBalance(Player sender, CommandArguments args) {
     String currency = (String) args.get("currency");
     Messages.sendParsedMessage(sender, MessageType.BALANCE_OWN_BALANCE,
-      Number.format(QualityEconomyAPI.getCustomBalance(sender.getUniqueId(), currency), Number.FormatType.COMMAS));
+      Number.format(QualityEconomyAPI.getBalance(sender.getUniqueId(), currency), Number.FormatType.COMMAS));
   }
   
 }

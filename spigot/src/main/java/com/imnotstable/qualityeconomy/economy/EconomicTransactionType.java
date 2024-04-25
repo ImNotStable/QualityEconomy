@@ -92,7 +92,7 @@ public enum EconomicTransactionType {
   CUSTOM_BALANCE_RESET(() -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES, CustomBalanceResetEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
-      QualityEconomyAPI.setCustomBalance(target.getUniqueId(), transaction.getCurrency(), 0);
+      QualityEconomyAPI.setBalance(target.getUniqueId(), transaction.getCurrency(), 0);
       if (!transaction.isSilent())
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_RESET,
           "player", target.getUsername());
@@ -100,7 +100,7 @@ public enum EconomicTransactionType {
   CUSTOM_BALANCE_SET(() -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES, CustomBalanceSetEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
-      QualityEconomyAPI.setCustomBalance(target.getUniqueId(), transaction.getCurrency(), transaction.getAmount());
+      QualityEconomyAPI.setBalance(target.getUniqueId(), transaction.getCurrency(), transaction.getAmount());
       if (!transaction.isSilent())
         Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_SET,
           "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
