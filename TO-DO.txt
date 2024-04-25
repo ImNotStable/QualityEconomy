@@ -1,0 +1,5 @@
+Re-add QualityEconomyAPI
+Re-implement MongoDB, Json, and Yaml support
+Re-implement import & export database
+Implement pay into individual currencies
+Re-implement createFakeEntries & changeAllEntries

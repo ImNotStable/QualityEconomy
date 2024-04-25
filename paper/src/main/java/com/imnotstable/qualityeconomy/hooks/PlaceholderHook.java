@@ -88,29 +88,13 @@ public class PlaceholderHook {
             if (place == -1 || BalanceTopCommand.orderedPlayerList.length < place + 1)
               return "N/A";
             if (elements[1].equals("balance"))
-              return Number.format(BalanceTopCommand.orderedPlayerList[place].getBalance(), Number.FormatType.NORMAL);
+              return Number.format(BalanceTopCommand.orderedPlayerList[place].getDefaultBalance(), Number.FormatType.NORMAL);
             else
               return BalanceTopCommand.orderedPlayerList[place].getUsername();
           }
           case "balance" -> {
             UUID uuid = grabUUID(elements, player, 1);
             return Number.format(QualityEconomyAPI.getBalance(uuid), Number.FormatType.NORMAL);
-          }
-          case "cbalance" -> {
-            if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
-              return "Feature is disabled";
-            if (!QualityEconomyAPI.doesCustomCurrencyExist(elements[1]))
-              return "Currency does not exist";
-            UUID uuid = grabUUID(elements, player, 2);
-            return Number.format(QualityEconomyAPI.getCustomBalance(uuid, elements[1]), Number.FormatType.NORMAL);
-          }
-          case "isPayable" -> {
-            UUID uuid = grabUUID(elements, player, 1);
-            return String.valueOf(QualityEconomyAPI.isPayable(uuid));
-          }
-          case "isRequestable" -> {
-            UUID uuid = grabUUID(elements, player, 1);
-            return String.valueOf(QualityEconomyAPI.isRequestable(uuid));
           }
         }
       } catch (Exception ignored) {

@@ -6,7 +6,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
@@ -14,7 +14,7 @@ public final class Messages extends BaseConfig {
   
   private final HashMap<String, String> MESSAGES = new HashMap<>();
   
-  public Messages(QualityEconomy plugin) {
+  public Messages(@NotNull QualityEconomy plugin) {
     super(plugin, "messages.yml");
     load();
   }
@@ -24,7 +24,7 @@ public final class Messages extends BaseConfig {
   }
   
   public static Component getParsedMessage(MessageType id, String... tags) {
-    String message = QualityEconomy.getQualityMessages().MESSAGES.get(id.getValue());
+    String message = QualityEconomy.getMessageConfig().MESSAGES.get(id.getValue());
     if (tags.length == 0)
       return MiniMessage.miniMessage().deserialize(message);
     if (tags.length % 2 != 0)
@@ -36,9 +36,9 @@ public final class Messages extends BaseConfig {
   }
   
   public void load() {
-    YamlConfiguration configuration = super.baseLoad();
-    for (String path : configuration.getKeys(true))
-      MESSAGES.put(path, configuration.getString(path, ""));
+    super.load(true);
+    for (String path : config.getKeys(true))
+      MESSAGES.put(path, config.getString(path, ""));
   }
   
 }

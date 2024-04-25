@@ -1,15 +1,13 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.commands.CommandManager;
 import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
+import com.imnotstable.qualityeconomy.storage.accounts.BalanceEntry;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.imnotstable.qualityeconomy.util.storage.EasySQL;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,11 +30,8 @@ public class SQLStorageType extends EasySQL implements StorageType {
     }
     open();
     try (Connection connection = getConnection()) {
-      createPlayerDataTable(connection);
-      toggleCurrencyTable(connection);
-      toggleColumns(connection);
-      columns = getColumns(connection);
-      generateStatements();
+      createAccountsTable(connection);
+      createBalanceTable(connection);
     } catch (SQLException exception) {
       Logger.logError("Error while initiating storage processes", exception);
       return false;
@@ -60,9 +55,8 @@ public class SQLStorageType extends EasySQL implements StorageType {
   @Override
   public synchronized void wipeDatabase() {
     try (Connection connection = getConnection()) {
-      dropPlayerDataTable(connection);
-      if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
-        dropCurrencyTable(connection);
+      dropAccountsTable(connection);
+      dropBalanceTable(connection);
       endStorageProcesses();
       initStorageProcesses();
     } catch (SQLException exception) {
@@ -73,9 +67,19 @@ public class SQLStorageType extends EasySQL implements StorageType {
   @Override
   public synchronized void createAccount(@NotNull Account account) {
     try (Connection connection = getConnection();
-         PreparedStatement preparedStatement = connection.prepareStatement(getInsertStatement())) {
-      createAccountSetter(preparedStatement, account);
-      int affectedRows = preparedStatement.executeUpdate();
+         PreparedStatement accountStatement = connection.prepareStatement(getINSERT_ACCOUNT());
+         PreparedStatement balanceStatement = connection.prepareStatement(getINSERT_BALANCE())) {
+      UUID uuid = account.getUniqueId();
+      accountStatement.setString(1, uuid.toString());
+      accountStatement.setString(2, account.getUsername());
+      int affectedRows = accountStatement.executeUpdate();
+      for (BalanceEntry entry : account.getBalances().values()) {
+        balanceStatement.setString(1, uuid.toString());
+        balanceStatement.setString(2, entry.getCurrency());
+        balanceStatement.setDouble(3, entry.getBalance());
+        balanceStatement.setBoolean(4, entry.isPayable());
+        balanceStatement.executeUpdate();
+      }
       
       if (affectedRows == 0) {
         Logger.logError("Failed to create account (" + account.getUniqueId() + ")");
@@ -91,11 +95,21 @@ public class SQLStorageType extends EasySQL implements StorageType {
       return;
     
     try (Connection connection = getConnection()) {
-      try (PreparedStatement preparedStatement = connection.prepareStatement(getInsertStatement())) {
+      try (PreparedStatement preparedStatement = connection.prepareStatement(getINSERT_ACCOUNT());
+           PreparedStatement balanceStatement = connection.prepareStatement(getINSERT_BALANCE())) {
         connection.setAutoCommit(false);
         
         for (Account account : accounts) {
-          createAccountSetter(preparedStatement, account);
+          UUID uuid = account.getUniqueId();
+          preparedStatement.setString(1, uuid.toString());
+          preparedStatement.setString(2, account.getUsername());
+          for (BalanceEntry entry : account.getBalances().values()) {
+            balanceStatement.setString(1, uuid.toString());
+            balanceStatement.setString(2, entry.getCurrency());
+            balanceStatement.setDouble(3, entry.getBalance());
+            balanceStatement.setBoolean(4, entry.isPayable());
+            balanceStatement.addBatch();
+          }
           preparedStatement.addBatch();
         }
         
@@ -115,24 +129,13 @@ public class SQLStorageType extends EasySQL implements StorageType {
     Map<UUID, Account> accounts = new HashMap<>();
     
     try (Connection connection = getConnection();
-         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM PLAYERDATA")) {
+         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM ACCOUNTS")) {
       ResultSet resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
         UUID uuid = UUID.fromString(resultSet.getString("UUID"));
         Account account = new Account(uuid)
-          .setUsername(resultSet.getString("USERNAME"))
-          .setBalance(resultSet.getDouble("BALANCE"));
-        if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
-          account.setPayable(resultSet.getBoolean("PAYABLE"));
-        if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
-          account.setRequestable(resultSet.getBoolean("REQUESTABLE"));
-        if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
-          Map<String, Double> customCurrencies = new HashMap<>();
-          for (String currency : currencies) {
-            customCurrencies.put(currency, resultSet.getDouble(currency));
-          }
-          account.setCustomBalances(customCurrencies);
-        }
+          .setUsername(resultSet.getString("USERNAME"));
+        
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
@@ -144,25 +147,25 @@ public class SQLStorageType extends EasySQL implements StorageType {
   @Override
   public synchronized void saveAllAccounts() {
     try (Connection connection = getConnection()) {
-      try (PreparedStatement preparedStatement = connection.prepareStatement(getUpdateStatement())) {
+      try (PreparedStatement accountStatement = connection.prepareStatement(getUPDATE_ACCOUNT());
+           PreparedStatement balanceStatement = connection.prepareStatement(getUPDATE_BALANCE())) {
         connection.setAutoCommit(false);
         for (Account account : AccountManager.getAllAccounts()) {
           if (!account.requiresUpdate())
             continue;
           account.update();
-          preparedStatement.setString(1, account.getUsername());
-          preparedStatement.setDouble(2, account.getBalance());
-          if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
-            preparedStatement.setBoolean(columns.indexOf("PAYABLE"), account.isPayable());
-          if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
-            preparedStatement.setBoolean(columns.indexOf("REQUESTABLE"), account.isRequestable());
-          if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
-            for (String currency : currencies)
-              preparedStatement.setDouble(columns.indexOf(currency), account.getCustomBalance(currency));
-          preparedStatement.setString(columns.size(), account.getUniqueId().toString());
-          preparedStatement.addBatch();
+          accountStatement.setString(1, account.getUsername());
+          accountStatement.setString(columns.size(), account.getUniqueId().toString());
+          for (BalanceEntry entry : account.getBalances().values()) {
+            balanceStatement.setDouble(1, entry.getBalance());
+            balanceStatement.setBoolean(2, entry.isPayable());
+            balanceStatement.setString(3, account.getUniqueId().toString());
+            balanceStatement.setString(4, entry.getCurrency());
+            balanceStatement.addBatch();
+          }
+          accountStatement.addBatch();
         }
-        preparedStatement.executeBatch();
+        accountStatement.executeBatch();
         connection.commit();
       } catch (SQLException exception) {
         Logger.logError("Failed to update accounts", exception);
@@ -171,87 +174,6 @@ public class SQLStorageType extends EasySQL implements StorageType {
     } catch (SQLException exception) {
       Logger.logError("Failed to rollback transaction", exception);
     }
-  }
-  
-  @Override
-  public boolean addCurrency(@NotNull String currency) {
-    try (Connection connection = getConnection()) {
-      try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO CURRENCIES(CURRENCY) VALUES(?)")) {
-        preparedStatement.setString(1, currency);
-        preparedStatement.executeUpdate();
-        addColumn(connection, currency, "FLOAT(53)", "0.0");
-      } catch (SQLException exception) {
-        Logger.logError("Failed to add currency to database (" + currency + ")", exception);
-        connection.rollback();
-        return false;
-      }
-    } catch (SQLException exception) {
-      Logger.logError("Failed to retrieve connection to database or rollback", exception);
-      return false;
-    }
-    super.currencies.add(currency);
-    return true;
-  }
-  
-  @Override
-  public boolean removeCurrency(@NotNull String currency) {
-    try (Connection connection = getConnection()) {
-      try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM CURRENCIES WHERE CURRENCY = ?")) {
-        preparedStatement.setString(1, currency);
-        preparedStatement.executeUpdate();
-        dropColumn(connection, currency);
-      } catch (SQLException exception) {
-        Logger.logError("Failed to remove currency from database (" + currency + ")", exception);
-        connection.rollback();
-        return false;
-      }
-    } catch (SQLException exception) {
-      Logger.logError("Failed to retrieve connection to database or rollback", exception);
-      return false;
-    }
-    super.currencies.remove(currency);
-    return true;
-  }
-  
-  private void toggleCurrencyTable(Connection connection) throws SQLException {
-    boolean tableExists = currencyTableExists(connection.getMetaData());
-    if (tableExists) {
-      try (ResultSet resultSet = connection.createStatement().executeQuery("SELECT * FROM CURRENCIES")) {
-        while (resultSet.next())
-          currencies.add(resultSet.getString(1));
-      }
-    }
-    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES && !tableExists)
-      createCurrencyTable(connection);
-    else if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES && tableExists)
-      dropCurrencyTable(connection);
-  }
-  
-  private void toggleColumns(Connection connection) throws SQLException {
-    DatabaseMetaData metaData = connection.getMetaData();
-    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
-      CommandManager.getCommand("custombalance").register();
-      CommandManager.getCommand("customeconomy").register();
-      for (String currency : currencies)
-        if (!columnExists(metaData, currency))
-          addColumn(connection, currency, "FLOAT(53)", "0.0");
-    } else {
-      CommandManager.getCommand("custombalance").unregister();
-      CommandManager.getCommand("customeconomy").unregister();
-      for (String currency : currencies)
-        if (columnExists(metaData, currency))
-          dropColumn(connection, currency);
-    }
-    boolean payableExists = columnExists(metaData, "PAYABLE");
-    if (QualityEconomy.getQualityConfig().COMMANDS_PAY && !payableExists)
-      addColumn(connection, "PAYABLE", "BOOLEAN", "TRUE");
-    else if (!QualityEconomy.getQualityConfig().COMMANDS_PAY && payableExists)
-      dropColumn(connection, "PAYABLE");
-    boolean requestableExists = columnExists(metaData, "REQUESTABLE");
-    if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST && !requestableExists)
-      addColumn(connection, "REQUESTABLE", "BOOLEAN", "FALSE");
-    else if (!QualityEconomy.getQualityConfig().COMMANDS_REQUEST && requestableExists)
-      dropColumn(connection, "REQUESTABLE");
   }
   
 }

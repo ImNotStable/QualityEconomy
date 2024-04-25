@@ -3,6 +3,7 @@ package com.imnotstable.qualityeconomy.config;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,28 +13,31 @@ import java.io.InputStreamReader;
 public class BaseConfig {
   
   protected final File file;
+  protected YamlConfiguration config;
   private final QualityEconomy plugin;
   
-  protected BaseConfig(QualityEconomy plugin, String fileName) {
+  protected BaseConfig(@NotNull QualityEconomy plugin, @NotNull String fileName) {
     this.plugin = plugin;
     this.file = new File(plugin.getDataFolder(), fileName);
   }
   
-  protected YamlConfiguration baseLoad() {
+  protected void load(boolean update) {
     if (!file.exists())
       plugin.saveResource(file.getName(), false);
-    else
+    else if (update)
       update();
-    return YamlConfiguration.loadConfiguration(file);
+    config = YamlConfiguration.loadConfiguration(file);
   }
   
   protected void update() {
     boolean save = false;
     YamlConfiguration internalMessages;
     YamlConfiguration messages;
-    try (InputStream inputStream = plugin.getResource(file.getName());
-         InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
-      internalMessages = YamlConfiguration.loadConfiguration(inputStreamReader);
+    try (InputStream inputStream = plugin.getResource(file.getName())) {
+      assert inputStream != null;
+      try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream)) {
+        internalMessages = YamlConfiguration.loadConfiguration(inputStreamReader);
+      }
     } catch (IOException exception) {
       Logger.logError("Failed to load internal " + file.getName(), exception);
       return;

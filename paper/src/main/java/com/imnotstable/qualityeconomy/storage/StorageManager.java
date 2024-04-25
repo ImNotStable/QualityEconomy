@@ -1,18 +1,9 @@
 package com.imnotstable.qualityeconomy.storage;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.commands.CommandManager;
-import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
-import com.imnotstable.qualityeconomy.storage.storageformats.JsonStorageType;
-import com.imnotstable.qualityeconomy.storage.storageformats.MongoStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
-import com.imnotstable.qualityeconomy.storage.storageformats.YamlStorageType;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.imnotstable.qualityeconomy.util.debug.Timer;
 import lombok.Getter;
@@ -21,19 +12,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class StorageManager implements Listener {
@@ -53,9 +31,6 @@ public class StorageManager implements Listener {
       case "mysql" -> activeStorageType = new SQLStorageType(3);
       case "mariadb" -> activeStorageType = new SQLStorageType(4);
       case "postgresql" -> activeStorageType = new SQLStorageType(5);
-      case "mongodb" -> activeStorageType = new MongoStorageType();
-      case "json" -> activeStorageType = new JsonStorageType();
-      case "yaml" -> activeStorageType = new YamlStorageType();
       default -> {
         Logger.logError("Unexpected Storage Type: " + QualityEconomy.getQualityConfig().STORAGE_TYPE, "Defaulting to H2");
         activeStorageType = new SQLStorageType(1);
@@ -99,118 +74,10 @@ public class StorageManager implements Listener {
   }
   
   public static CompletableFuture<Boolean> importDatabase(String fileName) {
-    return CompletableFuture.supplyAsync(() -> {
-      Timer timer = new Timer("importDatabase()");
-      AccountManager.clearAccounts();
-      getActiveStorageType().wipeDatabase();
-      Collection<Account> accounts = new ArrayList<>();
-      try {
-        String content = new String(Files.readAllBytes(Paths.get(String.format("plugins/QualityEconomy/%s", fileName))));
-        JsonObject rootJson = new Gson().fromJson(content, JsonObject.class);
-        
-        List<String> customCurrencies = new ArrayList<>();
-        if (rootJson.has("CUSTOM-CURRENCIES")) {
-          JsonArray currenciesJSON = rootJson.getAsJsonArray("CUSTOM-CURRENCIES");
-          for (JsonElement currencyJSON : currenciesJSON) {
-            String currency = currencyJSON.getAsString();
-            customCurrencies.add(currency);
-            addCurrency(currency);
-          }
-          rootJson.remove("CUSTOM-CURRENCIES");
-        }
-        rootJson.entrySet().stream()
-          .filter(entry -> !entry.getKey().equals("CUSTOM-CURRENCIES"))
-          .forEach(entry -> {
-            JsonObject accountJSON = entry.getValue().getAsJsonObject();
-            UUID uuid = UUID.fromString(entry.getKey());
-            String name = accountJSON.get("NAME").getAsString();
-            double balance = accountJSON.get("BALANCE").getAsDouble();
-            boolean payable = accountJSON.get("PAYABLE").getAsBoolean();
-            boolean requestable = accountJSON.get("REQUESTABLE").getAsBoolean();
-            Map<String, Double> balanceMap = new HashMap<>();
-            for (String currency : customCurrencies)
-              balanceMap.put(currency, accountJSON.get(currency).getAsDouble());
-            accounts.add(new Account(uuid).setUsername(name).setBalance(balance).setPayable(payable).setRequestable(requestable).setCustomBalances(balanceMap));
-          });
-        getActiveStorageType().createAccounts(accounts);
-        AccountManager.setupAccounts();
-      } catch (IOException exception) {
-        Logger.logError("Error while importing playerdata", exception);
-        return false;
-      }
-      timer.end();
-      return true;
-    });
+    return new CompletableFuture<>();
   }
   
   public static void exportDatabase(final String path) {
-    CompletableFuture.runAsync(() -> {
-      Timer timer = new Timer("exportDatabase()");
-      AccountManager.saveAllAccounts();
-      File dir = new File(path);
-      if (!dir.exists() || !dir.isDirectory())
-        if (!dir.mkdir()) {
-          Logger.logError("Failed to create directory \"" + path + "\"");
-          return;
-        }
-      Gson gson = new Gson();
-      JsonObject root = new JsonObject();
-      if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
-        root.add("CUSTOM-CURRENCIES", gson.toJsonTree(getActiveStorageType().getCurrencies()));
-      getActiveStorageType().getAllAccounts().forEach((uuid, account) -> {
-        JsonObject accountJson = new JsonObject();
-        accountJson.addProperty("NAME", account.getUsername());
-        accountJson.addProperty("BALANCE", account.getBalance());
-        accountJson.addProperty("PAYABLE", account.isPayable());
-        accountJson.addProperty("REQUESTABLE", account.isRequestable());
-        account.getCustomBalances().forEach(accountJson::addProperty);
-        root.add(uuid.toString(), accountJson);
-      });
-      File file = new File(String.format("%sQualityEconomy %s.json", path, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH-mm"))));
-      try (FileWriter writer = new FileWriter(file)) {
-        writer.write(gson.toJson(root));
-      } catch (IOException exception) {
-        Logger.logError("Error while exporting database", exception);
-      }
-      timer.end();
-    });
-  }
-  
-  public static void addCurrency(String currency) {
-    currency = currency.toUpperCase();
-    if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
-      Logger.logError("This feature is disabled within QualityEconomy's configuration");
-      return;
-    }
-    if (List.of("UUID", "NAME", "BALANCE", "PAYABLE", "REQUESTABLE").contains(currency)) {
-      Logger.logError("Failed to create currency \"" + currency + "\"", "Name cannot be \"UUID\", \"NAME\", \"BALANCE\", \"PAYABLE\", \"REQUESTABLE\"");
-      return;
-    }
-    if (getActiveStorageType().getCurrencies().contains(currency)) {
-      Logger.logError("Failed to create currency \"" + currency + "\"", "Currency already exists");
-      return;
-    }
-    if (getActiveStorageType().addCurrency(currency)) {
-      CommandManager.getCommand("custombalance").register();
-      CommandManager.getCommand("customeconomy").register();
-    }
-  }
-  
-  public static void removeCurrency(String currency) {
-    currency = currency.toUpperCase();
-    if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES) {
-      Logger.logError("This feature is disabled within QualityEconomy's configuration");
-      return;
-    }
-    if (!getActiveStorageType().getCurrencies().contains(currency)) {
-      Logger.logError("Failed to delete currency \"" + currency + "\"", "Currency doesn't exist");
-      return;
-    }
-    if (getActiveStorageType().removeCurrency(currency))
-      if (getActiveStorageType().getCurrencies().isEmpty()) {
-        CommandManager.getCommand("custombalance").unregister();
-        CommandManager.getCommand("customeconomy").unregister();
-      }
   }
   
   @EventHandler

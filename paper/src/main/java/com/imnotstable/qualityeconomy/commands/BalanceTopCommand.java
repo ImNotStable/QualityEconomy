@@ -69,7 +69,7 @@ public class BalanceTopCommand extends BaseCommand {
         Messages.sendParsedMessage(sender, MessageType.BALANCETOP_BALANCE_VIEW,
           "place", String.valueOf(i + 1),
           "player", account.getUsername(),
-          "balance", Number.format(account.getBalance(), Number.FormatType.COMMAS));
+          "balance", Number.format(account.getDefaultBalance(), Number.FormatType.COMMAS));
       }
     
     Messages.sendParsedMessage(sender, MessageType.BALANCETOP_NEXT_PAGE,
@@ -83,10 +83,10 @@ public class BalanceTopCommand extends BaseCommand {
     Collection<Account> accounts = AccountManager.getAllAccounts();
     
     serverTotal = Number.format(accounts.stream()
-      .mapToDouble(Account::getBalance)
+      .mapToDouble(Account::getDefaultBalance)
       .sum(), Number.FormatType.COMMAS);
     orderedPlayerList = accounts.stream()
-      .sorted(Comparator.comparingDouble(Account::getBalance).reversed())
+      .sorted(Comparator.comparingDouble(Account::getDefaultBalance).reversed())
       .toArray(Account[]::new);
     maxPage = (int) Math.ceil(orderedPlayerList.length / 10.0);
     

@@ -1,32 +1,35 @@
 package com.imnotstable.qualityeconomy.util.storage;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.storage.accounts.Account;
-import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-public class EasySQL extends EasyCurrencies {
+public class EasySQL {
   
   private static final int H2 = 1;
   private static final int SQLITE = 2;
   private static final int MYSQL = 3;
   private static final int MARIADB = 4;
   private static final int POSTGRESQL = 5;
+  
+  @Getter
+  protected final String INSERT_ACCOUNT = "INSERT INTO ACCOUNTS(UUID,USERNAME) VALUES(?,?);";
+  @Getter
+  protected final String UPDATE_ACCOUNT = "UPDATE ACCOUNTS SET USERNAME = ? WHERE UUID = ?;";
+  @Getter
+  protected final String INSERT_BALANCE = "INSERT INTO BALANCE(UUID,CURRENCY,BALANCE,PAYABLE) VALUES(?,?,?,?);";
+  @Getter
+  protected final String UPDATE_BALANCE = "UPDATE BALANCE SET BALANCE = ?, PAYABLE = ? WHERE UUID = ? AND CURRENCY = ?;";
   
   static {
     try {
@@ -41,8 +44,6 @@ public class EasySQL extends EasyCurrencies {
   private final int databaseType;
   protected HikariDataSource dataSource;
   protected List<String> columns = new ArrayList<>();
-  protected @Getter String insertStatement;
-  protected @Getter String updateStatement;
   
   protected EasySQL(int databaseType) {
     this.databaseType = databaseType;
@@ -95,103 +96,38 @@ public class EasySQL extends EasyCurrencies {
     hikariConfig.setConnectionTimeout((int) settings.getOrDefault("connection-timeout", 5000));
   }
   
-  protected void createPlayerDataTable(Connection connection) throws SQLException {
-    executeStatement(connection, "CREATE TABLE IF NOT EXISTS PLAYERDATA(UUID CHAR(36) PRIMARY KEY, USERNAME VARCHAR(16), BALANCE FLOAT(53) NOT NULL);");
+  protected void createAccountsTable(Connection connection) throws SQLException {
+    executeStatement(connection, """
+      CREATE TABLE IF NOT EXISTS ACCOUNTS(
+      UUID CHAR(36) PRIMARY KEY,
+      USERNAME VARCHAR(16),
+      );
+      """);
   }
   
-  protected void dropPlayerDataTable(Connection connection) throws SQLException {
-    executeStatement(connection, "DROP TABLE PLAYERDATA;");
+  protected void dropAccountsTable(Connection connection) throws SQLException {
+    executeStatement(connection, "DROP TABLE ACCOUNTS;");
   }
   
-  protected void createCurrencyTable(Connection connection) throws SQLException {
-    executeStatement(connection, "CREATE TABLE IF NOT EXISTS CURRENCIES(CURRENCY VARCHAR(255) PRIMARY KEY);");
+  protected void createBalanceTable(Connection connection) throws SQLException {
+    executeStatement(connection, """
+    CREATE TABLE IF NOT EXISTS BALANCES(
+    UUID CHAR(36),
+    CURRENCY VARCHAR(255),
+    BALANCE FLOAT(53) NOT NULL,
+    PAYABLE BOOLEAN,
+    FOREIGN KEY(UUID) REFERENCES ACCOUNTS(UUID));
+    """);
   }
   
-  protected void dropCurrencyTable(Connection connection) throws SQLException {
-    executeStatement(connection, "DROP TABLE CURRENCIES;");
-  }
-  
-  protected boolean currencyTableExists(DatabaseMetaData metaData) throws SQLException {
-    try (ResultSet resultSet = metaData.getTables(null, null, "CURRENCIES", null)) {
-      return resultSet.next();
-    }
+  protected void dropBalanceTable(Connection connection) throws SQLException {
+    executeStatement(connection, "DROP TABLE BALANCES;");
   }
   
   protected void executeStatement(Connection connection, String sql) throws SQLException {
     try (Statement statement = connection.createStatement()) {
       statement.execute(sql);
     }
-  }
-  
-  protected List<String> getColumns(Connection connection) throws SQLException {
-    List<String> columns = new ArrayList<>();
-    try (ResultSet rs = connection.getMetaData().getColumns(null, null, "PLAYERDATA", null)) {
-      while (rs.next()) {
-        columns.add(rs.getString("COLUMN_NAME"));
-      }
-    } catch (SQLException exception) {
-      Logger.logError("Failed to get columns of database", exception);
-      throw exception;
-    }
-    return columns;
-  }
-  
-  protected boolean columnExists(DatabaseMetaData metaData, String column) throws SQLException {
-    try (ResultSet columns = metaData.getColumns(null, null, "PLAYERDATA", column)) {
-      return columns.next();
-    } catch (SQLException exception) {
-      Logger.logError("Failed to check if column exists", exception);
-      throw exception;
-    }
-  }
-  
-  protected void addColumn(Connection connection, String column, String type, String def) throws SQLException {
-    try (Statement statement = connection.createStatement()) {
-      statement.executeUpdate(String.format("ALTER TABLE PLAYERDATA ADD COLUMN %s %s NOT NULL DEFAULT %s;", column, type, def));
-      columns.add(column);
-      generateStatements();
-    }
-  }
-  
-  protected void dropColumn(Connection connection, String column) throws SQLException {
-    try (Statement statement = connection.createStatement()) {
-      statement.executeUpdate(String.format("ALTER TABLE PLAYERDATA DROP COLUMN %s;", column));
-      columns.remove(column);
-      generateStatements();
-    }
-  }
-  
-  protected void createAccountSetter(PreparedStatement preparedStatement, Account account) throws SQLException {
-    UUID uuid = account.getUniqueId();
-    preparedStatement.setString(1, uuid.toString());
-    preparedStatement.setString(2, account.getUsername());
-    preparedStatement.setDouble(3, account.getBalance());
-    if (QualityEconomy.getQualityConfig().COMMANDS_PAY)
-      preparedStatement.setBoolean(columns.indexOf("PAYABLE") + 1, account.isPayable());
-    if (QualityEconomy.getQualityConfig().COMMANDS_REQUEST)
-      preparedStatement.setBoolean(columns.indexOf("REQUESTABLE") + 1, account.isRequestable());
-    if (QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
-      for (String currency : currencies)
-        preparedStatement.setDouble(columns.indexOf(currency) + 1, account.getCustomBalance(currency));
-  }
-  
-  protected void generateStatements() {
-    //Create Account
-    StringBuilder insert1 = new StringBuilder("UUID,USERNAME,BALANCE");
-    StringBuilder insert2 = new StringBuilder("?,?,?");
-    //Update Account
-    StringBuilder update = new StringBuilder("UPDATE PLAYERDATA SET USERNAME = ?, BALANCE = ?");
-    
-    for (String column : columns) {
-      if (Misc.equals(column, "UUID", "USERNAME", "BALANCE"))
-        continue;
-      insert1.append(",").append(column);
-      insert2.append(",?");
-      update.append(", ").append(column).append(" = ?");
-    }
-    
-    insertStatement = "INSERT INTO PLAYERDATA(" + insert1 + ") VALUES(" + insert2 + ");";
-    updateStatement = update.append(" WHERE UUID = ?;").toString();
   }
   
 }

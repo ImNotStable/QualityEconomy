@@ -1,0 +1,15 @@
+currencies:
+  default: # DO NOT REMOVE! Default is a required currency, feel free to change the settings below :)
+    admin-commands: # Can be set to [] to disable the commands
+      - economy
+      - eco
+    view-commands: # Can be set to [] to disable the command
+      - balance
+      - bal
+    transfer-commands: # Can be set to [] to disable the command
+      - pay
+    singular-name: Dollar
+    plural-name: Dollars
+    symbol: $
+    decimal-places: 2
+    starting-balance: 0.0

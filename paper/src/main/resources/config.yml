@@ -21,16 +21,8 @@ transaction-logging: false
 
 # Whether you want these commands enabled
 commands:
-  balance: true
   balancetop: true
-  economy: true
   pay: true
-  request: false
-  custombalance: false
-  customeconomy: false
-
-# Whether you want custom currency functionality enabled.
-custom-currencies: false
 
 # Number in seconds
 # 0 to disable

@@ -13,7 +13,6 @@ import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -59,17 +58,7 @@ public class MainCommand extends BaseCommand {
           .executes(this::createFakeEntries)))
       .then(new LiteralArgument("changeAllEntries")
         .withRequirement(sender -> Debug.DEBUG_MODE)
-        .executes(this::changeAllEntries)))
-    .then(new LiteralArgument("economy")
-      .withRequirement(sender -> QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
-      .then(new LiteralArgument("createCustomCurrency")
-        .then(new StringArgument("name")
-          .executes(this::createCustomCurrency)))
-      .then(new LiteralArgument("deleteCustomCurrency")
-        .then(new StringArgument("name")
-          .replaceSuggestions(ArgumentSuggestions.strings(info -> StorageManager.getActiveStorageType().getCurrencies().toArray(new String[0])))
-          .executes(this::deleteCustomCurrency)
-        )));
+        .executes(this::changeAllEntries)));
   
   public void register() {
     super.register(command);
@@ -84,7 +73,8 @@ public class MainCommand extends BaseCommand {
       Timer timer = new Timer("reload()");
       StorageManager.endStorageProcesses();
       QualityEconomy.getQualityConfig().load();
-      QualityEconomy.getQualityMessages().load();
+      QualityEconomy.getMessageConfig().load();
+      QualityEconomy.getCurrencyConfig().load();
       CommandManager.unregisterCommands();
       StorageManager.initStorageProcesses(QualityEconomy.getInstance());
       CommandManager.registerCommands();
@@ -94,7 +84,7 @@ public class MainCommand extends BaseCommand {
   }
   
   private void reloadMessages(CommandSender sender, CommandArguments args) {
-    QualityEconomy.getQualityMessages().load();
+    QualityEconomy.getMessageConfig().load();
     sender.sendMessage(Component.text("Reloading QualityEconomy messages.yml...", NamedTextColor.GRAY));
   }
   
@@ -136,7 +126,7 @@ public class MainCommand extends BaseCommand {
           UUID uuid = UUID.fromString(userfile.getName().split("\\.")[0]);
           String username = user.getString("last-account-name");
           double balance = Double.parseDouble(user.getString("money"));
-          accounts.add(new Account(uuid).setUsername(username).setBalance(balance));
+          accounts.add(new Account(uuid).setUsername(username).setDefaultBalance(balance));
         }
       }
       StorageManager.getActiveStorageType().wipeDatabase();
@@ -159,26 +149,6 @@ public class MainCommand extends BaseCommand {
   
   private void changeAllEntries(CommandSender sender, CommandArguments args) {
     AccountManager.changeAllAccounts();
-  }
-  
-  private void createCustomCurrency(CommandSender sender, CommandArguments args) {
-    String currency = args.get("name").toString().toUpperCase();
-    if (StorageManager.getActiveStorageType().getCurrencies().contains(currency)) {
-      sender.sendMessage(Component.text("That currency already exists", NamedTextColor.RED));
-      return;
-    }
-    sender.sendMessage(Component.text("Creating custom currency \"" + currency + "\"", NamedTextColor.GRAY));
-    StorageManager.addCurrency(currency);
-  }
-  
-  private void deleteCustomCurrency(CommandSender sender, CommandArguments args) {
-    String currency = args.get("name").toString().toUpperCase();
-    if (!StorageManager.getActiveStorageType().getCurrencies().contains(currency)) {
-      sender.sendMessage(Component.text("That currency does not exist", NamedTextColor.RED));
-      return;
-    }
-    sender.sendMessage(Component.text("Deleting custom currency \"" + currency + "\"", NamedTextColor.GRAY));
-    StorageManager.removeCurrency(currency);
   }
   
   private ArgumentSuggestions<CommandSender> getImportSuggestion() {
