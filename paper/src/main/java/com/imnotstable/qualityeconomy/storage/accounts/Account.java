@@ -12,10 +12,9 @@ import java.util.UUID;
 public class Account {
   @Getter
   private final UUID uniqueId;
-  private final Map<String, BalanceEntry> balances;
   @Getter
   private String username = "";
-  private Boolean requiresUpdate = null;
+  private final Map<String, BalanceEntry> balances;
   
   public Account(UUID uniqueId) {
     this.uniqueId = uniqueId;
@@ -26,23 +25,20 @@ public class Account {
     this.uniqueId = account.uniqueId;
     this.username = account.username;
     this.balances = account.balances;
-    this.requiresUpdate = account.requiresUpdate;
   }
   
   public Account setUsername(@NotNull String username) {
     this.username = username;
-    this.requiresUpdate = true;
-    return this;
-  }
-  
-  public Account setDefaultBalance(double balance) {
-    balances.get("default").setBalance(balance);
-    this.requiresUpdate = true;
     return this;
   }
   
   public double getDefaultBalance() {
     return getBalance("default");
+  }
+  
+  public Account setDefaultBalance(double balance) {
+    balances.get("default").setBalance(balance);
+    return this;
   }
   
   public double getBalance(@NotNull String currency) {
@@ -51,41 +47,24 @@ public class Account {
   
   public BalanceEntry getBalanceEntry(@NotNull String currency) {
     if (!balances.containsKey(currency)) {
-      if (QualityEconomy.getCurrencyConfig().getCurrency(currency) == null)
+      if (QualityEconomy.getCurrencyConfig().getCurrency(currency).isEmpty())
         throw new IllegalArgumentException("Currency " + currency + " does not exist");
       return new BalanceEntry(currency, QualityEconomy.getCurrencyConfig().getDefaultBalance(currency), true);
     }
     return balances.get(currency);
   }
   
-  public Map<String, BalanceEntry> getBalances() {
-    return new HashMap<>(balances);
-  }
-  
-  public Account setBalances(Collection<BalanceEntry> balanceEntries) {
-    balanceEntries.forEach(this::setBalance);
-    this.requiresUpdate = true;
-    return this;
-  }
-  
-  public Account setBalances(@NotNull Map<String, BalanceEntry> balanceMap) {
-    balances.putAll(balanceMap);
-    this.requiresUpdate = true;
-    return this;
+  public Collection<BalanceEntry> getBalanceEntries() {
+    return balances.values();
   }
   
   public Account setBalance(BalanceEntry balance) {
     balances.put(balance.getCurrency(), balance);
-    this.requiresUpdate = true;
     return this;
   }
   
-  public boolean requiresUpdate() {
-    return requiresUpdate != null;
-  }
-  
-  public Account update() {
-    requiresUpdate = null;
+  public Account setBalances(Collection<BalanceEntry> balanceEntries) {
+    balanceEntries.forEach(this::setBalance);
     return this;
   }
   

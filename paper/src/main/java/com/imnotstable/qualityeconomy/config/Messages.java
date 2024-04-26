@@ -19,12 +19,23 @@ public final class Messages extends BaseConfig {
     load();
   }
   
+  public static String getMessage(MessageType id) {
+    return QualityEconomy.getMessageConfig().MESSAGES.get(id.getValue());
+  }
+  
   public static void sendParsedMessage(CommandSender sender, MessageType id, String... tags) {
     sender.sendMessage(getParsedMessage(id, tags));
   }
   
+  public static void sendParsedMessage(CommandSender sender, String message, String... tags) {
+    sender.sendMessage(getParsedMessage(message, tags));
+  }
+  
   public static Component getParsedMessage(MessageType id, String... tags) {
-    String message = QualityEconomy.getMessageConfig().MESSAGES.get(id.getValue());
+    return getParsedMessage(getMessage(id), tags);
+  }
+  
+  public static Component getParsedMessage(String message, String... tags) {
     if (tags.length == 0)
       return MiniMessage.miniMessage().deserialize(message);
     if (tags.length % 2 != 0)

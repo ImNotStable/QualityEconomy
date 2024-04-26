@@ -38,7 +38,16 @@ public final class Currencies extends BaseConfig {
       String[] transferCommands = currencySection.getStringList("transfer-commands").toArray(new String[0]);
       String singular = currencySection.getString("singular");
       String plural = currencySection.getString("plural");
-      currencies.put(currencyName, Currency.of(currencyName, startingBalance, viewCommands, adminCommands, transferCommands, singular, plural));
+      MessageType[] messageTypes = MessageType.values();
+      Map<MessageType, String> messages = new HashMap<>();
+      for (MessageType messageType : messageTypes) {
+        if (!messageType.isCurrencyDependent())
+          continue;
+        String message = currencySection.getString("messages." + messageType.getValue());
+        if (message != null)
+          messages.put(messageType, message);
+      }
+      currencies.put(currencyName, Currency.of(currencyName, startingBalance, viewCommands, adminCommands, transferCommands, singular, plural, messages));
     }
     loadCommands();
   }

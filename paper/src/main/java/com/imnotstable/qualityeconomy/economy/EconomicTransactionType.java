@@ -26,7 +26,7 @@ public enum EconomicTransactionType {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.setBalance(target.getUniqueId(), 0);
       if (!transaction.isSilent())
-        Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_RESET,
+        Messages.sendParsedMessage(transaction.getSender(), transaction.getCurrency().getMessage(MessageType.ECONOMY_RESET),
           "player", target.getUsername());
     }, (transaction) -> String.format("%s's balance was reset by %s", transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
   BALANCE_SET(BalanceSetEvent::new,
@@ -34,7 +34,7 @@ public enum EconomicTransactionType {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.setBalance(target.getUniqueId(), transaction.getAmount());
       if (!transaction.isSilent())
-        Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_SET,
+        Messages.sendParsedMessage(transaction.getSender(), transaction.getCurrency().getMessage(MessageType.ECONOMY_SET),
           "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
           "player", target.getUsername());
     }, (transaction) -> String.format("%s's balance was set to $%s by %s", transaction.getEconomyPlayers()[0].getUsername(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getSender().getName())),
@@ -43,7 +43,7 @@ public enum EconomicTransactionType {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.addBalance(target.getUniqueId(), transaction.getAmount());
       if (!transaction.isSilent())
-        Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_ADD,
+        Messages.sendParsedMessage(transaction.getSender(), transaction.getCurrency().getMessage(MessageType.ECONOMY_ADD),
           "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
           "player", target.getUsername());
     }, (transaction) -> String.format("$%s was added to %s's balance by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
@@ -52,7 +52,7 @@ public enum EconomicTransactionType {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
       QualityEconomyAPI.removeBalance(target.getUniqueId(), transaction.getAmount());
       if (!transaction.isSilent())
-        Messages.sendParsedMessage(transaction.getSender(), MessageType.ECONOMY_REMOVE,
+        Messages.sendParsedMessage(transaction.getSender(), transaction.getCurrency().getMessage(MessageType.ECONOMY_REMOVE),
           "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
           "player", target.getUsername());
     }, (transaction) -> String.format("$%s was removed from %s's balance by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
@@ -61,12 +61,12 @@ public enum EconomicTransactionType {
       Player sender = transaction.getEconomyPlayers()[0].getOfflineplayer().getPlayer();
       EconomyPlayer target = transaction.getEconomyPlayers()[1];
       if (!transaction.isSilent())
-        Messages.sendParsedMessage(sender, MessageType.PAY_SEND,
+        Messages.sendParsedMessage(sender, transaction.getCurrency().getMessage(MessageType.PAY_SEND),
           "amount", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
           "receiver", target.getUsername()
         );
       if (!transaction.isSilent() && target.getOfflineplayer().isOnline())
-        Messages.sendParsedMessage(target.getOfflineplayer().getPlayer(), MessageType.PAY_RECEIVE,
+        Messages.sendParsedMessage(target.getOfflineplayer().getPlayer(), transaction.getCurrency().getMessage(MessageType.PAY_RECEIVE),
           "amount", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
           "sender", sender.getName());
       QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), transaction.getAmount());

@@ -6,6 +6,7 @@ import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.imnotstable.qualityeconomy.util.debug.Timer;
+import com.imnotstable.qualityeconomy.util.storage.SQLDriver;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -26,14 +27,13 @@ public class StorageManager implements Listener {
       return;
     Timer timer = new Timer("initStorageProcesses()");
     switch (QualityEconomy.getQualityConfig().STORAGE_TYPE) {
-      case "h2" -> activeStorageType = new SQLStorageType(1);
-      case "sqlite" -> activeStorageType = new SQLStorageType(2);
-      case "mysql" -> activeStorageType = new SQLStorageType(3);
-      case "mariadb" -> activeStorageType = new SQLStorageType(4);
-      case "postgresql" -> activeStorageType = new SQLStorageType(5);
+      case "h2" -> activeStorageType = new SQLStorageType(SQLDriver.H2);
+      case "sqlite" -> activeStorageType = new SQLStorageType(SQLDriver.SQLITE);
+      case "mysql" -> activeStorageType = new SQLStorageType(SQLDriver.MYSQL);
+      case "mariadb" -> activeStorageType = new SQLStorageType(SQLDriver.MARIADB);
       default -> {
         Logger.logError("Unexpected Storage Type: " + QualityEconomy.getQualityConfig().STORAGE_TYPE, "Defaulting to H2");
-        activeStorageType = new SQLStorageType(1);
+        activeStorageType = new SQLStorageType(SQLDriver.H2);
       }
     }
     if (!activeStorageType.initStorageProcesses()) {

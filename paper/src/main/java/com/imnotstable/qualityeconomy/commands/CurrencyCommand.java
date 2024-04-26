@@ -22,20 +22,24 @@ public class CurrencyCommand {
   
   private final View view;
   private final Admin admin;
+  private final Transfer transfer;
   
   public CurrencyCommand(@NotNull Currency currency) {
     this.view = new View(currency);
     this.admin = new Admin(currency);
+    this.transfer = new Transfer(currency);
   }
   
   public void register() {
     view.register();
     admin.register();
+    transfer.register();
   }
   
   public void unregister() {
     view.unregister();
     admin.unregister();
+    transfer.unregister();
   }
   
   private static class View extends BaseCommand {
@@ -49,7 +53,7 @@ public class CurrencyCommand {
         command = null;
       else
         command = new CommandTree(currency.getViewCommand())
-          .withPermission("qualityeconomy." + currency.getName().toLowerCase())
+          .withAliases(currency.getViewAliases())
           .then(CommandUtils.TargetArgument(false)
             .executes(this::viewOtherBalance))
           .executesPlayer(this::viewOwnBalance);
@@ -57,12 +61,12 @@ public class CurrencyCommand {
     
     private void viewOtherBalance(CommandSender sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
-      Messages.sendParsedMessage(sender, MessageType.BALANCE_OTHER_BALANCE,
+      Messages.sendParsedMessage(sender, currency.getMessage(MessageType.BALANCE_OTHER_BALANCE),
         "balance", Number.format(QualityEconomyAPI.getBalance(target.getUniqueId(), currency.getName()), Number.FormatType.COMMAS), "player", target.getName());
     }
     
     private void viewOwnBalance(Player sender, CommandArguments args) {
-      Messages.sendParsedMessage(sender, MessageType.BALANCE_OWN_BALANCE,
+      Messages.sendParsedMessage(sender, currency.getMessage(MessageType.BALANCE_OWN_BALANCE),
         "balance", Number.format(QualityEconomyAPI.getBalance(sender.getUniqueId(), currency.getName()), Number.FormatType.COMMAS));
     }
     
@@ -89,7 +93,6 @@ public class CurrencyCommand {
         command = null;
       else
         command = new CommandTree(currency.getAdminCommand())
-          .withPermission("qualityeconomy.admin")
           .withAliases(currency.getAdminAliases())
           .then(CommandUtils.TargetArgument(false)
             .then(new LiteralArgument("reset").executes(this::resetBalance))
@@ -148,7 +151,7 @@ public class CurrencyCommand {
         command = null;
       else
         command = new CommandTree("pay")
-          .withPermission("qualityeconomy.pay")
+          .withAliases(currency.getTransferAliases())
           .then(new LiteralArgument("toggle")
             .executesPlayer(this::togglePay))
           .then(CommandUtils.TargetArgument(false)
@@ -160,9 +163,9 @@ public class CurrencyCommand {
       boolean toggle = !QualityEconomyAPI.isPayable(sender.getUniqueId());
       QualityEconomyAPI.setPayable(sender.getUniqueId(), toggle);
       if (toggle) {
-        Messages.sendParsedMessage(sender, MessageType.PAY_TOGGLE_ON);
+        Messages.sendParsedMessage(sender, currency.getMessage(MessageType.PAY_TOGGLE_ON));
       } else {
-        Messages.sendParsedMessage(sender, MessageType.PAY_TOGGLE_OFF);
+        Messages.sendParsedMessage(sender, currency.getMessage(MessageType.PAY_TOGGLE_OFF));
       }
     }
     
@@ -180,7 +183,7 @@ public class CurrencyCommand {
     }
     
     public void register() {
-      super.register(command);
+      super.register(command, command != null);
     }
     
     public void unregister() {

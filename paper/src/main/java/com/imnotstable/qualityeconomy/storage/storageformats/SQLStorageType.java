@@ -5,6 +5,7 @@ import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.storage.accounts.BalanceEntry;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.imnotstable.qualityeconomy.util.storage.EasySQL;
+import com.imnotstable.qualityeconomy.util.storage.SQLDriver;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
@@ -18,7 +19,7 @@ import java.util.UUID;
 
 public class SQLStorageType extends EasySQL implements StorageType {
   
-  public SQLStorageType(int databaseType) {
+  public SQLStorageType(SQLDriver databaseType) {
     super(databaseType);
   }
   
@@ -53,7 +54,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public synchronized void wipeDatabase() {
+  public void wipeDatabase() {
     try (Connection connection = getConnection()) {
       dropAccountsTable(connection);
       dropBalanceTable(connection);
@@ -65,55 +66,60 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public synchronized void createAccount(@NotNull Account account) {
+  public void createAccount(@NotNull Account account) {
     try (Connection connection = getConnection();
-         PreparedStatement accountStatement = connection.prepareStatement(getINSERT_ACCOUNT());
-         PreparedStatement balanceStatement = connection.prepareStatement(getINSERT_BALANCE())) {
+         PreparedStatement accountStatement = connection.prepareStatement(getInsertAccountStatement());
+         PreparedStatement balanceStatement = connection.prepareStatement(getInsertBalanceStatement())) {
+      connection.setAutoCommit(false);
       UUID uuid = account.getUniqueId();
       accountStatement.setString(1, uuid.toString());
       accountStatement.setString(2, account.getUsername());
-      int affectedRows = accountStatement.executeUpdate();
-      for (BalanceEntry entry : account.getBalances().values()) {
+      for (BalanceEntry entry : account.getBalanceEntries()) {
         balanceStatement.setString(1, uuid.toString());
         balanceStatement.setString(2, entry.getCurrency());
         balanceStatement.setDouble(3, entry.getBalance());
         balanceStatement.setBoolean(4, entry.isPayable());
-        balanceStatement.executeUpdate();
+        balanceStatement.addBatch();
       }
-      
-      if (affectedRows == 0) {
+      int affectedAccountRows = accountStatement.executeUpdate();
+      int[] affectedBalanceRows = balanceStatement.executeBatch();
+      connection.commit();
+      if (affectedAccountRows == 0) {
         Logger.logError("Failed to create account (" + account.getUniqueId() + ")");
       }
+      for (int affectedRows : affectedBalanceRows)
+        if (affectedRows == 0)
+          Logger.logError("Failed to create balance entry for account (" + account.getUniqueId() + ")");
     } catch (SQLException exception) {
       Logger.logError("Failed to create account (" + account.getUniqueId() + ")", exception);
     }
   }
   
   @Override
-  public synchronized void createAccounts(@NotNull Collection<Account> accounts) {
+  public void createAccounts(@NotNull Collection<Account> accounts) {
     if (accounts.isEmpty())
       return;
     
     try (Connection connection = getConnection()) {
-      try (PreparedStatement preparedStatement = connection.prepareStatement(getINSERT_ACCOUNT());
-           PreparedStatement balanceStatement = connection.prepareStatement(getINSERT_BALANCE())) {
+      try (PreparedStatement preparedStatement = connection.prepareStatement(getInsertAccountStatement());
+           PreparedStatement balanceStatement = connection.prepareStatement(getInsertBalanceStatement())) {
         connection.setAutoCommit(false);
         
         for (Account account : accounts) {
           UUID uuid = account.getUniqueId();
           preparedStatement.setString(1, uuid.toString());
           preparedStatement.setString(2, account.getUsername());
-          for (BalanceEntry entry : account.getBalances().values()) {
+          preparedStatement.addBatch();
+          for (BalanceEntry entry : account.getBalanceEntries()) {
             balanceStatement.setString(1, uuid.toString());
             balanceStatement.setString(2, entry.getCurrency());
             balanceStatement.setDouble(3, entry.getBalance());
             balanceStatement.setBoolean(4, entry.isPayable());
             balanceStatement.addBatch();
           }
-          preparedStatement.addBatch();
         }
-        
         preparedStatement.executeBatch();
+        balanceStatement.executeBatch();
         connection.commit();
       } catch (SQLException exception) {
         Logger.logError("Failed to create accounts", exception);
@@ -125,7 +131,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public synchronized @NotNull Map<UUID, Account> getAllAccounts() {
+  public @NotNull Map<UUID, Account> getAllAccounts() {
     Map<UUID, Account> accounts = new HashMap<>();
     
     try (Connection connection = getConnection();
@@ -145,18 +151,15 @@ public class SQLStorageType extends EasySQL implements StorageType {
   }
   
   @Override
-  public synchronized void saveAllAccounts() {
+  public void saveAllAccounts() {
     try (Connection connection = getConnection()) {
-      try (PreparedStatement accountStatement = connection.prepareStatement(getUPDATE_ACCOUNT());
-           PreparedStatement balanceStatement = connection.prepareStatement(getUPDATE_BALANCE())) {
+      try (PreparedStatement accountStatement = connection.prepareStatement(getUpdateAccountStatement());
+           PreparedStatement balanceStatement = connection.prepareStatement(getUpdateBalanceStatement())) {
         connection.setAutoCommit(false);
         for (Account account : AccountManager.getAllAccounts()) {
-          if (!account.requiresUpdate())
-            continue;
-          account.update();
           accountStatement.setString(1, account.getUsername());
-          accountStatement.setString(columns.size(), account.getUniqueId().toString());
-          for (BalanceEntry entry : account.getBalances().values()) {
+          accountStatement.setString(2, account.getUniqueId().toString());
+          for (BalanceEntry entry : account.getBalanceEntries()) {
             balanceStatement.setDouble(1, entry.getBalance());
             balanceStatement.setBoolean(2, entry.isPayable());
             balanceStatement.setString(3, account.getUniqueId().toString());
@@ -166,6 +169,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
           accountStatement.addBatch();
         }
         accountStatement.executeBatch();
+        balanceStatement.executeBatch();
         connection.commit();
       } catch (SQLException exception) {
         Logger.logError("Failed to update accounts", exception);

@@ -2,5 +2,4 @@ libraries:
   - com.zaxxer:HikariCP:5.1.0
   - org.mariadb.jdbc:mariadb-java-client:3.3.3
   - com.h2database:h2:2.2.224
-  - org.mongodb:mongodb-driver-sync:5.0.0
   - com.google.code.gson:gson:2.10.1

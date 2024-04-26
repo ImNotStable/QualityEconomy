@@ -30,7 +30,7 @@ public final class Config extends BaseConfig {
   public void load() {
     super.load(true);
     makeSafe();
-    STORAGE_TYPE = config.getString("storage-type", "sqlite").toLowerCase();
+    STORAGE_TYPE = config.getString("storage-type", "h2").toLowerCase();
     DECIMAL_PLACES = Math.max(config.getInt("decimal-places", 4), 0);
     CUSTOM_EVENTS = config.getBoolean("custom-events", false);
     TRANSACTION_LOGGING = config.getBoolean("transaction-logging", false);

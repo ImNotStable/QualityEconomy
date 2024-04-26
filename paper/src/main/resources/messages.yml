@@ -16,28 +16,11 @@ pay:
   toggle-off: "<gray>Payments are now <red>disabled <gray>from other players"
   send: "<gray>Sent <yellow>$<amount> <gray>to <yellow><receiver>"
   receive: "<gray>Received <yellow>$<amount> <gray>from <yellow><sender>"
-withdraw:
-  message: "<gray>You withdrew <yellow>$<amount>"
-  claim: "<gray>You claimed <yellow>$<amount>"
-  banknote-item:
-    displayname: "<yellow>$<amount> <gray>Banknote"
-    lore: "||<gray>From: <yellow><player>"
-request:
-  toggle-on: "<gray>Requests are now <green>enabled <gray>from other players"
-  toggle-off: "<gray>Requests are now <red>disabled <gray>from other players"
-  send: "<gray>Requested <yellow>$<amount> <gray>from <yellow><requestee>"
-  receive: "<gray>You have received a request from <yellow><requester> <gray>for <yellow>$<amount>"
-  accept-send: "<gray>Request for <yellow>$<amount> <gray>was accepted by <yellow><requestee>"
-  accept-receive: "<gray>Accepted request for <yellow>$<amount> <gray>from <yellow><requester>"
-  deny-send: "<gray>Request for <yellow>$<amount> <gray>was denied by <yellow><requestee>"
-  deny-receive: "<gray>Denied request for <yellow>$<amount> <gray>from <yellow><requester>"
 errors:
   player-not-found: "<red>Player not found: <player>"
   player-not-online: "<red>Player not online: <player>"
   currency-not-found: "<red>Currency does not exist: <currency>"
   not-enough-money:
     self: "<red>You do not have enough money"
-    other: "<red>They do not have enough money"
   not-accepting-payments: "<red>This player is not accepting payments"
-  not-accepting-requests: "<red>This player is not accepting requests"
   invalid-number: "<red>Invalid amount: <amount>"
