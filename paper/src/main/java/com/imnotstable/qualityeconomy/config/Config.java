@@ -11,12 +11,11 @@ import java.util.Map;
 public final class Config extends BaseConfig {
   
   public String STORAGE_TYPE;
-  public int DECIMAL_PLACES;
   public boolean CUSTOM_EVENTS;
   public boolean TRANSACTION_LOGGING;
   public boolean COMMANDS_BALANCETOP;
   public long BACKUP_INTERVAL;
-  public long BALANCETOP_INTERVAL;
+  public long LEADERBOARD_RELOAD_INTERVAL;
   public long AUTO_SAVE_ACCOUNTS_INTERVAL;
   public Map<String, String> DATABASE_INFORMATION = new HashMap<>();
   public Map<String, Object> DATABASE_INFORMATION_ADVANCED_SETTINGS;
@@ -31,12 +30,11 @@ public final class Config extends BaseConfig {
     super.load(true);
     makeSafe();
     STORAGE_TYPE = config.getString("storage-type", "h2").toLowerCase();
-    DECIMAL_PLACES = Math.max(config.getInt("decimal-places", 4), 0);
     CUSTOM_EVENTS = config.getBoolean("custom-events", false);
     TRANSACTION_LOGGING = config.getBoolean("transaction-logging", false);
     COMMANDS_BALANCETOP = config.getBoolean("commands.balancetop", true);
     BACKUP_INTERVAL = config.getLong("backup-interval", 21600) * 20;
-    BALANCETOP_INTERVAL = config.getLong("balancetop-interval", 5) * 20;
+    LEADERBOARD_RELOAD_INTERVAL = config.getLong("leaderboard-reload-interval", 5) * 20;
     AUTO_SAVE_ACCOUNTS_INTERVAL = config.getLong("auto-save-accounts-interval", 60) * 20;
     config.getConfigurationSection("database-information").getValues(false).forEach((key, value) -> DATABASE_INFORMATION.put(key, value.toString()));
     DATABASE_INFORMATION_ADVANCED_SETTINGS = config.getConfigurationSection("database-information.advanced-settings").getValues(false);

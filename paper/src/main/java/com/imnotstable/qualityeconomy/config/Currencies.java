@@ -3,6 +3,7 @@ package com.imnotstable.qualityeconomy.config;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.commands.CurrencyCommand;
 import com.imnotstable.qualityeconomy.economy.Currency;
+import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +17,7 @@ import java.util.Set;
 public final class Currencies extends BaseConfig {
   
   private final Map<String, Currency> currencies = new HashMap<>();
-  private final Set<CurrencyCommand> currencyCommands = new HashSet<>();
+  private final Map<String, CurrencyCommand> currencyCommands = new HashMap<>();
   
   public Currencies(@NotNull QualityEconomy plugin) {
     super(plugin, "currencies.yml");
@@ -32,12 +33,16 @@ public final class Currencies extends BaseConfig {
       ConfigurationSection currencySection = section.getConfigurationSection(currencyName);
       if (currencySection == null)
         continue;
-      double startingBalance = currencySection.getDouble("starting-balance");
+      double startingBalance = currencySection.getDouble("starting-balance", 0.0);
+      int decimalPlaces = currencySection.getInt("decimal-places", 0);
       String[] viewCommands = currencySection.getStringList("view-commands").toArray(new String[0]);
       String[] adminCommands = currencySection.getStringList("admin-commands").toArray(new String[0]);
       String[] transferCommands = currencySection.getStringList("transfer-commands").toArray(new String[0]);
-      String singular = currencySection.getString("singular");
-      String plural = currencySection.getString("plural");
+      String[] leaderboardCommands = currencySection.getStringList("leaderboard-commands").toArray(new String[0]);
+      String symbol = currencySection.getString("symbol", "");
+      String symbolPosition = currencySection.getString("symbol-position", "before");
+      String singular = currencySection.getString("singular", "");
+      String plural = currencySection.getString("plural", "");
       MessageType[] messageTypes = MessageType.values();
       Map<MessageType, String> messages = new HashMap<>();
       for (MessageType messageType : messageTypes) {
@@ -47,18 +52,22 @@ public final class Currencies extends BaseConfig {
         if (message != null)
           messages.put(messageType, message);
       }
-      currencies.put(currencyName, Currency.of(currencyName, startingBalance, viewCommands, adminCommands, transferCommands, singular, plural, messages));
+      currencies.put(currencyName, Currency.of(currencyName, startingBalance, decimalPlaces, viewCommands, adminCommands, transferCommands, leaderboardCommands, symbol, symbolPosition, singular, plural, messages));
     }
     loadCommands();
   }
   
+  public Account getLeaderboardAccount(Currency currency, int position) {
+    return currencyCommands.get(currency.getName()).getLeaderboardAccount(position);
+  }
+  
   private void loadCommands() {
-    currencies.values().forEach(currency -> currencyCommands.add(new CurrencyCommand(currency)));
-    currencyCommands.forEach(CurrencyCommand::register);
+    currencies.values().forEach(currency -> currencyCommands.put(currency.getName(), new CurrencyCommand(currency)));
+    currencyCommands.values().forEach(CurrencyCommand::register);
   }
   
   private void unloadCommands() {
-    currencyCommands.forEach(CurrencyCommand::unregister);
+    currencyCommands.values().forEach(CurrencyCommand::unregister);
     currencyCommands.clear();
   }
   

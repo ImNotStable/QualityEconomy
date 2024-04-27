@@ -30,14 +30,13 @@ public class TransactionLogger {
     String message = getLogMessage(transaction);
     
     CommandSender sender = transaction.getSender();
-    if (sender != null) {
-      File dataFile = getFile(sender);
-      if (dataFile != null && createPlayerData(dataFile))
-        log(dataFile, message);
-    }
+    
+    File dataFile = getFile(sender);
+    if (dataFile != null && createPlayerData(dataFile))
+      log(dataFile, message);
     
     for (EconomyPlayer player : transaction.getEconomyPlayers()) {
-      File dataFile = new File(dir, player.getUniqueId() + ".txt");
+      dataFile = new File(dir, player.getUniqueId() + ".txt");
       if (createPlayerData(dataFile))
         log(dataFile, message);
     }
@@ -72,7 +71,7 @@ public class TransactionLogger {
     message.append("[");
     message.append(formatter.format(LocalDateTime.now()));
     message.append("]");
-    message.append(transaction.getType().getLogMessage().apply(transaction));
+    message.append(transaction.getType().getLogMessage(transaction));
     if (transaction.isSilent())
       message.append(" (Silent)");
     message.append("\n");

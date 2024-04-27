@@ -3,14 +3,6 @@
 # h2, sqlite, mysql, mariadb
 storage-type: h2
 
-# Amount of decimal places allowed within balances
-# -1 to disable rounding
-decimal-places: 3
-
-# Whether you want players to be able to withdraw
-# they're money to 'checks' or 'banknotes'
-banknotes: false
-
 # Whether you want QualityEconomy's custom bukkit events
 # to be enabled, this is for developers specifically
 custom-events: false
@@ -19,15 +11,10 @@ custom-events: false
 # within a player specific file
 transaction-logging: false
 
-# Whether you want these commands enabled
-commands:
-  balancetop: true
-  pay: true
-
 # Number in seconds
 # 0 to disable
 backup-interval: 21600
-balancetop-interval: 5
+leaderboard-reload-interval: 5
 autosave-accounts-interval: 60
 
 database-information:

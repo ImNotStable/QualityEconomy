@@ -1,6 +1,5 @@
 package com.imnotstable.qualityeconomy.util;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.config.MessageType;
 import com.imnotstable.qualityeconomy.config.Messages;
@@ -25,40 +24,27 @@ public class CommandUtils {
     return false;
   }
   
-  public static Argument<String> CurrencyArgument() {
-    return new CustomArgument<>(new StringArgument("currency"), info -> {
-      String currency = info.input();
-      if (QualityEconomy.getCurrencyConfig().getCurrency(currency).isEmpty())
-        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.CURRENCY_NOT_FOUND,
-          "currency", currency));
-      return currency;
-    }).replaceSuggestions(ArgumentSuggestions.strings(info -> QualityEconomy.getCurrencyConfig().getCurrencies().stream().map(Currency::getName).toArray(String[]::new)));
-  }
-  
-  public static Argument<OfflinePlayer> TargetArgument(boolean mustBeOnline) {
+  public static Argument<OfflinePlayer> TargetArgument(Currency currency, MessageType errorMessage) {
     return new CustomArgument<>(new OfflinePlayerArgument("target"), info -> {
       OfflinePlayer target = info.currentInput();
       if (!QualityEconomyAPI.hasAccount(target.getUniqueId()))
-        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.PLAYER_NOT_FOUND,
-          "player", target.getName()));
-      if (mustBeOnline && !target.isOnline())
-        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.PLAYER_NOT_ONLINE,
+        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(currency.getMessage(errorMessage),
           "player", target.getName()));
       return target;
     }).replaceSuggestions(ArgumentSuggestions.strings(info -> Bukkit.getOnlinePlayers().stream().map(Player::getName).toArray(String[]::new)));
   }
   
-  public static Argument<Double> AmountArgument() {
+  public static Argument<Double> AmountArgument(Currency currency, MessageType errorMessage) {
     return new CustomArgument<>(new StringArgument("amount"), info -> {
       String rawAmount = info.input();
       double amount;
       try {
         amount = Number.unformat(rawAmount);
       } catch (NumberFormatException exception) {
-        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(MessageType.INVALID_NUMBER,
+        throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(currency.getMessage(errorMessage),
           "amount", rawAmount));
       }
-      return Number.round(amount);
+      return Number.round(amount, currency);
     }).replaceSuggestions(ArgumentSuggestions.strings("<amount>")
     );
   }

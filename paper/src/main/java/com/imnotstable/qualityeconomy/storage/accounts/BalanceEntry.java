@@ -2,11 +2,9 @@ package com.imnotstable.qualityeconomy.storage.accounts;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Setter
 @Getter
 public class BalanceEntry {
   
@@ -26,12 +24,24 @@ public class BalanceEntry {
       this.payable = true;
   }
   
-  public void increaseBalance(double amount) {
-    balance += amount;
+  public BalanceEntry setBalance(double balance) {
+    this.balance = balance;
+    return this;
   }
   
-  public void decreaseBalance(double amount) {
+  public BalanceEntry increaseBalance(double amount) {
+    balance += amount;
+    return this;
+  }
+  
+  public BalanceEntry decreaseBalance(double amount) {
     balance -= amount;
+    return this;
+  }
+  
+  public BalanceEntry setPayable(boolean payable) {
+    this.payable = payable;
+    return this;
   }
   
 }

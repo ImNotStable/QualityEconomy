@@ -1,5 +1,6 @@
 package com.imnotstable.qualityeconomy.commands;
 
+import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.config.MessageType;
 import com.imnotstable.qualityeconomy.config.Messages;
@@ -7,39 +8,75 @@ import com.imnotstable.qualityeconomy.economy.Currency;
 import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
 import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
+import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
 import com.imnotstable.qualityeconomy.util.Number;
+import com.imnotstable.qualityeconomy.util.debug.Timer;
 import dev.jorel.commandapi.CommandTree;
+import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.SneakyThrows;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.Comparator;
 
 public class CurrencyCommand {
   
   private final View view;
   private final Admin admin;
   private final Transfer transfer;
+  private final Leaderboard leaderboard;
   
   public CurrencyCommand(@NotNull Currency currency) {
-    this.view = new View(currency);
-    this.admin = new Admin(currency);
-    this.transfer = new Transfer(currency);
+    if (currency.getViewCommand() != null)
+      this.view = new View(currency);
+    else this.view = null;
+    if (currency.getAdminCommand() != null)
+      this.admin = new Admin(currency);
+    else this.admin = null;
+    if (currency.getTransferCommand() != null)
+      this.transfer = new Transfer(currency);
+    else this.transfer = null;
+    if (currency.getLeaderboardCommand() != null)
+      this.leaderboard = new Leaderboard(currency);
+    else this.leaderboard = null;
+  }
+  
+  public Account getLeaderboardAccount(int index) {
+    if (Leaderboard.orderedPlayerList == null)
+      throw new IllegalStateException("Leaderboard was not initialized");
+    if (index < 0 || index >= Leaderboard.orderedPlayerList.length)
+      return null;
+    return Leaderboard.orderedPlayerList[index];
   }
   
   public void register() {
-    view.register();
-    admin.register();
-    transfer.register();
+    if (view != null)
+      view.register();
+    if (admin != null)
+      admin.register();
+    if (transfer != null)
+      transfer.register();
+    if (leaderboard != null)
+      leaderboard.register();
   }
   
   public void unregister() {
-    view.unregister();
-    admin.unregister();
-    transfer.unregister();
+    if (view != null)
+      view.unregister();
+    if (admin != null)
+      admin.unregister();
+    if (transfer != null)
+      transfer.unregister();
+    if (leaderboard != null)
+      leaderboard.unregister();
   }
   
   private static class View extends BaseCommand {
@@ -49,30 +86,27 @@ public class CurrencyCommand {
     
     private View(@NotNull Currency currency) {
       this.currency = currency;
-      if (currency.getViewCommand() == null)
-        command = null;
-      else
-        command = new CommandTree(currency.getViewCommand())
-          .withAliases(currency.getViewAliases())
-          .then(CommandUtils.TargetArgument(false)
-            .executes(this::viewOtherBalance))
-          .executesPlayer(this::viewOwnBalance);
+      command = new CommandTree(currency.getViewCommand())
+        .withAliases(currency.getViewAliases())
+        .then(CommandUtils.TargetArgument(currency, MessageType.VIEW_PLAYER_NOT_FOUND)
+          .executes(this::viewOtherBalance))
+        .executesPlayer(this::viewOwnBalance);
     }
     
     private void viewOtherBalance(CommandSender sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
-      Messages.sendParsedMessage(sender, currency.getMessage(MessageType.BALANCE_OTHER_BALANCE),
-        "balance", Number.format(QualityEconomyAPI.getBalance(target.getUniqueId(), currency.getName()), Number.FormatType.COMMAS), "player", target.getName());
+      Messages.sendParsedMessage(sender, currency.getMessage(MessageType.VIEW_OTHER),
+        "balance", currency.getFormattedBalance(target.getUniqueId()), "player", target.getName());
     }
     
     private void viewOwnBalance(Player sender, CommandArguments args) {
-      Messages.sendParsedMessage(sender, currency.getMessage(MessageType.BALANCE_OWN_BALANCE),
-        "balance", Number.format(QualityEconomyAPI.getBalance(sender.getUniqueId(), currency.getName()), Number.FormatType.COMMAS));
+      Messages.sendParsedMessage(sender, currency.getMessage(MessageType.VIEW_OWN),
+        "balance", currency.getFormattedBalance(sender.getUniqueId()));
     }
     
     @Override
     public void register() {
-      super.register(command, command != null);
+      super.register(command);
     }
     
     @Override
@@ -89,16 +123,13 @@ public class CurrencyCommand {
     
     private Admin(@NotNull Currency currency) {
       this.currency = currency;
-      if (currency.getAdminCommand() == null)
-        command = null;
-      else
-        command = new CommandTree(currency.getAdminCommand())
-          .withAliases(currency.getAdminAliases())
-          .then(CommandUtils.TargetArgument(false)
-            .then(new LiteralArgument("reset").executes(this::resetBalance))
-            .then(new LiteralArgument("set").then(CommandUtils.AmountArgument().executes(this::setBalance)))
-            .then(new LiteralArgument("add").then(CommandUtils.AmountArgument().executes(this::addBalance)))
-            .then(new LiteralArgument("remove").then(CommandUtils.AmountArgument().executes(this::removeBalance))));
+      command = new CommandTree(currency.getAdminCommand())
+        .withAliases(currency.getAdminAliases())
+        .then(CommandUtils.TargetArgument(currency, MessageType.ADMIN_PLAYER_NOT_FOUND)
+          .then(new LiteralArgument("reset").executes(this::resetBalance))
+          .then(new LiteralArgument("set").then(CommandUtils.AmountArgument(currency, MessageType.ADMIN_INVALID_NUMBER).executes(this::setBalance)))
+          .then(new LiteralArgument("add").then(CommandUtils.AmountArgument(currency, MessageType.ADMIN_INVALID_NUMBER).executes(this::addBalance)))
+          .then(new LiteralArgument("remove").then(CommandUtils.AmountArgument(currency, MessageType.ADMIN_INVALID_NUMBER).executes(this::removeBalance))));
     }
     
     @SneakyThrows
@@ -147,49 +178,127 @@ public class CurrencyCommand {
     
     private Transfer(@NotNull Currency currency) {
       this.currency = currency;
-      if (currency.getTransferCommand() == null)
-        command = null;
-      else
-        command = new CommandTree("pay")
-          .withAliases(currency.getTransferAliases())
-          .then(new LiteralArgument("toggle")
-            .executesPlayer(this::togglePay))
-          .then(CommandUtils.TargetArgument(false)
-            .then(CommandUtils.AmountArgument()
-              .executesPlayer(this::pay)));
+      command = new CommandTree("pay")
+        .withAliases(currency.getTransferAliases())
+        .then(new LiteralArgument("toggle")
+          .executesPlayer(this::togglePay))
+        .then(CommandUtils.TargetArgument(currency, MessageType.TRANSFER_PLAYER_NOT_FOUND)
+          .then(CommandUtils.AmountArgument(currency, MessageType.TRANSFER_INVALID_NUMBER)
+            .executesPlayer(this::pay)));
     }
     
     private void togglePay(Player sender, CommandArguments args) {
       boolean toggle = !QualityEconomyAPI.isPayable(sender.getUniqueId());
       QualityEconomyAPI.setPayable(sender.getUniqueId(), toggle);
       if (toggle) {
-        Messages.sendParsedMessage(sender, currency.getMessage(MessageType.PAY_TOGGLE_ON));
+        Messages.sendParsedMessage(sender, currency.getMessage(MessageType.TRANSFER_TOGGLE_ON));
       } else {
-        Messages.sendParsedMessage(sender, currency.getMessage(MessageType.PAY_TOGGLE_OFF));
+        Messages.sendParsedMessage(sender, currency.getMessage(MessageType.TRANSFER_TOGGLE_OFF));
       }
     }
     
     @SneakyThrows
     private void pay(Player sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
-      if (CommandUtils.requirement(QualityEconomyAPI.isPayable(target.getUniqueId()), MessageType.NOT_ACCEPTING_PAYMENTS, sender))
+      if (CommandUtils.requirement(QualityEconomyAPI.isPayable(target.getUniqueId()), MessageType.TRANSFER_NOT_ACCEPTING_PAYMENTS, sender))
         return;
       double amount = (double) args.get("amount");
-      if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.SELF_NOT_ENOUGH_MONEY, sender))
+      if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.TRANSFER_NOT_ENOUGH_MONEY, sender))
         return;
-      if (CommandUtils.requirement(amount >= Number.getMinimumValue(), MessageType.INVALID_NUMBER, sender))
+      if (CommandUtils.requirement(amount >= Number.getMinimumValue(currency), MessageType.TRANSFER_INVALID_NUMBER, sender))
         return;
       EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_TRANSFER, sender, currency, amount, EconomyPlayer.of(sender), EconomyPlayer.of(target)).execute();
     }
     
     public void register() {
-      super.register(command, command != null);
+      super.register(command);
     }
     
     public void unregister() {
       super.unregister(command);
     }
     
+  }
+  
+  private static class Leaderboard extends BaseCommand {
+    
+    public static Account[] orderedPlayerList;
+    private String serverTotal = "0.0";
+    private int maxPage;
+    private Integer taskID = null;
+    private final CommandTree command;
+    private final Currency currency;
+    
+    public Leaderboard(Currency currency) {
+      this.currency = currency;
+      command = new CommandTree(currency.getLeaderboardCommand())
+        .withAliases(currency.getLeaderboardAliases())
+        .then(new LiteralArgument("update")
+          .withPermission("qualityeconomy.admin")
+          .executes((sender, args) -> {
+            updateBalanceTop();
+          }))
+        .then(new IntegerArgument("page", 1)
+          .setOptional(true)
+          .executes(this::viewBalanceTop));
+    }
+    
+    private void viewBalanceTop(CommandSender sender, CommandArguments args) {
+      int page = Math.min((int) args.getOrDefault("page", 1), maxPage);
+      int startIndex = (page - 1) * 10;
+      int endIndex = Math.min(startIndex + 10, orderedPlayerList.length);
+      
+      Messages.sendParsedMessage(sender, currency.getMessage(MessageType.LEADERBOARD_TITLE),
+        "maxpage", String.valueOf(maxPage),
+        "page", String.valueOf(page));
+      Messages.sendParsedMessage(sender, currency.getMessage(MessageType.LEADERBOARD_SERVER_TOTAL),
+        "servertotal", serverTotal);
+      
+      if (maxPage != 0)
+        for (int i = startIndex; i < endIndex; i++) {
+          Account account = orderedPlayerList[i];
+          Messages.sendParsedMessage(sender, currency.getMessage(MessageType.LEADERBOARD_BALANCE_VIEW),
+            "place", String.valueOf(i + 1),
+            "player", account.getUsername(),
+            "balance", currency.getFormattedBalance(account.getUniqueId()));
+        }
+      
+      Messages.sendParsedMessage(sender, currency.getMessage(MessageType.LEADERBOARD_NEXT_PAGE),
+        "command", args.fullInput().split(" ")[0].substring(1),
+        "nextpage", String.valueOf(page + 1));
+    }
+    
+    private void updateBalanceTop() {
+      Timer timer = new Timer("updateBalanceTop() {" + currency.getName() + "}");
+      
+      Collection<Account> accounts = AccountManager.getAllAccounts();
+      
+      serverTotal = currency.getFormattedAmount(accounts.stream()
+        .mapToDouble(account -> account.getBalance(currency.getName()))
+        .sum());
+      orderedPlayerList = accounts.stream()
+        .sorted(Comparator.comparingDouble((Account account) -> account.getBalance(currency.getName())).reversed())
+        .toArray(Account[]::new);
+      maxPage = (int) Math.ceil(orderedPlayerList.length / 10.0);
+      timer.end();
+    }
+    
+    public void register() {
+      if (!super.register(command))
+        return;
+      long interval = QualityEconomy.getQualityConfig().LEADERBOARD_RELOAD_INTERVAL;
+      if (interval != 0)
+        taskID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(), this::updateBalanceTop, 0L, interval).getTaskId();
+    }
+    
+    public void unregister() {
+      if (!super.unregister(command))
+        return;
+      if (taskID == null)
+        return;
+      Bukkit.getScheduler().cancelTask(taskID);
+      taskID = null;
+    }
   }
   
 }

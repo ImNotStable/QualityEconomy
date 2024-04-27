@@ -9,7 +9,6 @@ import com.imnotstable.qualityeconomy.economy.events.BalanceRemoveEvent;
 import com.imnotstable.qualityeconomy.economy.events.BalanceSetEvent;
 import com.imnotstable.qualityeconomy.economy.events.BalanceTransferEvent;
 import com.imnotstable.qualityeconomy.economy.events.EconomyEvent;
-import com.imnotstable.qualityeconomy.util.Number;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.entity.Player;
@@ -24,60 +23,64 @@ public enum EconomicTransactionType {
   BALANCE_RESET(BalanceRemoveEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
-      QualityEconomyAPI.setBalance(target.getUniqueId(), 0);
+      Currency currency = transaction.getCurrency();
+      QualityEconomyAPI.setBalance(target.getUniqueId(), currency.getName(), 0);
       if (!transaction.isSilent())
-        Messages.sendParsedMessage(transaction.getSender(), transaction.getCurrency().getMessage(MessageType.ECONOMY_RESET),
+        Messages.sendParsedMessage(transaction.getSender(), currency.getMessage(MessageType.ADMIN_RESET),
           "player", target.getUsername());
     }, (transaction) -> String.format("%s's balance was reset by %s", transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
   BALANCE_SET(BalanceSetEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
-      QualityEconomyAPI.setBalance(target.getUniqueId(), transaction.getAmount());
+      Currency currency = transaction.getCurrency();
+      QualityEconomyAPI.setBalance(target.getUniqueId(), currency.getName(), transaction.getAmount());
       if (!transaction.isSilent())
-        Messages.sendParsedMessage(transaction.getSender(), transaction.getCurrency().getMessage(MessageType.ECONOMY_SET),
-          "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+        Messages.sendParsedMessage(transaction.getSender(), currency.getMessage(MessageType.ADMIN_SET),
+          "balance", currency.getFormattedAmount(transaction.getAmount()),
           "player", target.getUsername());
-    }, (transaction) -> String.format("%s's balance was set to $%s by %s", transaction.getEconomyPlayers()[0].getUsername(), Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getSender().getName())),
+    }, (transaction) -> String.format("%s's balance was set to $%s by %s", transaction.getEconomyPlayers()[0].getUsername(), transaction.getCurrency().getFormattedAmount(transaction.getAmount()), transaction.getSender().getName())),
   BALANCE_ADD(BalanceAddEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
-      QualityEconomyAPI.addBalance(target.getUniqueId(), transaction.getAmount());
+      Currency currency = transaction.getCurrency();
+      QualityEconomyAPI.addBalance(target.getUniqueId(), currency.getName(), transaction.getAmount());
       if (!transaction.isSilent())
-        Messages.sendParsedMessage(transaction.getSender(), transaction.getCurrency().getMessage(MessageType.ECONOMY_ADD),
-          "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+        Messages.sendParsedMessage(transaction.getSender(), currency.getMessage(MessageType.ADMIN_ADD),
+          "balance", currency.getFormattedAmount(transaction.getAmount()),
           "player", target.getUsername());
-    }, (transaction) -> String.format("$%s was added to %s's balance by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
+    }, (transaction) -> String.format("$%s was added to %s's balance by %s", transaction.getCurrency().getFormattedAmount(transaction.getAmount()), transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
   BALANCE_REMOVE(BalanceRemoveEvent::new,
     transaction -> {
       EconomyPlayer target = transaction.getEconomyPlayers()[0];
-      QualityEconomyAPI.removeBalance(target.getUniqueId(), transaction.getAmount());
+      Currency currency = transaction.getCurrency();
+      QualityEconomyAPI.removeBalance(target.getUniqueId(), currency.getName(), transaction.getAmount());
       if (!transaction.isSilent())
-        Messages.sendParsedMessage(transaction.getSender(), transaction.getCurrency().getMessage(MessageType.ECONOMY_REMOVE),
-          "balance", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+        Messages.sendParsedMessage(transaction.getSender(), currency.getMessage(MessageType.ADMIN_REMOVE),
+          "balance", currency.getFormattedAmount(transaction.getAmount()),
           "player", target.getUsername());
-    }, (transaction) -> String.format("$%s was removed from %s's balance by %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
+    }, (transaction) -> String.format("$%s was removed from %s's balance by %s", transaction.getCurrency().getFormattedAmount(transaction.getAmount()), transaction.getEconomyPlayers()[0].getUsername(), transaction.getSender().getName())),
   BALANCE_TRANSFER(2, BalanceTransferEvent::new,
     transaction -> {
       Player sender = transaction.getEconomyPlayers()[0].getOfflineplayer().getPlayer();
       EconomyPlayer target = transaction.getEconomyPlayers()[1];
+      Currency currency = transaction.getCurrency();
       if (!transaction.isSilent())
-        Messages.sendParsedMessage(sender, transaction.getCurrency().getMessage(MessageType.PAY_SEND),
-          "amount", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+        Messages.sendParsedMessage(sender, currency.getMessage(MessageType.TRANSFER_SEND),
+          "amount", currency.getFormattedAmount(transaction.getAmount()),
           "receiver", target.getUsername()
         );
       if (!transaction.isSilent() && target.getOfflineplayer().isOnline())
-        Messages.sendParsedMessage(target.getOfflineplayer().getPlayer(), transaction.getCurrency().getMessage(MessageType.PAY_RECEIVE),
-          "amount", Number.format(transaction.getAmount(), Number.FormatType.COMMAS),
+        Messages.sendParsedMessage(target.getOfflineplayer().getPlayer(), currency.getMessage(MessageType.TRANSFER_RECEIVE),
+          "amount", currency.getFormattedAmount(transaction.getAmount()),
           "sender", sender.getName());
-      QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), transaction.getAmount());
-    }, (transaction) -> String.format("$%s was transferred from %s to %s", Number.format(transaction.getAmount(), Number.FormatType.COMMAS), transaction.getEconomyPlayers()[0].getUsername(), transaction.getEconomyPlayers()[1].getUsername()));
+      QualityEconomyAPI.transferBalance(sender.getUniqueId(), target.getUniqueId(), currency.getName(), transaction.getAmount());
+    }, (transaction) -> String.format("$%s was transferred from %s to %s", transaction.getCurrency().getFormattedAmount(transaction.getAmount()), transaction.getEconomyPlayers()[0].getUsername(), transaction.getEconomyPlayers()[1].getUsername()));
   
   @Getter
   private final int playerRequirement;
   private final boolean isAsync;
   private final Function<EconomicTransaction, EconomyEvent> event;
   private final Consumer<EconomicTransaction> executor;
-  @Getter
   private final Function<EconomicTransaction, String> logMessage;
   
   EconomicTransactionType(int playerRequirement, Function<EconomicTransaction, EconomyEvent> event, Consumer<EconomicTransaction> executor, Function<EconomicTransaction, String> logMessage) {
@@ -116,6 +119,10 @@ public enum EconomicTransactionType {
       if (QualityEconomy.getQualityConfig().TRANSACTION_LOGGING)
         TransactionLogger.log(transaction);
     }
+  }
+  
+  public String getLogMessage(EconomicTransaction transaction) {
+    return transaction.getType().logMessage.apply(transaction);
   }
   
 }

@@ -49,7 +49,9 @@ public class Account {
     if (!balances.containsKey(currency)) {
       if (QualityEconomy.getCurrencyConfig().getCurrency(currency).isEmpty())
         throw new IllegalArgumentException("Currency " + currency + " does not exist");
-      return new BalanceEntry(currency, QualityEconomy.getCurrencyConfig().getDefaultBalance(currency), true);
+      BalanceEntry balanceEntry = new BalanceEntry(currency, QualityEconomy.getCurrencyConfig().getDefaultBalance(currency), true);
+      balances.put(currency, balanceEntry);
+      return balanceEntry;
     }
     return balances.get(currency);
   }
@@ -58,13 +60,13 @@ public class Account {
     return balances.values();
   }
   
-  public Account setBalance(BalanceEntry balance) {
+  public Account updateBalanceEntry(BalanceEntry balance) {
     balances.put(balance.getCurrency(), balance);
     return this;
   }
   
-  public Account setBalances(Collection<BalanceEntry> balanceEntries) {
-    balanceEntries.forEach(this::setBalance);
+  public Account updateBalanceEntries(Collection<BalanceEntry> balanceEntries) {
+    balanceEntries.forEach(this::updateBalanceEntry);
     return this;
   }
   

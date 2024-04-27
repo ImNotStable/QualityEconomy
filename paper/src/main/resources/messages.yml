@@ -1,26 +1,28 @@
-balancetop:
-  title: "<gray><bold><strikethrough>•              <reset><gold><bold> BalanceTop<gray> <bold><strikethrough>            <reset><yellow> <page><gray>/<yellow><maxpage> <gray><strikethrough>             •"
-  server-total: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Server Total: $<servertotal>"
-  balance-view: "<gray><place>. <player>, <yellow>$<balance>"
-  next-page: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Use /<command> <nextpage> to view the next page."
-balance:
-  own-balance: "<gray>Balance: <yellow>$<balance>"
-  other-balance: "<gray><player>'s Balance: <yellow>$<balance>"
-economy:
-  set: "<gray>Set <yellow><player>'s <gray>balance to <yellow>$<balance>"
-  add: "<gray>Added <yellow>$<balance> <gray>to <yellow><player>'s <gray>balance"
-  remove: "<gray>Removed <yellow>$<balance> <gray>from <yellow><player>'s <gray>balance"
+view-command:
+  own: "<gray>Balance: <yellow><balance>"
+  other: "<gray><player>'s Balance: <yellow><balance>"
+  errors:
+    player-not-found: "<red>Player not found: <player>"
+admin-command:
+  set: "<gray>Set <yellow><player>'s <gray>balance to <yellow><balance>"
+  add: "<gray>Added <yellow><balance> <gray>to <yellow><player>'s <gray>balance"
+  remove: "<gray>Removed <yellow><balance> <gray>from <yellow><player>'s <gray>balance"
   reset: "<gray>Reset <yellow><player>'s <gray>balance"
-pay:
+  errors:
+    player-not-found: "<red>Player not found: <player>"
+    invalid-number: "<red>Invalid amount: <amount>"
+transfer-command:
   toggle-on: "<gray>Payments are now <green>enabled <gray>from other players"
   toggle-off: "<gray>Payments are now <red>disabled <gray>from other players"
-  send: "<gray>Sent <yellow>$<amount> <gray>to <yellow><receiver>"
-  receive: "<gray>Received <yellow>$<amount> <gray>from <yellow><sender>"
-errors:
-  player-not-found: "<red>Player not found: <player>"
-  player-not-online: "<red>Player not online: <player>"
-  currency-not-found: "<red>Currency does not exist: <currency>"
-  not-enough-money:
-    self: "<red>You do not have enough money"
-  not-accepting-payments: "<red>This player is not accepting payments"
-  invalid-number: "<red>Invalid amount: <amount>"
+  send: "<gray>Sent <yellow><amount> <gray>to <yellow><receiver>"
+  receive: "<gray>Received <yellow><amount> <gray>from <yellow><sender>"
+  errors:
+    player-not-found: "<red>Player not found: <player>"
+    not-accepting-payments: "<red>This player is not accepting payments"
+    not-enough-money: "<red>You do not have enough money"
+    invalid-number: "<red>Invalid amount: <amount>"
+leaderboard-command:
+  title: "<gray><bold><strikethrough>•              <reset><gold><bold> BalanceTop<gray> <bold><strikethrough>            <reset><yellow> <page><gray>/<yellow><maxpage> <gray><strikethrough>             •"
+  server-total: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Server Total: <servertotal>"
+  balance-view: "<gray><place>. <player>, <yellow><balance>"
+  next-page: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Use /<command> <nextpage> to view the next page."

@@ -1,6 +1,6 @@
-package com.imnotstable.qualityeconomy.hooks;
+package com.imnotstable.qualityeconomy;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.hooks.HookManager;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 

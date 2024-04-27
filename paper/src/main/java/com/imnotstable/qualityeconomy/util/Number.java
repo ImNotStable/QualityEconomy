@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy.util;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.economy.Currency;
 import lombok.AllArgsConstructor;
 
 import java.text.DecimalFormat;
@@ -37,21 +37,17 @@ public class Number {
     return Double.parseDouble(value);
   }
   
-  public static double roundObj(Object obj) {
-    return (obj instanceof Double n) ? round(n) : 0.0;
-  }
-  
-  public static double round(double n) {
-    if (QualityEconomy.getQualityConfig().DECIMAL_PLACES == -1)
+  public static double round(double n, Currency currency) {
+    if (currency.getDecimalPlaces() == -1)
       return n;
-    double multiplier = Math.pow(10, QualityEconomy.getQualityConfig().DECIMAL_PLACES);
+    double multiplier = Math.pow(10, currency.getDecimalPlaces());
     return Math.floor(n * multiplier) / multiplier;
   }
   
-  public static double getMinimumValue() {
-    if (QualityEconomy.getQualityConfig().DECIMAL_PLACES <= 0)
+  public static double getMinimumValue(Currency currency) {
+    if (currency.getDecimalPlaces() <= 0)
       return 0.0;
-    return Math.pow(10, -QualityEconomy.getQualityConfig().DECIMAL_PLACES);
+    return Math.pow(10, -currency.getDecimalPlaces());
   }
   
   @AllArgsConstructor

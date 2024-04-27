@@ -8,7 +8,6 @@ import java.util.Set;
 public class CommandManager {
   
   private static final Map<String, BaseCommand> commands = Map.of(
-    "balancetop", new BalanceTopCommand(),
     "qualityeconomy", new MainCommand()
   );
   

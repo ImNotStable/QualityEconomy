@@ -2,7 +2,6 @@ package com.imnotstable.qualityeconomy.hooks;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.QualityException;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import net.milkbowl.vault.economy.Economy;
@@ -59,12 +58,12 @@ public class VaultHook {
     
     @Override
     public int fractionalDigits() {
-      return QualityEconomy.getQualityConfig().DECIMAL_PLACES;
+      return QualityEconomy.getCurrencyConfig().getCurrency("default").orElseThrow().getDecimalPlaces();
     }
     
     @Override
     public String format(double amount) {
-      return Number.format(amount, Number.FormatType.NORMAL);
+      return QualityEconomy.getCurrencyConfig().getCurrency("default").orElseThrow().getFormattedAmount(amount);
     }
     
     @Override
