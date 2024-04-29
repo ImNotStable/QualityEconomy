@@ -34,30 +34,3 @@ jobs:
         with:
           name: QualityEconomy-Artifact
           path: libs/*.jar
-
-      - name: Approve PR
-        if: github.actor == 'dependabot[bot]' && success()
-        run: gh pr review --approve "${{ github.event.pull_request.html_url }}"
-        env:
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
-  dependency-submission:
-
-    needs: build
-
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Generate and submit dependency graph
-        uses: gradle/actions/dependency-submission@v3
-        with:
-          gradle-executable: ./gradlew
