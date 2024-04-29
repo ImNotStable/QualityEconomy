@@ -138,21 +138,20 @@ public class SQLStorageType extends EasySQL implements StorageType {
     Map<UUID, Account> accounts = new HashMap<>();
     
     try (Connection connection = getConnection();
-         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM ACCOUNTS")) {
+         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM ACCOUNTS");
+         PreparedStatement balanceStatement = connection.prepareStatement("SELECT * FROM BALANCES WHERE UUID = ?")) {
       ResultSet resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
         UUID uuid = UUID.fromString(resultSet.getString("UUID"));
         Account account = new Account(uuid)
           .setUsername(resultSet.getString("USERNAME"));
-        try (PreparedStatement balanceStatement = connection.prepareStatement("SELECT * FROM BALANCES WHERE UUID = ?")) {
-          balanceStatement.setString(1, uuid.toString());
-          ResultSet balanceResultSet = balanceStatement.executeQuery();
-          while (balanceResultSet.next()) {
-            account.updateBalanceEntry(new BalanceEntry(
-              balanceResultSet.getString("CURRENCY"),
-              balanceResultSet.getDouble("BALANCE"),
-              balanceResultSet.getBoolean("PAYABLE")));
-          }
+        balanceStatement.setString(1, uuid.toString());
+        ResultSet balanceResultSet = balanceStatement.executeQuery();
+        while (balanceResultSet.next()) {
+          account.updateBalanceEntry(new BalanceEntry(
+            balanceResultSet.getString("CURRENCY"),
+            balanceResultSet.getDouble("BALANCE"),
+            balanceResultSet.getBoolean("PAYABLE")));
         }
         accounts.put(uuid, account);
       }
@@ -181,9 +180,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
           accountStatement.addBatch();
         }
         accountStatement.executeBatch();
-        for (int i : balanceStatement.executeBatch())
-          if (i == 0)
-            Logger.logError("Failed to update balance entry");
+        balanceStatement.executeBatch();
         connection.commit();
       } catch (SQLException exception) {
         Logger.logError("Failed to update accounts", exception);
