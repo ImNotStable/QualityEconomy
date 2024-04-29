@@ -1,6 +1,5 @@
 package com.imnotstable.qualityeconomy.economy;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.util.QualityException;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +33,7 @@ public class EconomicTransaction {
   }
   
   public void execute() {
-    if (QualityEconomy.getQualityConfig().CUSTOM_EVENTS)
+    if (currency.isTransactionLogging())
       cancelled = type.callEvent(this);
     type.execute(this);
   }

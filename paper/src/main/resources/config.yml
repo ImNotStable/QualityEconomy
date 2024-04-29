@@ -3,14 +3,6 @@
 # h2, sqlite, mysql, mariadb
 storage-type: h2
 
-# Whether you want QualityEconomy's custom bukkit events
-# to be enabled, this is for developers specifically
-custom-events: false
-
-# Whether you want all transactions to be logged
-# within a player specific file
-transaction-logging: false
-
 # Number in seconds
 # 0 to disable
 backup-interval: 21600

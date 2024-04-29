@@ -14,8 +14,6 @@ import java.util.UUID;
 public class Currency {
   
   private final String name;
-  private final double defaultBalance;
-  private final int decimalPlaces;
   private final String viewCommand;
   private final String[] viewAliases;
   private final String adminCommand;
@@ -24,22 +22,27 @@ public class Currency {
   private final String[] transferAliases;
   private final String leaderboardCommand;
   private final String[] leaderboardAliases;
-  private final String symbol;
-  private final int symbolPosition;
+  private final double defaultBalance;
+  private final int decimalPlaces;
   private final String singular;
   private final String plural;
+  private final String symbol;
+  private final int symbolPosition;
+  private final boolean customEvents;
+  private final boolean transactionLogging;
   private final Map<MessageType, String> messages;
   
-  private Currency(@NotNull String name, double defaultBalance, int decimalPlaces,
+  private Currency(@NotNull String name,
                    @NotNull String @NotNull [] viewCommands,
                    @NotNull String @NotNull [] adminCommands,
                    @NotNull String @NotNull [] transferCommands,
                    @NotNull String @NotNull [] leaderboardCommands,
-                   String symbol, String symbolPosition, String singular, String plural,
+                   double defaultBalance, int decimalPlaces,
+                   String singular, String plural,
+                   String symbol, String symbolPosition,
+                   boolean customEvents, boolean transactionLogging,
                    Map<MessageType, String> messages) {
     this.name = name;
-    this.defaultBalance = defaultBalance;
-    this.decimalPlaces = decimalPlaces;
     if (viewCommands.length > 0)
       this.viewCommand = viewCommands[0];
     else
@@ -80,21 +83,28 @@ public class Currency {
     } else
       this.leaderboardAliases = new String[0];
     
+    this.defaultBalance = defaultBalance;
+    this.decimalPlaces = decimalPlaces;
+    this.singular = singular;
+    this.plural = plural;
     this.symbol = symbol;
     if (symbolPosition.equalsIgnoreCase("after"))
       this.symbolPosition = 1;
     else
       this.symbolPosition = -1;
-    this.singular = singular;
-    this.plural = plural;
+    this.customEvents = customEvents;
+    this.transactionLogging = transactionLogging;
     this.messages = messages;
   }
   
-  public static Currency of(String name, double startingBalance, int decimalPlaces,
+  public static Currency of(String name,
                             String[] viewCommands, String[] adminCommands, String[] transferCommands, String[] leaderboardCommands,
-                            String symbol, String symbolPosition, String singular, String plural,
+                            double startingBalance, int decimalPlaces,
+                            String singular, String plural,
+                            String symbol, String symbolPosition,
+                            boolean customEvents, boolean transactionLogging,
                             Map<MessageType, String> messages) {
-    return new Currency(name, startingBalance, decimalPlaces, viewCommands, adminCommands, transferCommands, leaderboardCommands, symbol, symbolPosition, singular, plural, messages);
+    return new Currency(name, viewCommands, adminCommands, transferCommands, leaderboardCommands, startingBalance, decimalPlaces, singular, plural, symbol, symbolPosition, customEvents, transactionLogging, messages);
   }
   
   public double getBalance(UUID uniqueId) {

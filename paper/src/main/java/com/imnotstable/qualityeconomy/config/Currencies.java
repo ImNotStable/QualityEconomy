@@ -33,16 +33,18 @@ public final class Currencies extends BaseConfig {
       ConfigurationSection currencySection = section.getConfigurationSection(currencyName);
       if (currencySection == null)
         continue;
-      double startingBalance = currencySection.getDouble("starting-balance", 0.0);
-      int decimalPlaces = currencySection.getInt("decimal-places", 0);
       String[] viewCommands = currencySection.getStringList("view-commands").toArray(new String[0]);
       String[] adminCommands = currencySection.getStringList("admin-commands").toArray(new String[0]);
       String[] transferCommands = currencySection.getStringList("transfer-commands").toArray(new String[0]);
       String[] leaderboardCommands = currencySection.getStringList("leaderboard-commands").toArray(new String[0]);
-      String symbol = currencySection.getString("symbol", "");
-      String symbolPosition = currencySection.getString("symbol-position", "before");
+      double startingBalance = currencySection.getDouble("starting-balance", 0.0);
+      int decimalPlaces = currencySection.getInt("decimal-places", 0);
       String singular = currencySection.getString("singular-name", "");
       String plural = currencySection.getString("plural-name", "");
+      String symbol = currencySection.getString("symbol", "");
+      String symbolPosition = currencySection.getString("symbol-position", "before");
+      boolean customEvents = currencySection.getBoolean("custom-events", false);
+      boolean transactionLogging = currencySection.getBoolean("transaction-logging", false);
       MessageType[] messageTypes = MessageType.values();
       Map<MessageType, String> messages = new HashMap<>();
       for (MessageType messageType : messageTypes) {
@@ -52,7 +54,7 @@ public final class Currencies extends BaseConfig {
         if (message != null)
           messages.put(messageType, message);
       }
-      currencies.put(currencyName, Currency.of(currencyName, startingBalance, decimalPlaces, viewCommands, adminCommands, transferCommands, leaderboardCommands, symbol, symbolPosition, singular, plural, messages));
+      currencies.put(currencyName, Currency.of(currencyName, viewCommands, adminCommands, transferCommands, leaderboardCommands, startingBalance, decimalPlaces, singular, plural, symbol, symbolPosition, customEvents, transactionLogging, messages));
     }
     loadCommands();
   }

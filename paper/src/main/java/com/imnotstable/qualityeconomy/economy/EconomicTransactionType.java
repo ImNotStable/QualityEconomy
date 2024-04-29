@@ -1,6 +1,5 @@
 package com.imnotstable.qualityeconomy.economy;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.config.MessageType;
 import com.imnotstable.qualityeconomy.config.Messages;
@@ -109,14 +108,14 @@ public enum EconomicTransactionType {
         if (!transaction.isCancelled())
           executor.accept(transaction);
         
-        if (QualityEconomy.getQualityConfig().TRANSACTION_LOGGING)
+        if (transaction.getCurrency().isTransactionLogging())
           TransactionLogger.log(transaction);
       });
     else {
       if (!transaction.isCancelled())
         executor.accept(transaction);
       
-      if (QualityEconomy.getQualityConfig().TRANSACTION_LOGGING)
+      if (transaction.getCurrency().isTransactionLogging())
         TransactionLogger.log(transaction);
     }
   }

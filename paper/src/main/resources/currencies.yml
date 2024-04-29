@@ -11,12 +11,16 @@ currencies:
     leaderboard-commands: # Can be set to [] to disable the command
       - balancetop
       - baltop
+    starting-balance: 0.0
+    decimal-places: 2
     singular-name: Dollar
     plural-name: Dollars
     symbol: $
     symbol-position: before #Before or after
-    decimal-places: 2
-    starting-balance: 0.0
+    # Enable this if you want to listen in on QualityEconomy economic transactions (FOR DEVELOPERS)
+    custom-events: false
+    # Whether you want all transactions to be logged within a player specific file
+    transaction-logging: false
     messages: # CAN BE REMOVED. This is not required, but can be used to override the default messages
       view-command:
         own: "<gray>Balance: <yellow><balance>"
