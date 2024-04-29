@@ -285,9 +285,7 @@ public class CurrencyCommand {
     public void register() {
       if (!super.register(command))
         return;
-      long interval = QualityEconomy.getQualityConfig().LEADERBOARD_RELOAD_INTERVAL;
-      if (interval != 0)
-        taskID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(), this::updateBalanceTop, 0L, interval).getTaskId();
+      taskID = Bukkit.getScheduler().runTaskTimerAsynchronously(QualityEconomy.getInstance(), this::updateBalanceTop, 0L, currency.getLeaderboardRefreshInterval()).getTaskId();
     }
     
     public void unregister() {

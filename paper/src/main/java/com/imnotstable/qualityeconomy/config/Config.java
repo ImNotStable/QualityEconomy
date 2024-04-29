@@ -12,7 +12,6 @@ public final class Config extends BaseConfig {
   
   public String STORAGE_TYPE;
   public long BACKUP_INTERVAL;
-  public long LEADERBOARD_RELOAD_INTERVAL;
   public long AUTO_SAVE_ACCOUNTS_INTERVAL;
   public Map<String, String> DATABASE_INFORMATION = new HashMap<>();
   public Map<String, Object> DATABASE_INFORMATION_ADVANCED_SETTINGS;
@@ -28,7 +27,6 @@ public final class Config extends BaseConfig {
     makeSafe();
     STORAGE_TYPE = config.getString("storage-type", "h2").toLowerCase();
     BACKUP_INTERVAL = config.getLong("backup-interval", 21600) * 20;
-    LEADERBOARD_RELOAD_INTERVAL = config.getLong("leaderboard-reload-interval", 5) * 20;
     AUTO_SAVE_ACCOUNTS_INTERVAL = config.getLong("auto-save-accounts-interval", 60) * 20;
     config.getConfigurationSection("database-information").getValues(false).forEach((key, value) -> DATABASE_INFORMATION.put(key, value.toString()));
     DATABASE_INFORMATION_ADVANCED_SETTINGS = config.getConfigurationSection("database-information.advanced-settings").getValues(false);

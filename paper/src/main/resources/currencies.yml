@@ -11,6 +11,8 @@ currencies:
     leaderboard-commands: # Can be set to [] to disable the command
       - balancetop
       - baltop
+    # Number in seconds
+    leaderboard-refresh-interval: 5
     starting-balance: 0.0
     decimal-places: 2
     singular-name: Dollar

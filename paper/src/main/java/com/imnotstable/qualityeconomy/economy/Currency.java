@@ -22,6 +22,7 @@ public class Currency {
   private final String[] transferAliases;
   private final String leaderboardCommand;
   private final String[] leaderboardAliases;
+  private final int leaderboardRefreshInterval;
   private final double defaultBalance;
   private final int decimalPlaces;
   private final String singular;
@@ -36,7 +37,7 @@ public class Currency {
                    @NotNull String @NotNull [] viewCommands,
                    @NotNull String @NotNull [] adminCommands,
                    @NotNull String @NotNull [] transferCommands,
-                   @NotNull String @NotNull [] leaderboardCommands,
+                   @NotNull String @NotNull [] leaderboardCommands, int leaderboardRefreshInterval,
                    double defaultBalance, int decimalPlaces,
                    String singular, String plural,
                    String symbol, String symbolPosition,
@@ -82,6 +83,7 @@ public class Currency {
       System.arraycopy(leaderboardCommands, 1, leaderboardAliases, 0, leaderboardAliases.length);
     } else
       this.leaderboardAliases = new String[0];
+    this.leaderboardRefreshInterval = leaderboardRefreshInterval;
     
     this.defaultBalance = defaultBalance;
     this.decimalPlaces = decimalPlaces;
@@ -99,12 +101,13 @@ public class Currency {
   
   public static Currency of(String name,
                             String[] viewCommands, String[] adminCommands, String[] transferCommands, String[] leaderboardCommands,
+                            int leaderboardRefreshInterval,
                             double startingBalance, int decimalPlaces,
                             String singular, String plural,
                             String symbol, String symbolPosition,
                             boolean customEvents, boolean transactionLogging,
                             Map<MessageType, String> messages) {
-    return new Currency(name, viewCommands, adminCommands, transferCommands, leaderboardCommands, startingBalance, decimalPlaces, singular, plural, symbol, symbolPosition, customEvents, transactionLogging, messages);
+    return new Currency(name, viewCommands, adminCommands, transferCommands, leaderboardCommands, leaderboardRefreshInterval, startingBalance, decimalPlaces, singular, plural, symbol, symbolPosition, customEvents, transactionLogging, messages);
   }
   
   public double getBalance(UUID uniqueId) {

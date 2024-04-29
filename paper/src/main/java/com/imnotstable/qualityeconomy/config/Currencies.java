@@ -37,8 +37,11 @@ public final class Currencies extends BaseConfig {
       String[] adminCommands = currencySection.getStringList("admin-commands").toArray(new String[0]);
       String[] transferCommands = currencySection.getStringList("transfer-commands").toArray(new String[0]);
       String[] leaderboardCommands = currencySection.getStringList("leaderboard-commands").toArray(new String[0]);
+      int leaderboardRefreshInterval = currencySection.getInt("leaderboard-refresh-interval", 5) * 20;
+      if (leaderboardRefreshInterval < 1)
+        leaderboardRefreshInterval = 5 * 20;
       double startingBalance = currencySection.getDouble("starting-balance", 0.0);
-      int decimalPlaces = currencySection.getInt("decimal-places", 0);
+      int decimalPlaces = currencySection.getInt("decimal-places", 2);
       String singular = currencySection.getString("singular-name", "");
       String plural = currencySection.getString("plural-name", "");
       String symbol = currencySection.getString("symbol", "");
@@ -54,7 +57,7 @@ public final class Currencies extends BaseConfig {
         if (message != null)
           messages.put(messageType, message);
       }
-      currencies.put(currencyName, Currency.of(currencyName, viewCommands, adminCommands, transferCommands, leaderboardCommands, startingBalance, decimalPlaces, singular, plural, symbol, symbolPosition, customEvents, transactionLogging, messages));
+      currencies.put(currencyName, Currency.of(currencyName, viewCommands, adminCommands, transferCommands, leaderboardCommands, leaderboardRefreshInterval, startingBalance, decimalPlaces, singular, plural, symbol, symbolPosition, customEvents, transactionLogging, messages));
     }
     loadCommands();
   }

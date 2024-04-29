@@ -6,7 +6,6 @@ storage-type: h2
 # Number in seconds
 # 0 to disable
 backup-interval: 21600
-leaderboard-reload-interval: 5
 autosave-accounts-interval: 60
 
 database-information:
