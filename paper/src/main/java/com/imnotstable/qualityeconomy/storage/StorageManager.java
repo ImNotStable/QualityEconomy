@@ -96,6 +96,7 @@ public class StorageManager implements Listener {
   public static CompletableFuture<Boolean> importData(String information) {
     if (information.equalsIgnoreCase("essentials")) {
       return CompletableFuture.supplyAsync(() -> {
+        
         Collection<Account> accounts = new ArrayList<>();
         File[] userdata = new File("plugins/Essentials/userdata").listFiles((dir, name) -> Misc.isUUID(name.split("\\.")[0]).isPresent());
         if (userdata == null || userdata.length == 0)
@@ -116,7 +117,7 @@ public class StorageManager implements Listener {
     return CompletableFuture.supplyAsync(() -> {
       JsonObject data;
       try {
-        String rawJSON = new String(Files.readAllBytes(Path.of(information)));
+        String rawJSON = new String(Files.readAllBytes(Path.of("plugins/QualityEconomy/" + information)));
         data = new Gson().fromJson(rawJSON, JsonObject.class);
       } catch (IOException exception) {
         Logger.logError("Error while importing playerdata", exception);
@@ -127,7 +128,7 @@ public class StorageManager implements Listener {
       }
       if (!data.has("VERSION"))
         return legacyImportData(data);
-      if (data.get("VERSION").getAsString().equalsIgnoreCase("1.5"))
+      if (data.get("VERSION").getAsString().equalsIgnoreCase("1.5.0"))
         return importDataV1_5(data);
       return true;
     });
@@ -163,13 +164,14 @@ public class StorageManager implements Listener {
       UUID uuid = UUID.fromString(entry.getKey());
       String name = accountJSON.get("NAME").getAsString();
       Collection<BalanceEntry> balances = new ArrayList<>();
-      new BalanceEntry("default", accountJSON.get("BALANCE").getAsDouble(), accountJSON.get("PAYABLE").getAsBoolean());
+      balances.add(new BalanceEntry("default", accountJSON.get("BALANCE").getAsDouble(), accountJSON.get("PAYABLE").getAsBoolean()));
       accountJSON.entrySet().forEach(rawEntry -> {
         if (currencies.contains(rawEntry.getKey()))
           balances.add(new BalanceEntry(rawEntry.getKey(), rawEntry.getValue().getAsDouble(), true));
       });
       accounts.add(new Account(uuid).setUsername(name).updateBalanceEntries(balances));
     });
+    StorageManager.getActiveStorageType().wipeDatabase();
     getActiveStorageType().createAccounts(accounts);
     AccountManager.setupAccounts();
     timer.end();
@@ -180,33 +182,45 @@ public class StorageManager implements Listener {
     // Currency Import
     JsonObject currenciesJSON = rootJSON.getAsJsonObject("CURRENCIES");
     YamlConfiguration currenciesYAML = YamlConfiguration.loadConfiguration(QualityEconomy.getCurrencyConfig().getFile());
-    for (JsonElement currencyJSON : currenciesJSON.get("CURRENCY-LIST").getAsJsonArray()) {
-      String currency = currencyJSON.getAsString();
+    currenciesJSON.entrySet().forEach(currencyJSON -> {
+      Logger.log("Currency: " + currencyJSON.getKey());
+      String currency = currencyJSON.getKey();
       JsonObject currencyData = currenciesJSON.getAsJsonObject(currency);
       for (String commandKey : new String[]{"admin-commands", "view-commands", "transfer-commands", "leaderboard-commands"}) {
         List<String> commands = new ArrayList<>();
         currencyData.getAsJsonArray(commandKey.toUpperCase()).forEach(command -> commands.add(command.getAsString()));
-        currenciesYAML.set("currencies." + commandKey, commands);
+        currenciesYAML.set("currencies." + currency + "." + commandKey, commands);
       }
-      currenciesYAML.set("currencies.singular-name", currencyData.get("SINGULAR").getAsString());
-      currenciesYAML.set("currencies.plural-name", currencyData.get("PLURAL").getAsString());
-      currenciesYAML.set("currencies.symbol", currencyData.get("SYMBOL").getAsString());
-      currenciesYAML.set("currencies.symbol-position", currencyData.get("SYMBOL-POSITION").getAsString());
-      currenciesYAML.set("currencies.decimal-places", currencyData.get("DECIMAL-PLACES").getAsInt());
-      currenciesYAML.set("currencies.starting-balance", currencyData.get("DEFAULT-BALANCE").getAsDouble());
+      currenciesYAML.set("currencies." + currency + ".singular-name", currencyData.get("SINGULAR").getAsString());
+      currenciesYAML.set("currencies." + currency + ".plural-name", currencyData.get("PLURAL").getAsString());
+      currenciesYAML.set("currencies." + currency + ".symbol", currencyData.get("SYMBOL").getAsString());
+      currenciesYAML.set("currencies." + currency + ".symbol-position", currencyData.get("SYMBOL-POSITION").getAsString());
+      currenciesYAML.set("currencies." + currency + ".decimal-places", currencyData.get("DECIMAL-PLACES").getAsInt());
+      currenciesYAML.set("currencies." + currency + ".starting-balance", currencyData.get("DEFAULT-BALANCE").getAsDouble());
+    });
+    try {
+      currenciesYAML.save(QualityEconomy.getCurrencyConfig().getFile());
+    } catch (IOException exception) {
+      Logger.logError("Failed to save currency config while importing", exception);
+      return false;
     }
     // Account Import
     JsonObject accountsJSON = rootJSON.getAsJsonObject("ACCOUNTS");
-    AccountManager.clearAccounts();
-    getActiveStorageType().wipeDatabase();
     Collection<Account> accounts = new ArrayList<>();
     accountsJSON.entrySet().forEach(accountJSON -> {
-      UUID uuid = UUID.fromString(accountJSON.getKey());
+      Account account = new Account(UUID.fromString(accountJSON.getKey()));
       JsonObject accountData = accountJSON.getValue().getAsJsonObject();
-      String username = accountData.get("USERNAME").getAsString();
+      account.setUsername(accountData.get("USERNAME").getAsString());
       Collection<BalanceEntry> balances = new ArrayList<>();
-      
+      accountData.getAsJsonObject("BALANCES").entrySet().forEach(balanceJSON -> {
+        JsonObject balanceData = balanceJSON.getValue().getAsJsonObject();
+        balances.add(new BalanceEntry(balanceJSON.getKey(), balanceData.get("BALANCE").getAsDouble(), balanceData.get("PAYABLE").getAsBoolean()));
+      });
+      accounts.add(account.updateBalanceEntries(balances));
     });
+    StorageManager.getActiveStorageType().wipeDatabase();
+    getActiveStorageType().createAccounts(accounts);
+    AccountManager.setupAccounts();
     return true;
   }
   
@@ -231,7 +245,6 @@ public class StorageManager implements Listener {
       rootJSON.addProperty("VERSION", QualityEconomy.getInstance().getPluginMeta().getVersion());
       // Currency Export
       JsonObject currenciesJSON = new JsonObject();
-      JsonArray curreniesJSONArray = new JsonArray();
       QualityEconomy.getCurrencyConfig().getCurrencies().forEach(currency -> {
         JsonObject currencyJSON = new JsonObject();
         currencyJSON.addProperty("DEFAULT-BALANCE", currency.getDefaultBalance());
@@ -257,18 +270,14 @@ public class StorageManager implements Listener {
           leaderboardCommands.add(command);
         currencyJSON.add("LEADERBOARD-COMMANDS", leaderboardCommands);
         currencyJSON.addProperty("SYMBOL", currency.getSymbol());
-        currencyJSON.addProperty("SYMBOL-POSITION", currency.getSymbolPosition());
+        currencyJSON.addProperty("SYMBOL-POSITION", currency.getSymbolPosition() == 1 ? "after" : "before");
         currencyJSON.addProperty("SINGULAR", currency.getSingular());
         currencyJSON.addProperty("PLURAL", currency.getPlural());
         JsonObject messagesJSON = new JsonObject();
         currency.getMessages().forEach((type, message) -> messagesJSON.addProperty(type.getKey(), message));
         currenciesJSON.add(currency.getName(), currencyJSON);
-        curreniesJSONArray.add(currency.getName());
       });
-      JsonObject currencyListJSON = new JsonObject();
-      currencyListJSON.add("CURRENCY-LIST", currenciesJSON);
-      rootJSON.add("CURRENCIES", currencyListJSON);
-      rootJSON.add("CURRENCIES", curreniesJSONArray);
+      rootJSON.add("CURRENCIES", currenciesJSON);
       // Account Export
       JsonObject accountsJSON = new JsonObject();
       AccountManager.saveAllAccounts();
@@ -277,7 +286,6 @@ public class StorageManager implements Listener {
         accountJSON.addProperty("USERNAME", account.getUsername());
         JsonObject balancesJSON = new JsonObject();
         account.getBalanceEntries().forEach(entry -> {
-          Logger.log(entry.getCurrency());
           JsonObject balanceJSON = new JsonObject();
           balanceJSON.addProperty("BALANCE", entry.getBalance());
           balanceJSON.addProperty("PAYABLE", entry.isPayable());

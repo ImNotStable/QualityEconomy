@@ -41,8 +41,8 @@ public final class Currencies extends BaseConfig {
       String[] leaderboardCommands = currencySection.getStringList("leaderboard-commands").toArray(new String[0]);
       String symbol = currencySection.getString("symbol", "");
       String symbolPosition = currencySection.getString("symbol-position", "before");
-      String singular = currencySection.getString("singular", "");
-      String plural = currencySection.getString("plural", "");
+      String singular = currencySection.getString("singular-name", "");
+      String plural = currencySection.getString("plural-name", "");
       MessageType[] messageTypes = MessageType.values();
       Map<MessageType, String> messages = new HashMap<>();
       for (MessageType messageType : messageTypes) {

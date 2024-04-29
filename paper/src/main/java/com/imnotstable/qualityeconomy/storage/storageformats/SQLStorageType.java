@@ -59,8 +59,8 @@ public class SQLStorageType extends EasySQL implements StorageType {
   @Override
   public void wipeDatabase() {
     try (Connection connection = getConnection()) {
-      dropAccountsTable(connection);
       dropBalancesTable(connection);
+      dropAccountsTable(connection);
       createAccountsTable(connection);
       createBalancesTable(connection);
     } catch (SQLException exception) {

@@ -13,10 +13,4 @@ public class Misc {
     }
   }
   
-  public static boolean equals(Object object, Object... comparable) {
-    for (Object o : comparable)
-      if (object.equals(o)) return true;
-    return false;
-  }
-  
 }
