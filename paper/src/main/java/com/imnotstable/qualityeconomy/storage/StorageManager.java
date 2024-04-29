@@ -183,7 +183,6 @@ public class StorageManager implements Listener {
     JsonObject currenciesJSON = rootJSON.getAsJsonObject("CURRENCIES");
     YamlConfiguration currenciesYAML = YamlConfiguration.loadConfiguration(QualityEconomy.getCurrencyConfig().getFile());
     currenciesJSON.entrySet().forEach(currencyJSON -> {
-      Logger.log("Currency: " + currencyJSON.getKey());
       String currency = currencyJSON.getKey();
       JsonObject currencyData = currenciesJSON.getAsJsonObject(currency);
       for (String commandKey : new String[]{"admin-commands", "view-commands", "transfer-commands", "leaderboard-commands"}) {

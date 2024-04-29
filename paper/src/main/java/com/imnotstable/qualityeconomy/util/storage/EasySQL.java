@@ -43,6 +43,7 @@ public class EasySQL {
     hikariConfig.setMaxLifetime((int) settings.getOrDefault("maximum-liftime", 1800000));
     hikariConfig.setKeepaliveTime((int) settings.getOrDefault("keepalive-time", 0));
     hikariConfig.setConnectionTimeout((int) settings.getOrDefault("connection-timeout", 5000));
+    hikariConfig.setAutoCommit(false);
     hikariConfig.setPoolName("QualityEconomyPool");
     dataSource = new HikariDataSource(hikariConfig);
   }

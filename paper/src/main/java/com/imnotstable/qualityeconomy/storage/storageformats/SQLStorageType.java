@@ -73,7 +73,6 @@ public class SQLStorageType extends EasySQL implements StorageType {
     try (Connection connection = getConnection();
          PreparedStatement accountStatement = connection.prepareStatement(getInsertAccountStatement());
          PreparedStatement balanceStatement = connection.prepareStatement(getInsertBalanceStatement())) {
-      connection.setAutoCommit(false);
       UUID uuid = account.getUniqueId();
       accountStatement.setString(1, uuid.toString());
       accountStatement.setString(2, account.getUsername());
@@ -166,7 +165,6 @@ public class SQLStorageType extends EasySQL implements StorageType {
     try (Connection connection = getConnection()) {
       try (PreparedStatement accountStatement = connection.prepareStatement(getUpdateAccountStatement());
            PreparedStatement balanceStatement = connection.prepareStatement(getUpsertBalanceStatement())) {
-        connection.setAutoCommit(false);
         for (Account account : AccountManager.getAllAccounts()) {
           accountStatement.setString(1, account.getUsername());
           accountStatement.setString(2, account.getUniqueId().toString());
