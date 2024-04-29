@@ -19,7 +19,7 @@ public class EconomicTransaction {
   private boolean cancelled = false;
   private boolean silent = false;
   
-  private EconomicTransaction(@NotNull EconomicTransactionType type, @NotNull CommandSender sender, @NotNull EconomyPlayer[] economyPlayers, @NotNull Currency currency, double amount) {
+  private EconomicTransaction(@NotNull EconomicTransactionType type, @NotNull CommandSender sender, @NotNull EconomyPlayer @NotNull [] economyPlayers, @NotNull Currency currency, double amount) {
     this.type = type;
     this.sender = sender;
     this.economyPlayers = economyPlayers;
@@ -27,7 +27,7 @@ public class EconomicTransaction {
     this.amount = amount;
   }
   
-  public static EconomicTransaction startNewTransaction(@NotNull EconomicTransactionType type, @NotNull CommandSender sender, @NotNull Currency currency, double amount, @NotNull EconomyPlayer... players) throws QualityException {
+  public static EconomicTransaction startNewTransaction(@NotNull EconomicTransactionType type, @NotNull CommandSender sender, @NotNull Currency currency, double amount, @NotNull EconomyPlayer @NotNull... players) throws QualityException {
     if (type.getPlayerRequirement() != players.length)
       throw new QualityException("Economic Transaction failed to meet player requirement");
     return new EconomicTransaction(type, sender, players, currency, amount);

@@ -202,7 +202,7 @@ public class CurrencyCommand {
       if (CommandUtils.requirement(QualityEconomyAPI.isPayable(target.getUniqueId()), currency, MessageType.TRANSFER_NOT_ACCEPTING_PAYMENTS, sender))
         return;
       double amount = (double) args.get("amount");
-      if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), currency, MessageType.TRANSFER_NOT_ENOUGH_MONEY, sender))
+      if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), currency.getName(), amount), currency, MessageType.TRANSFER_NOT_ENOUGH_MONEY, sender))
         return;
       if (CommandUtils.requirement(amount >= currency.getMinimumValue(), currency, MessageType.TRANSFER_INVALID_NUMBER, sender))
         return;
