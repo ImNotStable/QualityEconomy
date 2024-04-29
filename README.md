@@ -11,28 +11,15 @@ Works without any configuration, just drop it in your plugins folder and you're 
 - **Not bloated**: QualityEconomy isn't bloated with features, you can disable nearly every feature!
 
 ## Commands
-- `/qualityeconomy` find out what it does by using it
-- `/balance` view your own or other player's balance
-- `/custombalance` view your own or other player's balance in a specific currency
-- `/economy` interact and change the amount of money players have
-- `/customeconomy` interact and change the amount of money players have in a specific currency
-- `/balancetop` view the top balances
-- `/pay` pay another player
-- `/request` request money from another player
-- `/withdraw` withdraw money from your account into a banknote or piece of paper
+- `/qualityeconomy` Admin Command
+- *All other commands are configurable*
 
 ## Placeholders
-- `balance_#<integer>`: The name of the player at the specified place.
-- `balancetop_balance_#<integer>`: The balance of the player at the specified place.
-- `balance`: The balance of the player.
-- `balance_<uuid>`: The balance of the player with the specified UUID.
-- `balance_<player>`: The balance of the player with the specified name.
-- `cbalance_<currency>`: The balance of the player in the specified currency.
-- `cbalance_<currency>_<uuid>`: The balance of the player with the specified UUID in the specified currency.
-- `cbalance_<currency>_<player>`: The balance of the player with the specified name in the specified currency.
-- `isPayable`: Whether the player is payable.
-- `isPayable_<uuid>`: Whether the player with the specified UUID is payable.
-- `isPayable_<player>`: Whether the player with the specified name is payable.
-- `isRequestable`: Whether the player is requestable.
-- `isRequestable_<uuid>`: Whether the player with the specified UUID is requestable.
-- `isRequestable_<player>`: Whether the player with the specified name is requestable.
+- `balancetop_<currency>_#<integer>_username`: The name of the player at the specified place.
+- `balancetop_<currency>_#<integer>_balance`: The balance of the player at the specified place.
+- `balance_<currency>`: The balance of the player.
+- `balance_<currency>_<uuid>`: The balance of the player with the specified UUID.
+- `balance_<currency>_<player>`: The balance of the player with the specified name.
+- `isPayable_<currency>`: Whether the player is payable.
+- `isPayable_<currency>_<uuid>`: Whether the player with the specified UUID is payable.
+- `isPayable_<currency>_<player>`: Whether the player with the specified name is payable.

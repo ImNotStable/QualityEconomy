@@ -1,11 +1,10 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
-import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import com.imnotstable.qualityeconomy.economy.Account;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 public interface StorageType {
@@ -22,12 +21,7 @@ public interface StorageType {
   
   void saveAllAccounts();
   
-  @NotNull Map<UUID, Account> getAllAccounts();
-  
-  @NotNull Set<String> getCurrencies();
-  
-  boolean addCurrency(@NotNull String currency);
-  
-  boolean removeCurrency(@NotNull String currency);
+  @NotNull
+  Map<UUID, Account> getAllAccounts();
   
 }

@@ -1,14 +1,13 @@
 package com.imnotstable.qualityeconomy.economy;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.util.QualityException;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.minecart.CommandMinecart;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -23,38 +22,37 @@ public class TransactionLogger {
   
   public static void log(EconomicTransaction transaction) {
     if (!dir.exists())
-      if (dir.mkdirs()) {
+      if (!dir.mkdirs()) {
         Logger.logError("Failed to create transaction log directory");
         return;
       }
+    
     String message = getLogMessage(transaction);
     
-    CommandSender sender = transaction.getSender();
-    if (sender != null) {
-      File dataFile = getFile(sender);
-      if (dataFile != null && createPlayerData(dataFile))
-        log(dataFile, message);
-    }
+    File dataFile = getFile(transaction.getSender());
+    if (createPlayerData(dataFile))
+      log(dataFile, message);
     
     for (EconomyPlayer player : transaction.getEconomyPlayers()) {
-      File dataFile = new File(dir, player.getUniqueId() + ".txt");
+      if (transaction.getSender() instanceof Player sender && player.getUniqueId().equals(sender.getUniqueId()))
+        continue;
+      dataFile = new File(dir, player.getUniqueId() + ".txt");
       if (createPlayerData(dataFile))
         log(dataFile, message);
     }
   }
   
-  @Nullable
-  private static File getFile(CommandSender sender) {
-    File dataFile = null;
+  private static @NotNull File getFile(CommandSender sender) {
     if (sender instanceof Player player)
-      dataFile = new File(dir, player.getUniqueId() + ".txt");
+      return new File(dir, player.getUniqueId() + ".txt");
+    else if (sender instanceof Entity entity)
+      return new File(dir, entity.getUniqueId() + ".txt");
     else if (sender instanceof ConsoleCommandSender)
-      dataFile = new File(dir, "console.txt");
+      return new File(dir, "console.txt");
     else if (sender instanceof BlockCommandSender block)
-      dataFile = new File(dir, "command_block-" + block.getBlock().getLocation() + ".txt");
-    else if (sender instanceof CommandMinecart minecart)
-      dataFile = new File(dir, "command_minecart-" + minecart.getUniqueId() + ".txt");
-    return dataFile;
+      return new File(dir, "command_block-" + block.getBlock().getLocation() + ".txt");
+    else
+      throw new IllegalArgumentException("Unknown sender type: " + sender.getClass().getName());
   }
   
   private static void log(File file, String message) {
@@ -72,7 +70,7 @@ public class TransactionLogger {
     message.append("[");
     message.append(formatter.format(LocalDateTime.now()));
     message.append("]");
-    message.append(transaction.getType().getLogMessage().apply(transaction));
+    message.append(transaction.getType().getLogMessage(transaction));
     if (transaction.isSilent())
       message.append(" (Silent)");
     message.append("\n");
@@ -84,9 +82,9 @@ public class TransactionLogger {
       return true;
     try {
       if (!file.createNewFile())
-        throw new QualityException("Unknown Reason");
+        throw new Exception("Unknown Reason");
       return true;
-    } catch (IOException | QualityException exception) {
+    } catch (Exception exception) {
       Logger.logError("Failed to create transaction log (" + file.getName() + ")", exception);
     }
     return false;

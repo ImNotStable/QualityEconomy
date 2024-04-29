@@ -1,6 +1,5 @@
 package com.imnotstable.qualityeconomy.util;
 
-import com.imnotstable.qualityeconomy.QualityEconomy;
 import lombok.AllArgsConstructor;
 
 import java.text.DecimalFormat;
@@ -10,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class Number {
   
-  private static final List<String> SUFFIXES = List.of("", "k", "M", "B", "T", "Q", "Qt", "Sx", "Sp", "O", "N", "D");
+  private static final List<String> SUFFIXES = List.of("", "k", "M", "B", "T", "Q", "Qi", "Sx", "Sp", "O", "N", "D");
   private static final List<String> SUFFIXES_UPPER = List.of("", "k", "M", "B", "T", "Q", "QI", "SX", "SP", "O", "N", "D");
   private static final DecimalFormat NORMAL_FORMAT = new DecimalFormat("#");
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
@@ -35,23 +34,6 @@ public class Number {
     if (COMMA_PATTERN.matcher(value).matches())
       return Double.parseDouble(value.replaceAll(",", ""));
     return Double.parseDouble(value);
-  }
-  
-  public static double roundObj(Object obj) {
-    return (obj instanceof Double n) ? round(n) : 0.0;
-  }
-  
-  public static double round(double n) {
-    if (QualityEconomy.getQualityConfig().DECIMAL_PLACES == -1)
-      return n;
-    double multiplier = Math.pow(10, QualityEconomy.getQualityConfig().DECIMAL_PLACES);
-    return Math.floor(n * multiplier) / multiplier;
-  }
-  
-  public static double getMinimumValue() {
-    if (QualityEconomy.getQualityConfig().DECIMAL_PLACES <= 0)
-      return 0.0;
-    return Math.pow(10, -QualityEconomy.getQualityConfig().DECIMAL_PLACES);
   }
   
   @AllArgsConstructor

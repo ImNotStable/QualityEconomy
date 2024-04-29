@@ -1,5 +1,5 @@
 dependencies {
-    compileOnly 'io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
     implementation 'dev.jorel:commandapi-bukkit-shade:9.3.0'
     compileOnly('me.clip:placeholderapi:2.11.5') {
         exclude group: 'org.bstats', module: 'bstats-bukkit'
@@ -10,13 +10,13 @@ dependencies {
         exclude group: 'org.bukkit', module: 'bukkit'
     }
     implementation 'org.bstats:bstats-bukkit:3.0.2'
-    //Loaded via. SpigotLibraryLoader
+    //Loaded via. PaperLibraryLoader
     compileOnly 'com.zaxxer:HikariCP:5.1.0'
     compileOnly 'com.h2database:h2:2.2.224'
     compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
-    compileOnly 'org.postgresql:postgresql:42.7.3'
-    compileOnly 'org.mongodb:mongodb-driver-sync:5.0.1'
-    compileOnly 'com.google.code.gson:gson:2.10.1'
+    compileOnly 'com.google.code.gson:gson:2.10'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0-M1'
 }
 
 shadowJar {

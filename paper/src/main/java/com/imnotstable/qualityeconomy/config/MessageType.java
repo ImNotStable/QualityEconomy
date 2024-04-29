@@ -6,41 +6,38 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum MessageType {
-  BALANCETOP_TITLE("balancetop.title"),
-  BALANCETOP_SERVER_TOTAL("balancetop.server-total"),
-  BALANCETOP_BALANCE_VIEW("balancetop.balance-view"),
-  BALANCETOP_NEXT_PAGE("balancetop.next-page"),
-  BALANCE_OWN_BALANCE("balance.own-balance"),
-  BALANCE_OTHER_BALANCE("balance.other-balance"),
-  ECONOMY_SET("economy.set"),
-  ECONOMY_ADD("economy.add"),
-  ECONOMY_REMOVE("economy.remove"),
-  ECONOMY_RESET("economy.reset"),
-  PAY_TOGGLE_ON("pay.toggle-on"),
-  PAY_TOGGLE_OFF("pay.toggle-off"),
-  PAY_SEND("pay.send"),
-  PAY_RECEIVE("pay.receive"),
-  REQUEST_TOGGLE_ON("request.toggle-on"),
-  REQUEST_TOGGLE_OFF("request.toggle-off"),
-  REQUEST_SEND("request.send"),
-  REQUEST_RECEIVE("request.receive"),
-  REQUEST_ACCEPT_SEND("request.accept-send"),
-  REQUEST_ACCEPT_RECEIVE("request.accept-receive"),
-  REQUEST_DENY_SEND("request.deny-send"),
-  REQUEST_DENY_RECEIVE("request.deny-receive"),
-  WITHDRAW_MESSAGE("withdraw.message"),
-  WITHDRAW_CLAIM("withdraw.claim"),
-  WITHDRAW_BANKNOTE_DISPLAYNAME("withdraw.banknote-item.displayname"),
-  WITHDRAW_BANKNOTE_LORE("withdraw.banknote-item.lore"),
-  PLAYER_NOT_FOUND("errors.player-not-found"),
-  PLAYER_NOT_ONLINE("errors.player-not-online"),
-  CURRENCY_NOT_FOUND("errors.currency-not-found"),
-  SELF_NOT_ENOUGH_MONEY("errors.not-enough-money.self"),
-  OTHER_NOT_ENOUGH_MONEY("errors.not-enough-money.other"),
-  NOT_ACCEPTING_PAYMENTS("errors.not-accepting-payments"),
-  NOT_ACCEPTING_REQUESTS("errors.not-accepting-requests"),
-  INVALID_NUMBER("errors.invalid-number");
   
-  private final String value;
+  VIEW_OWN("view-command.own", true),
+  VIEW_OTHER("view-command.other", true),
+  VIEW_PLAYER_NOT_FOUND("view-command.errors.player-not-found", true),
+  
+  ADMIN_SET("admin-command.set", true),
+  ADMIN_ADD("admin-command.add", true),
+  ADMIN_REMOVE("admin-command.remove", true),
+  ADMIN_RESET("admin-command.reset", true),
+  ADMIN_PLAYER_NOT_FOUND("admin-command.errors.player-not-found", true),
+  ADMIN_INVALID_NUMBER("admin-command.errors.invalid-number", true),
+  
+  TRANSFER_TOGGLE_ON("transfer-command.toggle-on", true),
+  TRANSFER_TOGGLE_OFF("transfer-command.toggle-off", true),
+  TRANSFER_SEND("transfer-command.send", true),
+  TRANSFER_RECEIVE("transfer-command.receive", true),
+  TRANSFER_PLAYER_NOT_FOUND("transfer-command.errors.player-not-found", true),
+  TRANSFER_NOT_ACCEPTING_PAYMENTS("transfer-command.errors.not-accepting-payments", true),
+  TRANSFER_NOT_ENOUGH_MONEY("transfer-command.errors.not-enough-money", true),
+  TRANSFER_INVALID_NUMBER("transfer-command.errors.invalid-number", true),
+  
+  LEADERBOARD_TITLE("leaderboard-command.title", true),
+  LEADERBOARD_SERVER_TOTAL("leaderboard-command.server-total", true),
+  LEADERBOARD_BALANCE_VIEW("leaderboard-command.balance-view", true),
+  LEADERBOARD_NEXT_PAGE("leaderboard-command.next-page", true);
+  
+  
+  private final String key;
+  private final boolean currencyDependent;
+  
+  MessageType(String key) {
+    this(key, false);
+  }
   
 }

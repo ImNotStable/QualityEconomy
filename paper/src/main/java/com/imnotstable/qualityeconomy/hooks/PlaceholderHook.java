@@ -2,7 +2,8 @@ package com.imnotstable.qualityeconomy.hooks;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.commands.BalanceTopCommand;
+import com.imnotstable.qualityeconomy.economy.Account;
+import com.imnotstable.qualityeconomy.economy.Currency;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class PlaceholderHook {
@@ -26,6 +28,27 @@ public class PlaceholderHook {
     return true;
   }
   
+  private static void validateCurrency(String currency) throws Exception {
+    if (QualityEconomy.getCurrencyConfig().getCurrency(currency).isEmpty())
+      throw new Exception("Invalid Currency");
+  }
+  
+  private static UUID grabUUID(String[] elements, Player player) throws Exception {
+    if (elements.length == 3) {
+      Optional<UUID> optionalUUID = Misc.isUUID(elements[2]);
+      if (optionalUUID.isPresent())
+        return optionalUUID.get();
+      Player target = Bukkit.getPlayerExact(elements[2]);
+      if (target == null)
+        throw new Exception("Invalid UUID/Player Name input");
+      return target.getUniqueId();
+    } else {
+      if (player == null)
+        throw new Exception("Player was found to be null");
+      return player.getUniqueId();
+    }
+  }
+  
   private static class HookProvider extends PlaceholderExpansion {
     
     @Override
@@ -35,7 +58,7 @@ public class PlaceholderHook {
     
     @Override
     public @NotNull String getAuthor() {
-      return String.join(", ", QualityEconomy.getInstance().getDescription().getAuthors());
+      return String.join(", ", QualityEconomy.getInstance().getPluginMeta().getAuthors());
     }
     
     @Override
@@ -45,7 +68,7 @@ public class PlaceholderHook {
     
     @Override
     public @NotNull String getVersion() {
-      return QualityEconomy.getInstance().getDescription().getVersion();
+      return QualityEconomy.getInstance().getPluginMeta().getVersion();
     }
     
     @Override
@@ -56,85 +79,51 @@ public class PlaceholderHook {
     @Override
     public @NotNull List<String> getPlaceholders() {
       return List.of(
-        "balancetop_#<integer>", "balancetop_balance_#<integer>",
-        "balance", "balance_<uuid>", "balance_<player>",
-        "cbalance_<currency>", "cbalance_<currency>_<uuid>", "cbalance_<currency>_<player>",
-        "isPayable", "isPayable_<uuid>", "isPayable_<player>",
-        "isRequestable", "isRequestable_<uuid>", "isRequestable_<player>"
+        "balance_<currency>", "balance_<currency>_<uuid>", "balance_<currency>_<player>",
+        "isPayable_<currency>", "isPayable_<currency>_<uuid>", "isPayable_<currency>_<player>",
+        "leaderboard_<currency>_#<integer>_username", "leaderboard_<currency>_#<integer>_balance"
       );
     }
     
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Override
     public String onPlaceholderRequest(Player player, @NotNull String input) {
       String[] elements = input.split("_");
-      
       try {
-        switch (elements[0]) {
-          case "balancetop" -> {
-            int place;
-            try {
-              int index;
-              if (elements.length == 2 && elements[1].startsWith("#"))
-                index = 1;
-              else if (elements.length == 3 && elements[2].startsWith("#"))
-                index = 2;
-              else
-                return null;
-              place = Integer.parseInt(elements[index].substring(1)) - 1;
-            } catch (NumberFormatException exception) {
-              Logger.logError("Invalid input for \"balancetop_#<integer>\": " + input, exception);
-              return null;
-            }
-            if (place == -1 || BalanceTopCommand.orderedPlayerList.length < place + 1)
-              return "N/A";
-            if (elements[1].equals("balance"))
-              return Number.format(BalanceTopCommand.orderedPlayerList[place].getBalance(), Number.FormatType.NORMAL);
-            else
-              return BalanceTopCommand.orderedPlayerList[place].getUsername();
-          }
+        return switch (elements[0]) {
           case "balance" -> {
-            UUID uuid = grabUUID(elements, player, 1);
-            return Number.format(QualityEconomyAPI.getBalance(uuid), Number.FormatType.NORMAL);
-          }
-          case "cbalance" -> {
-            if (!QualityEconomy.getQualityConfig().CUSTOM_CURRENCIES)
-              return "Feature is disabled";
-            if (!QualityEconomyAPI.doesCustomCurrencyExist(elements[1]))
-              return "Currency does not exist";
-            UUID uuid = grabUUID(elements, player, 2);
-            return Number.format(QualityEconomyAPI.getCustomBalance(uuid, elements[1]), Number.FormatType.NORMAL);
+            UUID uuid = grabUUID(elements, player);
+            validateCurrency(elements[1]);
+            yield Number.format(QualityEconomyAPI.getBalance(uuid, elements[1]), Number.FormatType.NORMAL);
           }
           case "isPayable" -> {
-            UUID uuid = grabUUID(elements, player, 1);
-            return String.valueOf(QualityEconomyAPI.isPayable(uuid));
+            UUID uuid = grabUUID(elements, player);
+            validateCurrency(elements[1]);
+            yield QualityEconomyAPI.isPayable(uuid, elements[1]) ? "true" : "false";
           }
-          case "isRequestable" -> {
-            UUID uuid = grabUUID(elements, player, 1);
-            return String.valueOf(QualityEconomyAPI.isRequestable(uuid));
+          case "leaderboard" -> {
+            validateCurrency(elements[1]);
+            Currency currency = QualityEconomy.getCurrencyConfig().getCurrency(elements[1]).get();
+            try {
+              Account account = QualityEconomy.getCurrencyConfig().getLeaderboardAccount(currency, Integer.parseInt(elements[2].substring(1)) - 1);
+              if (account == null)
+                yield "N/A";
+              if (elements.length > 3 && elements[3].equals("username")) {
+                yield account.getUsername();
+              } else {
+                yield Number.format(account.getBalance(elements[1]), Number.FormatType.NORMAL);
+              }
+            } catch (NumberFormatException exception) {
+              throw new Exception("Invalid Position");
+            }
           }
-        }
-      } catch (Exception ignored) {
+          default -> throw new Exception("Unknown Placeholder");
+        };
+      } catch (Exception exception) {
+        Logger.logError("Error while processing PlaceholderAPI request (" + input + ")", exception);
+        return "Error";
       }
-      
-      return null;
     }
-    
-    private @NotNull UUID grabUUID(String[] elements, Player player, int index) throws Exception {
-      UUID uuid = null;
-      if (elements.length == index + 1) {
-        if (Misc.isUUID(elements[index])) {
-          uuid = UUID.fromString(elements[index]);
-        } else {
-          uuid = Bukkit.getOfflinePlayer(elements[index]).getUniqueId();
-        }
-      } else if (elements.length == index) {
-        uuid = player.getUniqueId();
-      }
-      if (uuid == null)
-        throw new Exception();
-      return uuid;
-    }
-    
   }
   
 }

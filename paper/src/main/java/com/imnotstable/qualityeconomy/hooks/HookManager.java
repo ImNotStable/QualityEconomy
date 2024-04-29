@@ -1,6 +1,7 @@
 package com.imnotstable.qualityeconomy.hooks;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.bStats;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;

@@ -1,0 +1,48 @@
+currencies:
+  default: # DO NOT REMOVE! Default is a required currency, feel free to change the settings below :)
+    admin-commands: # Can be set to [] to disable the commands
+      - economy
+      - eco
+    view-commands: # Can be set to [] to disable the command
+      - balance
+      - bal
+    transfer-commands: # Can be set to [] to disable the command
+      - pay
+    leaderboard-commands: # Can be set to [] to disable the command
+      - balancetop
+      - baltop
+    singular-name: Dollar
+    plural-name: Dollars
+    symbol: $
+    symbol-position: before #Before or after
+    decimal-places: 2
+    starting-balance: 0.0
+    messages: # CAN BE REMOVED. This is not required, but can be used to override the default messages
+      view-command:
+        own: "<gray>Balance: <yellow><balance>"
+        other: "<gray><player>'s Balance: <yellow><balance>"
+        errors:
+          player-not-found: "<red>Player not found: <player>"
+      admin-command:
+        set: "<gray>Set <yellow><player>'s <gray>balance to <yellow><balance>"
+        add: "<gray>Added <yellow><balance> <gray>to <yellow><player>'s <gray>balance"
+        remove: "<gray>Removed <yellow><balance> <gray>from <yellow><player>'s <gray>balance"
+        reset: "<gray>Reset <yellow><player>'s <gray>balance"
+        errors:
+          player-not-found: "<red>Player not found: <player>"
+          invalid-number: "<red>Invalid amount: <amount>"
+      transfer-command:
+        toggle-on: "<gray>Payments are now <green>enabled <gray>from other players"
+        toggle-off: "<gray>Payments are now <red>disabled <gray>from other players"
+        send: "<gray>Sent <yellow><amount> <gray>to <yellow><receiver>"
+        receive: "<gray>Received <yellow><amount> <gray>from <yellow><sender>"
+        errors:
+          player-not-found: "<red>Player not found: <player>"
+          not-accepting-payments: "<red>This player is not accepting payments"
+          not-enough-money: "<red>You do not have enough money"
+          invalid-number: "<red>Invalid amount: <amount>"
+      leaderboard-command:
+        title: "<gray><bold><strikethrough>•              <reset><gold><bold> BalanceTop<gray> <bold><strikethrough>            <reset><yellow> <page><gray>/<yellow><maxpage> <gray><strikethrough>             •"
+        server-total: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Server Total: <servertotal>"
+        balance-view: "<gray><place>. <player>, <yellow><balance>"
+        next-page: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Use <command> <nextpage> to view the next page."
