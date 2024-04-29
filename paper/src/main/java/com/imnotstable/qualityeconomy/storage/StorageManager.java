@@ -210,22 +210,22 @@ public class StorageManager implements Listener {
     return true;
   }
   
-  public static CompletableFuture<Boolean> exportData(ExportType exportType) {
+  public static CompletableFuture<String> exportData(ExportType exportType) {
     return CompletableFuture.supplyAsync(() -> {
       File exportFolder = new File(exportType.getPath());
       File dataFile = new File(exportFolder, "QualityEconomy " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH-mm")) + ".json");
       try {
         if (!exportFolder.exists() && !exportFolder.mkdirs()) {
           Logger.logError("Failed to create export folder: " + exportFolder.getName());
-          return false;
+          return null;
         }
         if (!dataFile.exists() && !dataFile.createNewFile()) {
           Logger.logError("Failed to create export file: " + dataFile.getName());
-          return false;
+          return null;
         }
       } catch (IOException exception) {
         Logger.logError("Failed to create export file: " + dataFile.getName(), exception);
-        return false;
+        return null;
       }
       JsonObject rootJSON = new JsonObject();
       rootJSON.addProperty("VERSION", QualityEconomy.getInstance().getPluginMeta().getVersion());
@@ -291,9 +291,9 @@ public class StorageManager implements Listener {
         writer.write(new Gson().toJson(rootJSON));
       } catch (IOException exception) {
         Logger.logError("Error while exporting database", exception);
-        return false;
+        return null;
       }
-      return true;
+      return dataFile.getName();
     });
   }
   

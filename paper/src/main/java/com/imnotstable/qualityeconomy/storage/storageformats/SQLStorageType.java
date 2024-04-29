@@ -172,7 +172,6 @@ public class SQLStorageType extends EasySQL implements StorageType {
           accountStatement.setString(1, account.getUsername());
           accountStatement.setString(2, account.getUniqueId().toString());
           for (BalanceEntry entry : account.getBalanceEntries()) {
-            Logger.log("Updating balance entry for " + account.getUniqueId() + " (" + entry.getCurrency() + ")");
             balanceStatement.setString(1, account.getUniqueId().toString());
             balanceStatement.setString(2, entry.getCurrency());
             balanceStatement.setDouble(3, entry.getBalance());

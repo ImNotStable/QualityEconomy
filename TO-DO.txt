@@ -1,3 +1,0 @@
-Re-implement MongoDB, Json, and Yaml support
-Re-implement import & export database
-Re-implement createFakeEntries & changeAllEntries

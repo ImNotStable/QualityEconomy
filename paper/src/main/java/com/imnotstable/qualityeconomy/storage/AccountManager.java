@@ -52,10 +52,4 @@ public class AccountManager {
     timer.end();
   }
   
-  public static void createFakeAccounts(int entries) {
-  }
-  
-  public static void changeAllAccounts() {
-  }
-  
 }

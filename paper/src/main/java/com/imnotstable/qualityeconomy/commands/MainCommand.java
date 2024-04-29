@@ -1,11 +1,12 @@
 package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.economy.Account;
+import com.imnotstable.qualityeconomy.economy.BalanceEntry;
+import com.imnotstable.qualityeconomy.economy.Currency;
 import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
-import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.debug.Debug;
-import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.imnotstable.qualityeconomy.util.debug.Timer;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
@@ -25,8 +26,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 public class MainCommand extends BaseCommand {
@@ -56,7 +58,6 @@ public class MainCommand extends BaseCommand {
         .executes(this::reloadMessages)))
     .then(new LiteralArgument("database")
       .then(new LiteralArgument("reset")
-        .withRequirement(sender -> Debug.DEBUG_MODE)
         .executesConsole(this::resetDatabase))
       .then(new LiteralArgument("import")
         .then(new GreedyStringArgument("importable")
@@ -98,38 +99,52 @@ public class MainCommand extends BaseCommand {
   
   private void importDatabase(CommandSender sender, CommandArguments args) {
     String importable = (String) args.get("importable");
-    if (Misc.equals(importable, "Essentials"))
-      transferPluginData(importable, sender);
-    else {
-      boolean completed = false;
-      try {
-        completed = StorageManager.importData(importable).get();
-      } catch (InterruptedException | ExecutionException exception) {
-        Logger.logError("Error while importing database", exception);
-      }
-      if (completed)
-        sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
+    StorageManager.importData(importable).thenAccept(success -> {
+      if (success)
+        sender.sendMessage(Component.text("Imported database from " + importable, NamedTextColor.GREEN));
       else
-        sender.sendMessage(Component.text("Failed to import Database", NamedTextColor.RED));
-    }
-  }
-  
-  private void transferPluginData(String plugin, CommandSender sender) {
-  
+        sender.sendMessage(Component.text("Failed to import database from " + importable, NamedTextColor.RED));
+    });
   }
   
   private void exportDatabase(CommandSender sender, CommandArguments args) {
-    StorageManager.exportData(StorageManager.ExportType.NORMAL);
-    sender.sendMessage(Component.text("Exporting database", NamedTextColor.GREEN));
+    StorageManager.exportData(StorageManager.ExportType.NORMAL).thenAccept(dataFilePath -> {
+      if (dataFilePath != null)
+        sender.sendMessage(Component.text("Exported database to QualityEconomy " + dataFilePath + ".json", NamedTextColor.GREEN));
+      else
+        sender.sendMessage(Component.text("Failed to export database", NamedTextColor.RED));
+    });
   }
   
   private void createFakeEntries(CommandSender sender, CommandArguments args) {
-    int entries = (int) args.get("entries");
-    AccountManager.createFakeAccounts(entries);
+    CompletableFuture.runAsync(() -> {
+      int entries = (int) args.get("entries");
+      String[] currencies = QualityEconomy.getCurrencyConfig().getCurrencies().stream().map(Currency::getName).toArray(String[]::new);
+      Random random = new Random();
+      Collection<Account> accounts = new ArrayList<>();
+      for (int i = 0; i < entries; i++) {
+        Account account = new Account(UUID.randomUUID());
+        account.setUsername(account.getUniqueId().toString().split("-")[0]);
+        for (String currency : currencies)
+          account.updateBalanceEntry(new BalanceEntry(currency, random.nextDouble(1_000_000_000_000.0), random.nextBoolean()));
+        accounts.add(account);
+      }
+      StorageManager.getActiveStorageType().createAccounts(accounts);
+      AccountManager.saveAllAccounts();
+      AccountManager.setupAccounts();
+    });
   }
   
   private void changeAllEntries(CommandSender sender, CommandArguments args) {
-    AccountManager.changeAllAccounts();
+    CompletableFuture.runAsync(() -> {
+      Collection<Account> accounts = AccountManager.getAllAccounts();
+      Random random = new Random();
+      for (Account account : accounts)
+        for (BalanceEntry entry : account.getBalanceEntries()) {
+          entry.setBalance(random.nextDouble(1_000_000_000_000.0));
+          entry.setPayable(random.nextBoolean());
+        }
+    });
   }
   
   private ArgumentSuggestions<CommandSender> getImportSuggestion() {
