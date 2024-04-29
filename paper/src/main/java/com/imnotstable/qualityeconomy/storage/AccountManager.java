@@ -47,9 +47,7 @@ public class AccountManager {
   }
   
   public static void clearAccounts() {
-    Timer timer = new Timer("clearAccounts()");
     accounts.clear();
-    timer.end();
   }
   
 }

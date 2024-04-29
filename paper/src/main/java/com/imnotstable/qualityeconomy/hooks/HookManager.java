@@ -8,7 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 
-public class HookManager implements Listener {
+public class HookManager {
   
   @Getter
   private static boolean vaultEnabled;
