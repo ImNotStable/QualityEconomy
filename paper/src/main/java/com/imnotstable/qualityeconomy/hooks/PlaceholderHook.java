@@ -2,7 +2,8 @@ package com.imnotstable.qualityeconomy.hooks;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import com.imnotstable.qualityeconomy.economy.Account;
+import com.imnotstable.qualityeconomy.economy.Currency;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -11,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class PlaceholderHook {
@@ -23,6 +25,27 @@ public class PlaceholderHook {
       return false;
     }
     return true;
+  }
+  
+  private static void validateCurrency(String currency) throws Exception {
+    if (QualityEconomy.getCurrencyConfig().getCurrency(currency).isEmpty())
+      throw new Exception("Invalid Currency");
+  }
+  
+  private static UUID grabUUID(String[] elements, Player player) throws Exception {
+    if (elements.length == 3) {
+      Optional<UUID> optionalUUID = Misc.isUUID(elements[2]);
+      if (optionalUUID.isPresent())
+        return optionalUUID.get();
+      Player target = Bukkit.getPlayerExact(elements[2]);
+      if (target == null)
+        throw new Exception("Invalid UUID/Player Name input");
+      return target.getUniqueId();
+    } else {
+      if (player == null)
+        throw new Exception("Player was found to be null");
+      return player.getUniqueId();
+    }
   }
   
   private static class HookProvider extends PlaceholderExpansion {
@@ -57,10 +80,11 @@ public class PlaceholderHook {
       return List.of(
         "balance_<currency>", "balance_<currency>_<uuid>", "balance_<currency>_<player>",
         "isPayable_<currency>", "isPayable_<currency>_<uuid>", "isPayable_<currency>_<player>",
-        "leaderboard_<currency>_#<integer>_username", "balancetop_<currency>_#<integer>_balance"
+        "leaderboard_<currency>_#<integer>_username", "leaderboard_<currency>_#<integer>_balance"
       );
     }
     
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Override
     public String onPlaceholderRequest(Player player, @NotNull String input) {
       String[] elements = input.split("_");
@@ -68,15 +92,21 @@ public class PlaceholderHook {
         return switch (elements[0]) {
           case "balance" -> {
             UUID uuid = grabUUID(elements, player);
+            validateCurrency(elements[1]);
             yield String.valueOf(QualityEconomyAPI.getBalance(uuid, elements[1]));
           }
           case "isPayable" -> {
             UUID uuid = grabUUID(elements, player);
+            validateCurrency(elements[1]);
             yield QualityEconomyAPI.isPayable(uuid, elements[1]) ? "true" : "false";
           }
           case "leaderboard" -> {
+            validateCurrency(elements[1]);
+            Currency currency = QualityEconomy.getCurrencyConfig().getCurrency(elements[1]).get();
             try {
-              Account account = QualityEconomy.getCurrencyConfig().getLeaderboardAccount(QualityEconomy.getCurrencyConfig().getCurrency(elements[1]).orElseThrow(() -> new Exception("Invalid Currency")), Integer.parseInt(elements[2]));
+              Account account = QualityEconomy.getCurrencyConfig().getLeaderboardAccount(currency, Integer.parseInt(elements[2].substring(1)) - 1);
+              if (account == null)
+                yield "N/A";
               if (elements.length > 3 && elements[3].equals("username")) {
                 yield account.getUsername();
               } else {
@@ -86,29 +116,13 @@ public class PlaceholderHook {
               throw new Exception("Invalid Position");
             }
           }
-          default -> throw new Exception();
+          default -> throw new Exception("Unknown Placeholder");
         };
       } catch (Exception exception) {
-        throw new IllegalArgumentException("Unexpected value: " + input);
+        Logger.logError("Error while processing PlaceholderAPI request (" + input + ")", exception);
+        return "Error";
       }
     }
-    
-    private @NotNull UUID grabUUID(String[] elements, Player player) throws Exception {
-      UUID uuid = null;
-      if (elements.length > 2) {
-        if (Misc.isUUID(elements[3])) {
-          uuid = UUID.fromString(elements[3]);
-        } else {
-          uuid = Bukkit.getOfflinePlayer(elements[3]).getUniqueId();
-        }
-      } else if (elements.length == 2) {
-        uuid = player.getUniqueId();
-      }
-      if (uuid == null)
-        throw new Exception();
-      return uuid;
-    }
-    
   }
   
 }

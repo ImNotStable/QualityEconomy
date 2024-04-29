@@ -1,4 +1,4 @@
-package com.imnotstable.qualityeconomy.storage.accounts;
+package com.imnotstable.qualityeconomy.economy;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import lombok.Getter;
@@ -12,9 +12,9 @@ import java.util.UUID;
 public class Account {
   @Getter
   private final UUID uniqueId;
+  private final Map<String, BalanceEntry> balances;
   @Getter
   private String username = "";
-  private final Map<String, BalanceEntry> balances;
   
   public Account(UUID uniqueId) {
     this.uniqueId = uniqueId;
@@ -37,8 +37,7 @@ public class Account {
   }
   
   public Account setDefaultBalance(double balance) {
-    balances.get("default").setBalance(balance);
-    return this;
+    return setBalance("default", balance);
   }
   
   public double getBalance(@NotNull String currency) {
@@ -58,6 +57,11 @@ public class Account {
   
   public Collection<BalanceEntry> getBalanceEntries() {
     return balances.values();
+  }
+  
+  public Account setBalance(@NotNull String currency, double balance) {
+    getBalanceEntry(currency).setBalance(balance);
+    return this;
   }
   
   public Account updateBalanceEntry(BalanceEntry balance) {

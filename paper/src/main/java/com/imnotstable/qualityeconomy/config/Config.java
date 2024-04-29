@@ -13,7 +13,6 @@ public final class Config extends BaseConfig {
   public String STORAGE_TYPE;
   public boolean CUSTOM_EVENTS;
   public boolean TRANSACTION_LOGGING;
-  public boolean COMMANDS_BALANCETOP;
   public long BACKUP_INTERVAL;
   public long LEADERBOARD_RELOAD_INTERVAL;
   public long AUTO_SAVE_ACCOUNTS_INTERVAL;
@@ -32,7 +31,6 @@ public final class Config extends BaseConfig {
     STORAGE_TYPE = config.getString("storage-type", "h2").toLowerCase();
     CUSTOM_EVENTS = config.getBoolean("custom-events", false);
     TRANSACTION_LOGGING = config.getBoolean("transaction-logging", false);
-    COMMANDS_BALANCETOP = config.getBoolean("commands.balancetop", true);
     BACKUP_INTERVAL = config.getLong("backup-interval", 21600) * 20;
     LEADERBOARD_RELOAD_INTERVAL = config.getLong("leaderboard-reload-interval", 5) * 20;
     AUTO_SAVE_ACCOUNTS_INTERVAL = config.getLong("auto-save-accounts-interval", 60) * 20;
@@ -53,7 +51,7 @@ public final class Config extends BaseConfig {
       return;
     
     try {
-      config.save(file);
+      config.save(getFile());
     } catch (IOException exception) {
       Logger.logError("Failed to update config.yml during safety analysis", exception);
     }

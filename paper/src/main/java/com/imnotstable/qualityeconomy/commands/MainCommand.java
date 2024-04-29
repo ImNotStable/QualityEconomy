@@ -1,9 +1,8 @@
 package com.imnotstable.qualityeconomy.commands;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
+import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.storage.StorageManager;
-import com.imnotstable.qualityeconomy.storage.accounts.Account;
-import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.debug.Debug;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
@@ -18,7 +17,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,15 +25,29 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 public class MainCommand extends BaseCommand {
   
+  private static MainCommand INSTANCE;
   private final Pattern IMPORT_FILE_PATTERN = Pattern.compile("^QualityEconomy \\d{4}.\\d{2}.\\d{2} \\d{2}-\\d{2}\\.json$");
-  private final CommandTree command = new CommandTree("qualityeconomy")
+  
+  public static void load() {
+    if (INSTANCE != null)
+      INSTANCE.unregister();
+    INSTANCE = new MainCommand();
+    INSTANCE.register();
+  }
+  
+  public void register() {
+    super.register(command);
+  }
+  
+  public void unregister() {
+    super.unregister(command);
+  }  private final CommandTree command = new CommandTree("qualityeconomy")
     .withAliases("qe")
     .withPermission("qualityeconomy.admin")
     .then(new LiteralArgument("reload")
@@ -60,14 +72,6 @@ public class MainCommand extends BaseCommand {
         .withRequirement(sender -> Debug.DEBUG_MODE)
         .executes(this::changeAllEntries)));
   
-  public void register() {
-    super.register(command);
-  }
-  
-  public void unregister() {
-    super.unregister(command);
-  }
-  
   private void reload(CommandSender sender, CommandArguments args) {
     CompletableFuture.runAsync(() -> {
       Timer timer = new Timer("reload()");
@@ -75,9 +79,8 @@ public class MainCommand extends BaseCommand {
       QualityEconomy.getQualityConfig().load();
       QualityEconomy.getMessageConfig().load();
       QualityEconomy.getCurrencyConfig().load();
-      CommandManager.unregisterCommands();
+      MainCommand.load();
       StorageManager.initStorageProcesses(QualityEconomy.getInstance());
-      CommandManager.registerCommands();
       timer.end();
       sender.sendMessage(Component.text("Reloading QualityEconomy...", NamedTextColor.GRAY));
     });
@@ -100,7 +103,7 @@ public class MainCommand extends BaseCommand {
     else {
       boolean completed = false;
       try {
-        completed = StorageManager.importDatabase(importable).get();
+        completed = StorageManager.importData(importable).get();
       } catch (InterruptedException | ExecutionException exception) {
         Logger.logError("Error while importing database", exception);
       }
@@ -112,33 +115,11 @@ public class MainCommand extends BaseCommand {
   }
   
   private void transferPluginData(String plugin, CommandSender sender) {
-    CompletableFuture.runAsync(() -> {
-      Timer timer = new Timer("transferPluginData()");
-      Collection<Account> accounts = new ArrayList<>();
-      if (plugin.equals("Essentials")) {
-        File[] userdata = new File("plugins/Essentials/userdata").listFiles((dir, name) -> Misc.isUUID(name.split("\\.")[0]));
-        if (userdata == null || userdata.length == 0) {
-          sender.sendMessage(Component.text("Failed to import Database", NamedTextColor.RED));
-          return;
-        }
-        for (File userfile : userdata) {
-          YamlConfiguration user = YamlConfiguration.loadConfiguration(userfile);
-          UUID uuid = UUID.fromString(userfile.getName().split("\\.")[0]);
-          String username = user.getString("last-account-name");
-          double balance = Double.parseDouble(user.getString("money"));
-          accounts.add(new Account(uuid).setUsername(username).setDefaultBalance(balance));
-        }
-      }
-      StorageManager.getActiveStorageType().wipeDatabase();
-      StorageManager.getActiveStorageType().createAccounts(accounts);
-      AccountManager.setupAccounts();
-      sender.sendMessage(Component.text("Imported Database", NamedTextColor.GREEN));
-      timer.end();
-    });
+  
   }
   
   private void exportDatabase(CommandSender sender, CommandArguments args) {
-    StorageManager.exportDatabase("plugins/QualityEconomy/exports/");
+    StorageManager.exportData(StorageManager.ExportType.NORMAL);
     sender.sendMessage(Component.text("Exporting database", NamedTextColor.GREEN));
   }
   
@@ -172,5 +153,8 @@ public class MainCommand extends BaseCommand {
       .map(file -> path + "/" + file.getName())
       .toList();
   }
+  
+
+  
   
 }

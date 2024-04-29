@@ -1,13 +1,16 @@
 package com.imnotstable.qualityeconomy.util;
 
-import java.util.regex.Pattern;
+import java.util.Optional;
+import java.util.UUID;
 
 public class Misc {
   
-  private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$");
-  
-  public static boolean isUUID(String uuid) {
-    return UUID_PATTERN.matcher(uuid).matches();
+  public static Optional<UUID> isUUID(String uuid) {
+    try {
+      return Optional.of(UUID.fromString(uuid));
+    } catch (IllegalArgumentException e) {
+      return Optional.empty();
+    }
   }
   
   public static boolean equals(Object object, Object... comparable) {

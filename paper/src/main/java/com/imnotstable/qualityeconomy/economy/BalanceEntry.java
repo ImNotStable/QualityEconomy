@@ -1,4 +1,4 @@
-package com.imnotstable.qualityeconomy.storage.accounts;
+package com.imnotstable.qualityeconomy.economy;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import lombok.Getter;

@@ -15,14 +15,6 @@ import java.util.List;
 
 public class QualityLoader implements PluginLoader {
   
-  @Override
-  public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
-    MavenLibraryResolver resolver = new MavenLibraryResolver();
-    resolveLibraries(classpathBuilder).forEach(library -> resolver.addDependency(new Dependency(new DefaultArtifact(library), null)));
-    resolver.addRepository(new RemoteRepository.Builder("maven", "default", "https://repo1.maven.org/maven2/").build());
-    classpathBuilder.addLibrary(resolver);
-  }
-  
   @NotNull
   private static List<String> resolveLibraries(@NotNull PluginClasspathBuilder classpathBuilder) {
     try (InputStream input = QualityLoader.class.getClassLoader().getResourceAsStream("paper-libraries.yml")) {
@@ -36,6 +28,14 @@ public class QualityLoader implements PluginLoader {
       classpathBuilder.getContext().getLogger().error("Failed to resolve libraries", exception);
     }
     return List.of();
+  }
+  
+  @Override
+  public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
+    MavenLibraryResolver resolver = new MavenLibraryResolver();
+    resolveLibraries(classpathBuilder).forEach(library -> resolver.addDependency(new Dependency(new DefaultArtifact(library), null)));
+    resolver.addRepository(new RemoteRepository.Builder("maven", "default", "https://repo1.maven.org/maven2/").build());
+    classpathBuilder.addLibrary(resolver);
   }
   
 }

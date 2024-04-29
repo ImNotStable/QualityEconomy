@@ -1,7 +1,6 @@
 package com.imnotstable.qualityeconomy.economy;
 
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
-import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import lombok.Getter;
 import org.bukkit.OfflinePlayer;
 

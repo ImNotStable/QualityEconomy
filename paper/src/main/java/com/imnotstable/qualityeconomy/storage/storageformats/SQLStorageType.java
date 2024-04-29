@@ -1,8 +1,8 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
-import com.imnotstable.qualityeconomy.storage.accounts.Account;
-import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
-import com.imnotstable.qualityeconomy.storage.accounts.BalanceEntry;
+import com.imnotstable.qualityeconomy.economy.Account;
+import com.imnotstable.qualityeconomy.economy.BalanceEntry;
+import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.imnotstable.qualityeconomy.util.storage.EasySQL;
 import com.imnotstable.qualityeconomy.util.storage.SQLDriver;
@@ -25,14 +25,17 @@ public class SQLStorageType extends EasySQL implements StorageType {
   
   @Override
   public boolean initStorageProcesses() {
-    if (dataSource != null && !dataSource.isClosed()) {
-      Logger.logError("Attempted to open datasource when datasource already exists");
+    if (dataSource == null) {
+      Logger.logError("Attempted to initiate datasource when datasource doesn't exist");
       return false;
     }
-    open();
+    if (dataSource.isClosed()) {
+      Logger.logError("Attempted to initiate datasource when datasource is already closed");
+      return false;
+    }
     try (Connection connection = getConnection()) {
       createAccountsTable(connection);
-      createBalanceTable(connection);
+      createBalancesTable(connection);
     } catch (SQLException exception) {
       Logger.logError("Error while initiating storage processes", exception);
       return false;
@@ -57,9 +60,9 @@ public class SQLStorageType extends EasySQL implements StorageType {
   public void wipeDatabase() {
     try (Connection connection = getConnection()) {
       dropAccountsTable(connection);
-      dropBalanceTable(connection);
-      endStorageProcesses();
-      initStorageProcesses();
+      dropBalancesTable(connection);
+      createAccountsTable(connection);
+      createBalancesTable(connection);
     } catch (SQLException exception) {
       Logger.logError("Failed to wipe database", exception);
     }
@@ -141,7 +144,16 @@ public class SQLStorageType extends EasySQL implements StorageType {
         UUID uuid = UUID.fromString(resultSet.getString("UUID"));
         Account account = new Account(uuid)
           .setUsername(resultSet.getString("USERNAME"));
-        
+        try (PreparedStatement balanceStatement = connection.prepareStatement("SELECT * FROM BALANCES WHERE UUID = ?")) {
+          balanceStatement.setString(1, uuid.toString());
+          ResultSet balanceResultSet = balanceStatement.executeQuery();
+          while (balanceResultSet.next()) {
+            account.updateBalanceEntry(new BalanceEntry(
+              balanceResultSet.getString("CURRENCY"),
+              balanceResultSet.getDouble("BALANCE"),
+              balanceResultSet.getBoolean("PAYABLE")));
+          }
+        }
         accounts.put(uuid, account);
       }
     } catch (SQLException exception) {
@@ -154,22 +166,25 @@ public class SQLStorageType extends EasySQL implements StorageType {
   public void saveAllAccounts() {
     try (Connection connection = getConnection()) {
       try (PreparedStatement accountStatement = connection.prepareStatement(getUpdateAccountStatement());
-           PreparedStatement balanceStatement = connection.prepareStatement(getUpdateBalanceStatement())) {
+           PreparedStatement balanceStatement = connection.prepareStatement(getUpsertBalanceStatement())) {
         connection.setAutoCommit(false);
         for (Account account : AccountManager.getAllAccounts()) {
           accountStatement.setString(1, account.getUsername());
           accountStatement.setString(2, account.getUniqueId().toString());
           for (BalanceEntry entry : account.getBalanceEntries()) {
-            balanceStatement.setDouble(1, entry.getBalance());
-            balanceStatement.setBoolean(2, entry.isPayable());
-            balanceStatement.setString(3, account.getUniqueId().toString());
-            balanceStatement.setString(4, entry.getCurrency());
+            Logger.log("Updating balance entry for " + account.getUniqueId() + " (" + entry.getCurrency() + ")");
+            balanceStatement.setString(1, account.getUniqueId().toString());
+            balanceStatement.setString(2, entry.getCurrency());
+            balanceStatement.setDouble(3, entry.getBalance());
+            balanceStatement.setBoolean(4, entry.isPayable());
             balanceStatement.addBatch();
           }
           accountStatement.addBatch();
         }
         accountStatement.executeBatch();
-        balanceStatement.executeBatch();
+        for (int i : balanceStatement.executeBatch())
+          if (i == 0)
+            Logger.logError("Failed to update balance entry");
         connection.commit();
       } catch (SQLException exception) {
         Logger.logError("Failed to update accounts", exception);

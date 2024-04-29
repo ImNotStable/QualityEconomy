@@ -2,8 +2,8 @@ package com.imnotstable.qualityeconomy.config;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.commands.CurrencyCommand;
+import com.imnotstable.qualityeconomy.economy.Account;
 import com.imnotstable.qualityeconomy.economy.Currency;
-import com.imnotstable.qualityeconomy.storage.accounts.Account;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +48,7 @@ public final class Currencies extends BaseConfig {
       for (MessageType messageType : messageTypes) {
         if (!messageType.isCurrencyDependent())
           continue;
-        String message = currencySection.getString("messages." + messageType.getValue());
+        String message = currencySection.getString("messages." + messageType.getKey());
         if (message != null)
           messages.put(messageType, message);
       }

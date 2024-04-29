@@ -2,6 +2,7 @@ package com.imnotstable.qualityeconomy.config;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
+import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,9 +13,10 @@ import java.io.InputStreamReader;
 
 public class BaseConfig {
   
-  protected final File file;
-  protected YamlConfiguration config;
+  @Getter
+  private final File file;
   private final QualityEconomy plugin;
+  protected YamlConfiguration config;
   
   protected BaseConfig(@NotNull QualityEconomy plugin, @NotNull String fileName) {
     this.plugin = plugin;

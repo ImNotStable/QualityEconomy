@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy.storage.storageformats;
 
-import com.imnotstable.qualityeconomy.storage.accounts.Account;
+import com.imnotstable.qualityeconomy.economy.Account;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -21,6 +21,7 @@ public interface StorageType {
   
   void saveAllAccounts();
   
-  @NotNull Map<UUID, Account> getAllAccounts();
+  @NotNull
+  Map<UUID, Account> getAllAccounts();
   
 }

@@ -1,6 +1,5 @@
 package com.imnotstable.qualityeconomy.util;
 
-import com.imnotstable.qualityeconomy.economy.Currency;
 import lombok.AllArgsConstructor;
 
 import java.text.DecimalFormat;
@@ -10,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class Number {
   
-  private static final List<String> SUFFIXES = List.of("", "k", "M", "B", "T", "Q", "Qt", "Sx", "Sp", "O", "N", "D");
+  private static final List<String> SUFFIXES = List.of("", "k", "M", "B", "T", "Q", "Qi", "Sx", "Sp", "O", "N", "D");
   private static final List<String> SUFFIXES_UPPER = List.of("", "k", "M", "B", "T", "Q", "QI", "SX", "SP", "O", "N", "D");
   private static final DecimalFormat NORMAL_FORMAT = new DecimalFormat("#");
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
@@ -35,19 +34,6 @@ public class Number {
     if (COMMA_PATTERN.matcher(value).matches())
       return Double.parseDouble(value.replaceAll(",", ""));
     return Double.parseDouble(value);
-  }
-  
-  public static double round(double n, Currency currency) {
-    if (currency.getDecimalPlaces() == -1)
-      return n;
-    double multiplier = Math.pow(10, currency.getDecimalPlaces());
-    return Math.floor(n * multiplier) / multiplier;
-  }
-  
-  public static double getMinimumValue(Currency currency) {
-    if (currency.getDecimalPlaces() <= 0)
-      return 0.0;
-    return Math.pow(10, -currency.getDecimalPlaces());
   }
   
   @AllArgsConstructor

@@ -1,6 +1,6 @@
-package com.imnotstable.qualityeconomy.storage.accounts;
+package com.imnotstable.qualityeconomy.storage;
 
-import com.imnotstable.qualityeconomy.storage.StorageManager;
+import com.imnotstable.qualityeconomy.economy.Account;
 import com.imnotstable.qualityeconomy.util.debug.Timer;
 
 import java.util.Collection;

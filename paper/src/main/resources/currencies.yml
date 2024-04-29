@@ -45,4 +45,4 @@ currencies:
         title: "<gray><bold><strikethrough>•              <reset><gold><bold> BalanceTop<gray> <bold><strikethrough>            <reset><yellow> <page><gray>/<yellow><maxpage> <gray><strikethrough>             •"
         server-total: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Server Total: <servertotal>"
         balance-view: "<gray><place>. <player>, <yellow><balance>"
-        next-page: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Use /<command> <nextpage> to view the next page."
+        next-page: "<dark_gray>[<yellow><bold>!<reset><dark_gray>] <gold><bold>BalanceTop <reset><gray>→ Use <command> <nextpage> to view the next page."

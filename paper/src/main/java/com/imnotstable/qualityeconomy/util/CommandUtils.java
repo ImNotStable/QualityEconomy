@@ -16,9 +16,9 @@ import org.bukkit.entity.Player;
 
 public class CommandUtils {
   
-  public static boolean requirement(boolean requirement, MessageType errorMessage, CommandSender sender) {
+  public static boolean requirement(boolean requirement, Currency currency, MessageType errorMessage, CommandSender sender) {
     if (!requirement) {
-      Messages.sendParsedMessage(sender, errorMessage);
+      Messages.sendParsedMessage(sender, currency.getMessage(errorMessage));
       return true;
     }
     return false;
@@ -44,7 +44,7 @@ public class CommandUtils {
         throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(currency.getMessage(errorMessage),
           "amount", rawAmount));
       }
-      return Number.round(amount, currency);
+      return currency.round(amount);
     }).replaceSuggestions(ArgumentSuggestions.strings("<amount>")
     );
   }

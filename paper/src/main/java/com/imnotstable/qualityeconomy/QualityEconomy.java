@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy;
 
-import com.imnotstable.qualityeconomy.commands.CommandManager;
+import com.imnotstable.qualityeconomy.commands.MainCommand;
 import com.imnotstable.qualityeconomy.config.Config;
 import com.imnotstable.qualityeconomy.config.Currencies;
 import com.imnotstable.qualityeconomy.config.Messages;
@@ -54,11 +54,12 @@ public final class QualityEconomy extends JavaPlugin {
     currencyConfig = new Currencies(this);
     
     StorageManager.initStorageProcesses(this);
-    CommandManager.registerCommands();
     
     HookManager.loadHooks();
     
     Bukkit.getPluginManager().registerEvents(new StorageManager(), this);
+    
+    MainCommand.load();
     
     UpdateChecker.load(QualityEconomy.getInstance().getDescription().getVersion());
     

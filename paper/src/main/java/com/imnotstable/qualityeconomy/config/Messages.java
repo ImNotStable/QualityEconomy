@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public final class Messages extends BaseConfig {
   
-  private final HashMap<String, String> MESSAGES = new HashMap<>();
+  private final HashMap<MessageType, String> MESSAGES = new HashMap<>();
   
   public Messages(@NotNull QualityEconomy plugin) {
     super(plugin, "messages.yml");
@@ -20,7 +20,7 @@ public final class Messages extends BaseConfig {
   }
   
   public static String getMessage(MessageType id) {
-    return QualityEconomy.getMessageConfig().MESSAGES.get(id.getValue());
+    return QualityEconomy.getMessageConfig().MESSAGES.get(id);
   }
   
   public static void sendParsedMessage(CommandSender sender, MessageType id, String... tags) {
@@ -48,8 +48,8 @@ public final class Messages extends BaseConfig {
   
   public void load() {
     super.load(true);
-    for (String path : config.getKeys(true))
-      MESSAGES.put(path, config.getString(path, ""));
+    for (MessageType type : MessageType.values())
+      MESSAGES.put(type, config.getString(type.getKey(), ""));
   }
   
 }

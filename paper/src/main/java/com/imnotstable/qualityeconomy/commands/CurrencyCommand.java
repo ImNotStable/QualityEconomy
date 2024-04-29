@@ -4,14 +4,13 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.config.MessageType;
 import com.imnotstable.qualityeconomy.config.Messages;
+import com.imnotstable.qualityeconomy.economy.Account;
 import com.imnotstable.qualityeconomy.economy.Currency;
 import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
 import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
-import com.imnotstable.qualityeconomy.storage.accounts.Account;
-import com.imnotstable.qualityeconomy.storage.accounts.AccountManager;
+import com.imnotstable.qualityeconomy.storage.AccountManager;
 import com.imnotstable.qualityeconomy.util.CommandUtils;
-import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.debug.Timer;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.IntegerArgument;
@@ -200,12 +199,12 @@ public class CurrencyCommand {
     @SneakyThrows
     private void pay(Player sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
-      if (CommandUtils.requirement(QualityEconomyAPI.isPayable(target.getUniqueId()), MessageType.TRANSFER_NOT_ACCEPTING_PAYMENTS, sender))
+      if (CommandUtils.requirement(QualityEconomyAPI.isPayable(target.getUniqueId()), currency, MessageType.TRANSFER_NOT_ACCEPTING_PAYMENTS, sender))
         return;
       double amount = (double) args.get("amount");
-      if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), MessageType.TRANSFER_NOT_ENOUGH_MONEY, sender))
+      if (CommandUtils.requirement(QualityEconomyAPI.hasBalance(sender.getUniqueId(), amount), currency, MessageType.TRANSFER_NOT_ENOUGH_MONEY, sender))
         return;
-      if (CommandUtils.requirement(amount >= Number.getMinimumValue(currency), MessageType.TRANSFER_INVALID_NUMBER, sender))
+      if (CommandUtils.requirement(amount >= currency.getMinimumValue(), currency, MessageType.TRANSFER_INVALID_NUMBER, sender))
         return;
       EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_TRANSFER, sender, currency, amount, EconomyPlayer.of(sender), EconomyPlayer.of(target)).execute();
     }
@@ -223,11 +222,11 @@ public class CurrencyCommand {
   private static class Leaderboard extends BaseCommand {
     
     public static Account[] orderedPlayerList;
+    private final CommandTree command;
+    private final Currency currency;
     private String serverTotal = "0.0";
     private int maxPage;
     private Integer taskID = null;
-    private final CommandTree command;
-    private final Currency currency;
     
     public Leaderboard(Currency currency) {
       this.currency = currency;
@@ -264,7 +263,7 @@ public class CurrencyCommand {
         }
       
       Messages.sendParsedMessage(sender, currency.getMessage(MessageType.LEADERBOARD_NEXT_PAGE),
-        "command", args.fullInput().split(" ")[0].substring(1),
+        "command", args.fullInput().split(" ")[0],
         "nextpage", String.valueOf(page + 1));
     }
     

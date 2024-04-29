@@ -5,15 +5,15 @@ import org.jetbrains.annotations.NotNull;
 public class QualityEconomyAPI {
   
   public static void createAccount(@NotNull java.util.UUID uniqueId) {
-    com.imnotstable.qualityeconomy.storage.accounts.AccountManager.createAccount(uniqueId);
+    com.imnotstable.qualityeconomy.storage.AccountManager.createAccount(uniqueId);
   }
   
   public static boolean hasAccount(@NotNull java.util.UUID uniqueId) {
-    return com.imnotstable.qualityeconomy.storage.accounts.AccountManager.accountExists(uniqueId);
+    return com.imnotstable.qualityeconomy.storage.AccountManager.accountExists(uniqueId);
   }
   
-  public static com.imnotstable.qualityeconomy.storage.accounts.Account getAccount(@NotNull java.util.UUID uniqueId) {
-    return com.imnotstable.qualityeconomy.storage.accounts.AccountManager.getAccount(uniqueId);
+  public static com.imnotstable.qualityeconomy.economy.Account getAccount(@NotNull java.util.UUID uniqueId) {
+    return com.imnotstable.qualityeconomy.storage.AccountManager.getAccount(uniqueId);
   }
   
   public static double getBalance(@NotNull java.util.UUID uniqueId) {
@@ -61,8 +61,8 @@ public class QualityEconomyAPI {
   }
   
   public static void transferBalance(@NotNull java.util.UUID senderUniqueId, @NotNull java.util.UUID receiverUniqueId, @NotNull String currencyName, double balance) {
-    com.imnotstable.qualityeconomy.storage.accounts.BalanceEntry senderEntry = getBalanceEntry(senderUniqueId, currencyName);
-    com.imnotstable.qualityeconomy.storage.accounts.BalanceEntry receiverEntry = getBalanceEntry(receiverUniqueId, currencyName);
+    com.imnotstable.qualityeconomy.economy.BalanceEntry senderEntry = getBalanceEntry(senderUniqueId, currencyName);
+    com.imnotstable.qualityeconomy.economy.BalanceEntry receiverEntry = getBalanceEntry(receiverUniqueId, currencyName);
     senderEntry.decreaseBalance(balance);
     receiverEntry.increaseBalance(balance);
   }
@@ -83,7 +83,7 @@ public class QualityEconomyAPI {
     getBalanceEntry(uniqueId, currencyName).setPayable(payable);
   }
   
-  public static com.imnotstable.qualityeconomy.storage.accounts.BalanceEntry getBalanceEntry(@NotNull java.util.UUID uniqueId, @NotNull String currencyName) {
+  public static com.imnotstable.qualityeconomy.economy.BalanceEntry getBalanceEntry(@NotNull java.util.UUID uniqueId, @NotNull String currencyName) {
     return getAccount(uniqueId).getBalanceEntry(currencyName);
   }
   

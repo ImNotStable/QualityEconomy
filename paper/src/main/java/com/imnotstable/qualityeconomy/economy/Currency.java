@@ -10,37 +10,23 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.UUID;
 
+@Getter
 public class Currency {
   
-  @Getter
   private final String name;
-  @Getter
   private final double defaultBalance;
-  @Getter
   private final int decimalPlaces;
-  @Getter
   private final String viewCommand;
-  @Getter
   private final String[] viewAliases;
-  @Getter
   private final String adminCommand;
-  @Getter
   private final String[] adminAliases;
-  @Getter
   private final String transferCommand;
-  @Getter
   private final String[] transferAliases;
-  @Getter
   private final String leaderboardCommand;
-  @Getter
   private final String[] leaderboardAliases;
-  @Getter
   private final String symbol;
-  @Getter
   private final int symbolPosition;
-  @Getter
   private final String singular;
-  @Getter
   private final String plural;
   private final Map<MessageType, String> messages;
   
@@ -104,6 +90,13 @@ public class Currency {
     this.messages = messages;
   }
   
+  public static Currency of(String name, double startingBalance, int decimalPlaces,
+                            String[] viewCommands, String[] adminCommands, String[] transferCommands, String[] leaderboardCommands,
+                            String symbol, String symbolPosition, String singular, String plural,
+                            Map<MessageType, String> messages) {
+    return new Currency(name, startingBalance, decimalPlaces, viewCommands, adminCommands, transferCommands, leaderboardCommands, symbol, symbolPosition, singular, plural, messages);
+  }
+  
   public double getBalance(UUID uniqueId) {
     return QualityEconomyAPI.getBalance(uniqueId, name);
   }
@@ -121,19 +114,25 @@ public class Currency {
     return symbol + formattedAmount;
   }
   
+  public double round(double n) {
+    if (decimalPlaces == -1)
+      return n;
+    double multiplier = Math.pow(10, decimalPlaces);
+    return Math.floor(n * multiplier) / multiplier;
+  }
+  
+  public double getMinimumValue() {
+    if (decimalPlaces <= 0)
+      return 0.0;
+    return Math.pow(10, -decimalPlaces);
+  }
+  
   public String getMessage(MessageType type) {
     if (!type.isCurrencyDependent())
       throw new IllegalArgumentException("Message type " + type + " is not currency dependent");
     if (!messages.containsKey(type))
       return Messages.getMessage(type);
     return messages.get(type);
-  }
-  
-  public static Currency of(String name, double startingBalance, int decimalPlaces,
-                            String[] viewCommands, String[] adminCommands, String[] transferCommands, String[] leaderboardCommands,
-                            String symbol, String symbolPosition, String singular, String plural,
-                            Map<MessageType, String> messages) {
-    return new Currency(name, startingBalance, decimalPlaces, viewCommands, adminCommands, transferCommands, leaderboardCommands, symbol, symbolPosition, singular, plural, messages);
   }
   
 }
