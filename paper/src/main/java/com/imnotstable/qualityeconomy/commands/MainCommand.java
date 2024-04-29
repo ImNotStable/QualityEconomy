@@ -38,7 +38,7 @@ public class MainCommand extends BaseCommand {
   
   public static void load() {
     if (INSTANCE != null)
-      INSTANCE.unregister();
+      return;
     INSTANCE = new MainCommand();
     INSTANCE.register();
   }
@@ -80,7 +80,6 @@ public class MainCommand extends BaseCommand {
       QualityEconomy.getQualityConfig().load();
       QualityEconomy.getMessageConfig().load();
       QualityEconomy.getCurrencyConfig().load();
-      MainCommand.load();
       StorageManager.initStorageProcesses(QualityEconomy.getInstance());
       timer.end();
       sender.sendMessage(Component.text("Reloading QualityEconomy...", NamedTextColor.GRAY));
