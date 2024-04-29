@@ -16,7 +16,7 @@ dependencies {
     compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
     compileOnly 'com.google.code.gson:gson:2.10'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0-M1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0-SNAPSHOT'
 }
 
 shadowJar {
