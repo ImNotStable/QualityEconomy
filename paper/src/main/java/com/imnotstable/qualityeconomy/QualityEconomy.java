@@ -61,7 +61,7 @@ public final class QualityEconomy extends JavaPlugin {
     
     MainCommand.load();
     
-    UpdateChecker.load(QualityEconomy.getInstance().getDescription().getVersion());
+    UpdateChecker.load(QualityEconomy.getInstance().getPluginMeta().getVersion());
     
     timer.end();
   }

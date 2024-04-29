@@ -13,7 +13,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-public class QualityLoader implements PluginLoader {
+@SuppressWarnings({"unused", "UnstableApiUsage"})
+public final class QualityLoader implements PluginLoader {
   
   @NotNull
   private static List<String> resolveLibraries(@NotNull PluginClasspathBuilder classpathBuilder) {

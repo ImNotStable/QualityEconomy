@@ -2,8 +2,13 @@ package com.imnotstable.qualityeconomy.hooks;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
+import com.imnotstable.qualityeconomy.economy.Currency;
+import com.imnotstable.qualityeconomy.economy.EconomicTransaction;
+import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
+import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
 import com.imnotstable.qualityeconomy.util.QualityException;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
+import lombok.SneakyThrows;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -46,6 +51,12 @@ public class VaultHook {
   
   private static class HookProvider implements Economy {
     
+    private final Currency currency;
+    
+    private HookProvider() {
+      currency = QualityEconomy.getCurrencyConfig().getCurrency("default").orElseThrow();
+    }
+    
     @Override
     public boolean isEnabled() {
       return economyProvider != null;
@@ -58,22 +69,22 @@ public class VaultHook {
     
     @Override
     public int fractionalDigits() {
-      return QualityEconomy.getCurrencyConfig().getCurrency("default").orElseThrow().getDecimalPlaces();
+      return currency.getDecimalPlaces();
     }
     
     @Override
     public String format(double amount) {
-      return QualityEconomy.getCurrencyConfig().getCurrency("default").orElseThrow().getFormattedAmount(amount);
+      return currency.getFormattedAmount(amount);
     }
     
     @Override
     public String currencyNamePlural() {
-      return "Dollars";
+      return currency.getPlural();
     }
     
     @Override
     public String currencyNameSingular() {
-      return "Dollar";
+      return currency.getSingular();
     }
     
     @Override
@@ -139,27 +150,23 @@ public class VaultHook {
     @Override
     public EconomyResponse withdrawPlayer(String player, double amount) {
       OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player);
-      if (!offlinePlayer.hasPlayedBefore()) {
+      if (!offlinePlayer.hasPlayedBefore())
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
-      }
       return withdrawPlayer(offlinePlayer, amount);
     }
     
+    @SneakyThrows
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
-      if (player == null) {
+      if (player == null)
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player cannot be null.");
-      }
-      if (amount < 0) {
+      if (amount < 0)
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot withdraw a negative amount.");
-      }
-      if (!hasAccount(player)) {
+      if (!hasAccount(player))
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
-      }
-      if (!has(player, amount)) {
+      if (!has(player, amount))
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't have funds.");
-      }
-      QualityEconomyAPI.removeBalance(player.getUniqueId(), amount);
+      EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_REMOVE, Bukkit.getConsoleSender(), currency, amount, EconomyPlayer.of(player)).execute();
       return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
     }
     
@@ -176,24 +183,21 @@ public class VaultHook {
     @Override
     public EconomyResponse depositPlayer(String player, double amount) {
       OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player);
-      if (!offlinePlayer.hasPlayedBefore()) {
+      if (!offlinePlayer.hasPlayedBefore())
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
-      }
       return depositPlayer(offlinePlayer, amount);
     }
     
+    @SneakyThrows
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
-      if (player == null) {
+      if (player == null)
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player cannot be null.");
-      }
-      if (amount < 0) {
+      if (amount < 0)
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Cannot deposit a negative amount.");
-      }
-      if (!hasAccount(player)) {
+      if (!hasAccount(player))
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player doesn't exist.");
-      }
-      QualityEconomyAPI.addBalance(player.getUniqueId(), amount);
+      EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_ADD, Bukkit.getConsoleSender(), currency, amount, EconomyPlayer.of(player)).execute();
       return new EconomyResponse(amount, getBalance(player), EconomyResponse.ResponseType.SUCCESS, null);
     }
     
@@ -209,8 +213,8 @@ public class VaultHook {
     
     @Override
     public boolean createPlayerAccount(String player) {
-      OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayerIfCached(player);
-      return offlinePlayer != null && createPlayerAccount(offlinePlayer);
+      OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player);
+      return createPlayerAccount(offlinePlayer);
     }
     
     @Override
