@@ -5,6 +5,7 @@ import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.economy.Account;
 import com.imnotstable.qualityeconomy.economy.Currency;
 import com.imnotstable.qualityeconomy.util.Misc;
+import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
@@ -93,7 +94,7 @@ public class PlaceholderHook {
           case "balance" -> {
             UUID uuid = grabUUID(elements, player);
             validateCurrency(elements[1]);
-            yield String.valueOf(QualityEconomyAPI.getBalance(uuid, elements[1]));
+            yield Number.format(QualityEconomyAPI.getBalance(uuid, elements[1]), Number.FormatType.NORMAL);
           }
           case "isPayable" -> {
             UUID uuid = grabUUID(elements, player);
@@ -110,7 +111,7 @@ public class PlaceholderHook {
               if (elements.length > 3 && elements[3].equals("username")) {
                 yield account.getUsername();
               } else {
-                yield String.valueOf(account.getBalance(elements[1]));
+                yield Number.format(account.getBalance(elements[1]), Number.FormatType.NORMAL);
               }
             } catch (NumberFormatException exception) {
               throw new Exception("Invalid Position");
