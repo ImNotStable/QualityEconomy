@@ -33,7 +33,7 @@ public class EconomicTransaction {
   }
   
   public void execute() {
-    if (currency.isTransactionLogging())
+    if (currency.isCustomEvents())
       cancelled = type.callEvent(this);
     type.execute(this);
   }
