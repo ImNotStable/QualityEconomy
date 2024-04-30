@@ -20,6 +20,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -223,7 +224,7 @@ public class StorageManager implements Listener {
     return true;
   }
   
-  public static CompletableFuture<String> exportData(ExportType exportType) {
+  public static CompletableFuture<String> exportData(@NotNull ExportType exportType) {
     return CompletableFuture.supplyAsync(() -> {
       File exportFolder = new File(exportType.getPath());
       File dataFile = new File(exportFolder, "QualityEconomy " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH-mm")) + ".json");
