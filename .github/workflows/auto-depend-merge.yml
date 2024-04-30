@@ -11,9 +11,17 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v2
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          github-token: "${{ secrets.GH_PAT }}"
+      - name: Check dependency
+        id: check
+        run: |
+          DEPENDENCY_NAME=$(echo '${{ steps.metadata.outputs.dependency }}' | jq -r '.name')
+          if [[ "$DEPENDENCY_NAME" == "paper-api" ]]; then
+            exit 1
+          fi
+        continue-on-error: true
       - name: Approve a PR
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GH_TOKEN: ${{secrets.GH_PAT}}

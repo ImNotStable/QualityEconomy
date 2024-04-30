@@ -2,6 +2,7 @@ package com.imnotstable.qualityeconomy.api;
 
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 public class QualityEconomyAPI {
   
   public static void createAccount(@NotNull java.util.UUID uniqueId) {
