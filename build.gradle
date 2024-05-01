@@ -45,8 +45,6 @@ subprojects {
 
     shadowJar {
         from '../LICENSE'
-        archiveFileName = "${rootProject.name}-${rootProject.version}-${project.name.capitalize()}.jar"
-        archiveClassifier = null
         destinationDirectory = file('../libs')
     }
 
