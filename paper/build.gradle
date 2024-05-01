@@ -21,7 +21,6 @@ dependencies {
 
 shadowJar {
     relocate 'org.bstats', 'com.imnotstable.qualityeconomy.bstats'
-    relocate 'de.tr7zw.changeme.nbtapi', 'com.imnotstable.qualityeconomy.nbtapi'
     relocate 'dev.jorel.commandapi', 'com.imnotstable.qualityeconomy.commandapi'
     exclude 'META-INF/**', 'LICENSE', 'module-info.class'
 }
