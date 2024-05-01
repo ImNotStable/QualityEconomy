@@ -29,18 +29,22 @@ public class Logger {
   }
   
   public static void logError(String message) {
-    logError(message, null, null);
+    logError(message, null, null, false);
   }
   
   public static void logError(String message, String otherMessage) {
-    logError(message, otherMessage, null);
+    logError(message, otherMessage, null, false);
   }
   
   public static void logError(String message, Throwable throwable) {
-    logError(message, null, throwable);
+    logError(message, null, throwable, true);
   }
   
-  public static void logError(String message, String otherMessage, Throwable throwable) {
+  public static void logError(String message, Throwable throwable, boolean printStackTrace) {
+    logError(message, null, throwable, printStackTrace);
+  }
+  
+  public static void logError(String message, String otherMessage, Throwable throwable, boolean printStackTrace) {
     nl();
     log(Component.text("QualityEconomy Error", NamedTextColor.DARK_RED));
     log(Component.text(message));
@@ -50,7 +54,8 @@ public class Logger {
     nl();
     if (throwable != null) {
       log(Component.text("Exception: " + throwable.getMessage(), NamedTextColor.RED));
-      throwable.printStackTrace();
+      if (printStackTrace)
+        throwable.printStackTrace();
       nl();
     }
   }

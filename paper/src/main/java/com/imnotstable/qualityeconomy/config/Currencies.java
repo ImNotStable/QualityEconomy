@@ -30,34 +30,11 @@ public final class Currencies extends BaseConfig {
     unloadCommands();
     ConfigurationSection section = config.getConfigurationSection("currencies");
     for (String currencyName : section.getKeys(false)) {
-      ConfigurationSection currencySection = section.getConfigurationSection(currencyName);
-      if (currencySection == null)
-        continue;
-      String[] viewCommands = currencySection.getStringList("view-commands").toArray(new String[0]);
-      String[] adminCommands = currencySection.getStringList("admin-commands").toArray(new String[0]);
-      String[] transferCommands = currencySection.getStringList("transfer-commands").toArray(new String[0]);
-      String[] leaderboardCommands = currencySection.getStringList("leaderboard-commands").toArray(new String[0]);
-      int leaderboardRefreshInterval = currencySection.getInt("leaderboard-refresh-interval", 5) * 20;
-      if (leaderboardRefreshInterval < 1)
-        leaderboardRefreshInterval = 5 * 20;
-      double startingBalance = currencySection.getDouble("starting-balance", 0.0);
-      int decimalPlaces = currencySection.getInt("decimal-places", 2);
-      String singular = currencySection.getString("singular-name", "");
-      String plural = currencySection.getString("plural-name", "");
-      String symbol = currencySection.getString("symbol", "");
-      String symbolPosition = currencySection.getString("symbol-position", "before");
-      boolean customEvents = currencySection.getBoolean("custom-events", false);
-      boolean transactionLogging = currencySection.getBoolean("transaction-logging", false);
-      MessageType[] messageTypes = MessageType.values();
-      Map<MessageType, String> messages = new HashMap<>();
-      for (MessageType messageType : messageTypes) {
-        if (!messageType.isCurrencyDependent())
-          continue;
-        String message = currencySection.getString("messages." + messageType.getKey());
-        if (message != null)
-          messages.put(messageType, message);
+      try {
+        currencies.put(currencyName, Currency.of(section.getConfigurationSection(currencyName)));
+      } catch (QualityException exception) {
+        Logger.logError("Failed to load currency " + currencyName, exception, false);
       }
-      currencies.put(currencyName, Currency.of(currencyName, viewCommands, adminCommands, transferCommands, leaderboardCommands, leaderboardRefreshInterval, startingBalance, decimalPlaces, singular, plural, symbol, symbolPosition, customEvents, transactionLogging, messages));
     }
     loadCommands();
   }

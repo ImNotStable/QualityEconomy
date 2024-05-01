@@ -4,9 +4,12 @@ import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.config.MessageType;
 import com.imnotstable.qualityeconomy.config.Messages;
 import com.imnotstable.qualityeconomy.util.Number;
+import com.imnotstable.qualityeconomy.util.QualityException;
 import lombok.Getter;
+import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -108,6 +111,42 @@ public class Currency {
                             boolean customEvents, boolean transactionLogging,
                             Map<MessageType, String> messages) {
     return new Currency(name, viewCommands, adminCommands, transferCommands, leaderboardCommands, leaderboardRefreshInterval, startingBalance, decimalPlaces, singular, plural, symbol, symbolPosition, customEvents, transactionLogging, messages);
+  }
+  
+  public static Currency of(ConfigurationSection section) throws QualityException {
+    if (section == null)
+      throw new QualityException("Currency section is null");
+    String[] viewCommands = section.getStringList("view-commands").toArray(new String[0]);
+    String[] adminCommands = section.getStringList("admin-commands").toArray(new String[0]);
+    String[] transferCommands = section.getStringList("transfer-commands").toArray(new String[0]);
+    String[] leaderboardCommands = section.getStringList("leaderboard-commands").toArray(new String[0]);
+    int leaderboardRefreshInterval = section.getInt("leaderboard-refresh-interval", 5) * 20;
+    if (leaderboardRefreshInterval < 1)
+      throw new QualityException("Leaderboard refresh interval must be at least 1 second");
+    double startingBalance = section.getDouble("starting-balance", 0.0);
+    int decimalPlaces = section.getInt("decimal-places", 2);
+    String singular = section.getString("singular-name");
+    if (singular == null)
+      throw new QualityException("Singular name is null");
+    String plural = section.getString("plural-name");
+    if (plural == null)
+      throw new QualityException("Plural name is null");
+    String symbol = section.getString("symbol");
+    if (symbol == null)
+      throw new QualityException("Symbol is null");
+    String symbolPosition = section.getString("symbol-position", "before");
+    boolean customEvents = section.getBoolean("custom-events", false);
+    boolean transactionLogging = section.getBoolean("transaction-logging", false);
+    MessageType[] messageTypes = MessageType.values();
+    Map<MessageType, String> messages = new HashMap<>();
+    for (MessageType messageType : messageTypes) {
+      if (!messageType.isCurrencyDependent())
+        continue;
+      String message = section.getString("messages." + messageType.getKey());
+      if (message != null)
+        messages.put(messageType, message);
+    }
+    return Currency.of(section.getName(), viewCommands, adminCommands, transferCommands, leaderboardCommands, leaderboardRefreshInterval, startingBalance, decimalPlaces, singular, plural, symbol, symbolPosition, customEvents, transactionLogging, messages);
   }
   
   public double getBalance(UUID uniqueId) {
