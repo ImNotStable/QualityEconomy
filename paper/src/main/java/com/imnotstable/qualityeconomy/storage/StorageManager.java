@@ -107,7 +107,8 @@ public class StorageManager implements Listener {
           UUID uuid = UUID.fromString(userfile.getName().split("\\.")[0]);
           String username = user.getString("last-account-name", uuid.toString());
           double balance = Double.parseDouble(user.getString("money", "0"));
-          accounts.add(new Account(uuid).setUsername(username).setDefaultBalance(balance));
+          boolean payable = user.getBoolean("accepting-pay", true);
+          accounts.add(new Account(uuid).setUsername(username).updateBalanceEntry(new BalanceEntry("default", balance, payable)));
         }
         StorageManager.getActiveStorageType().wipeDatabase();
         StorageManager.getActiveStorageType().createAccounts(accounts);
@@ -159,6 +160,12 @@ public class StorageManager implements Listener {
         currenciesYAML.set("currencies.starting-balance", 0.0);
       }
       rootJSON.remove("CUSTOM-CURRENCIES");
+      try {
+        currenciesYAML.save(QualityEconomy.getCurrencyConfig().getFile());
+      } catch (IOException exception) {
+        Logger.logError("Failed to save currency config while importing", exception);
+        return false;
+      }
     }
     rootJSON.entrySet().forEach(entry -> {
       JsonObject accountJSON = entry.getValue().getAsJsonObject();

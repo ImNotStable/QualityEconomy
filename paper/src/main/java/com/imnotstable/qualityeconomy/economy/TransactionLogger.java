@@ -67,8 +67,8 @@ public class TransactionLogger {
     StringBuilder message = new StringBuilder();
     if (transaction.isCancelled())
       message.append("[Cancelled] ");
-    message.append("[").append(formatter.format(LocalDateTime.now())).append("]");
-    message.append(transaction.getType().getLogMessage(transaction));
+    message.append("[").append(formatter.format(LocalDateTime.now())).append("]")
+      .append(transaction.getType().getLogMessage(transaction));
     if (transaction.isSilent())
       message.append(" (Silent)");
     message.append("\n");

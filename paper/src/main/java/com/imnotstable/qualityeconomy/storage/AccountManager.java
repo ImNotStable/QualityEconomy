@@ -14,7 +14,7 @@ public class AccountManager {
   
   public static Account createAccount(UUID uuid) {
     if (accountExists(uuid))
-      return accounts.get(uuid);
+      throw new IllegalArgumentException("Account already exists: " + uuid);
     Account account = new Account(uuid);
     StorageManager.getActiveStorageType().createAccount(account);
     accounts.put(uuid, account);
@@ -26,7 +26,7 @@ public class AccountManager {
   }
   
   public static Account getAccount(UUID uuid) {
-    return createAccount(uuid);
+    return accountExists(uuid) ? accounts.get(uuid) : createAccount(uuid);
   }
   
   public static boolean accountExists(UUID uuid) {
