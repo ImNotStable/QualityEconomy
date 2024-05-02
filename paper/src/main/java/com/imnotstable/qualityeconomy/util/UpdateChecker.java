@@ -41,6 +41,7 @@ public class UpdateChecker {
                   .decorate(TextDecoration.UNDERLINED)
                   .clickEvent(ClickEvent.openUrl("https://github.com/ImNotStable/QualityEconomy/releases/latest"))
               ).build());
+              player.sendMessage(Component.text("Please update it as soon as possible, new updates contain bug fixes and optimizations that are essential for your server!", NamedTextColor.DARK_GREEN));
             }
           }
         }, QualityEconomy.getInstance());
