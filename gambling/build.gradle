@@ -9,5 +9,4 @@ shadowJar {
     archiveFileName = "QualityGambling-${rootProject.version}.jar"
     relocate 'org.bstats', 'com.imnotstable.qualityeconomy.bstats'
     relocate 'dev.jorel.commandapi', 'com.imnotstable.qualityeconomy.commandapi'
-    exclude 'META-INF/**', 'LICENSE', 'module-info.class'
 }

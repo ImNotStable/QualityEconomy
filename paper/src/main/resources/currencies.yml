@@ -14,9 +14,10 @@ currencies:
     # Number in seconds
     leaderboard-refresh-interval: 5
     starting-balance: 0.0
-    decimal-places: 2
     singular-name: Dollar
     plural-name: Dollars
+    format-type: quality
+    decimal-places: 2
     symbol: $
     symbol-position: before #Before or after
     # Enable this if you want to listen in on QualityEconomy economic transactions (FOR DEVELOPERS)

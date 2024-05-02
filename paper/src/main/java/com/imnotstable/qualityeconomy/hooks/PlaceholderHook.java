@@ -4,8 +4,8 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.economy.Account;
 import com.imnotstable.qualityeconomy.economy.Currency;
+import com.imnotstable.qualityeconomy.util.CurrencyFormatter;
 import com.imnotstable.qualityeconomy.util.Misc;
-import com.imnotstable.qualityeconomy.util.Number;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
@@ -28,9 +28,11 @@ public class PlaceholderHook {
     return true;
   }
   
-  private static void validateCurrency(String currency) throws Exception {
-    if (QualityEconomy.getCurrencyConfig().getCurrency(currency).isEmpty())
+  private static Currency validateCurrency(String currency) throws Exception {
+    Optional<Currency> optionalCurrency = QualityEconomy.getCurrencyConfig().getCurrency(currency);
+    if (optionalCurrency.isEmpty())
       throw new Exception("Invalid Currency");
+    return optionalCurrency.get();
   }
   
   private static UUID grabUUID(String[] elements, Player player) throws Exception {
@@ -93,8 +95,8 @@ public class PlaceholderHook {
         return switch (elements[0]) {
           case "balance" -> {
             UUID uuid = grabUUID(elements, player);
-            validateCurrency(elements[1]);
-            yield Number.format(QualityEconomyAPI.getBalance(uuid, elements[1]), Number.FormatType.NORMAL);
+            Currency currency = validateCurrency(elements[1]);
+            yield currency.getFormattedAmount(QualityEconomyAPI.getBalance(uuid, elements[1]));
           }
           case "isPayable" -> {
             UUID uuid = grabUUID(elements, player);
@@ -111,7 +113,7 @@ public class PlaceholderHook {
               if (elements.length > 3 && elements[3].equals("username")) {
                 yield account.getUsername();
               } else {
-                yield Number.format(account.getBalance(elements[1]), Number.FormatType.NORMAL);
+                yield currency.getFormattedAmount(account.getBalance(elements[1]));
               }
             } catch (NumberFormatException exception) {
               throw new Exception("Invalid Position");

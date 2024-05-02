@@ -44,6 +44,7 @@ subprojects {
     }
 
     shadowJar {
+        exclude 'META-INF/**', 'LICENSE', 'module-info.class'
         from '../LICENSE'
         destinationDirectory = file('../libs')
     }

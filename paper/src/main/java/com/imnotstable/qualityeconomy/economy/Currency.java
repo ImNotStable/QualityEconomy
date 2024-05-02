@@ -3,16 +3,18 @@ package com.imnotstable.qualityeconomy.economy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.config.MessageType;
 import com.imnotstable.qualityeconomy.config.Messages;
-import com.imnotstable.qualityeconomy.util.Number;
+import com.imnotstable.qualityeconomy.util.CurrencyFormatter;
 import com.imnotstable.qualityeconomy.util.QualityException;
 import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Internal
 @Getter
 public class Currency {
   
@@ -27,9 +29,10 @@ public class Currency {
   private final String[] leaderboardAliases;
   private final int leaderboardRefreshInterval;
   private final double defaultBalance;
-  private final int decimalPlaces;
   private final String singular;
   private final String plural;
+  private final CurrencyFormatter.FormatType formatType;
+  private final int decimalPlaces;
   private final String symbol;
   private final int symbolPosition;
   private final boolean customEvents;
@@ -41,9 +44,9 @@ public class Currency {
                    @NotNull String @NotNull [] adminCommands,
                    @NotNull String @NotNull [] transferCommands,
                    @NotNull String @NotNull [] leaderboardCommands, int leaderboardRefreshInterval,
-                   double defaultBalance, int decimalPlaces,
+                   double defaultBalance,
                    String singular, String plural,
-                   String symbol, String symbolPosition,
+                   CurrencyFormatter.FormatType formatType, int decimalPlaces, String symbol, String symbolPosition,
                    boolean customEvents, boolean transactionLogging,
                    Map<MessageType, String> messages) {
     this.name = name;
@@ -89,9 +92,10 @@ public class Currency {
     this.leaderboardRefreshInterval = leaderboardRefreshInterval;
     
     this.defaultBalance = defaultBalance;
-    this.decimalPlaces = decimalPlaces;
     this.singular = singular;
     this.plural = plural;
+    this.formatType = formatType;
+    this.decimalPlaces = decimalPlaces;
     this.symbol = symbol;
     if (symbolPosition.equalsIgnoreCase("after"))
       this.symbolPosition = 1;
@@ -105,12 +109,12 @@ public class Currency {
   public static Currency of(String name,
                             String[] viewCommands, String[] adminCommands, String[] transferCommands, String[] leaderboardCommands,
                             int leaderboardRefreshInterval,
-                            double startingBalance, int decimalPlaces,
+                            double startingBalance,
                             String singular, String plural,
-                            String symbol, String symbolPosition,
+                            CurrencyFormatter.FormatType formatType, int decimalPlaces, String symbol, String symbolPosition,
                             boolean customEvents, boolean transactionLogging,
                             Map<MessageType, String> messages) {
-    return new Currency(name, viewCommands, adminCommands, transferCommands, leaderboardCommands, leaderboardRefreshInterval, startingBalance, decimalPlaces, singular, plural, symbol, symbolPosition, customEvents, transactionLogging, messages);
+    return new Currency(name, viewCommands, adminCommands, transferCommands, leaderboardCommands, leaderboardRefreshInterval, startingBalance, singular, plural, formatType, decimalPlaces, symbol, symbolPosition, customEvents, transactionLogging, messages);
   }
   
   public static Currency of(ConfigurationSection section) throws QualityException {
@@ -124,13 +128,21 @@ public class Currency {
     if (leaderboardRefreshInterval < 1)
       throw new QualityException("Leaderboard refresh interval must be at least 1 second");
     double startingBalance = section.getDouble("starting-balance", 0.0);
-    int decimalPlaces = section.getInt("decimal-places", 2);
     String singular = section.getString("singular-name");
     if (singular == null)
       throw new QualityException("Singular name is null");
     String plural = section.getString("plural-name");
     if (plural == null)
       throw new QualityException("Plural name is null");
+    CurrencyFormatter.FormatType formatType = switch (section.getString("format-type", "NORMAL").toUpperCase()) {
+      case "NORMAL" -> CurrencyFormatter.FormatType.NORMAL;
+      case "SUFFIX" -> CurrencyFormatter.FormatType.SUFFIX;
+      case "UPPERCASE_SUFFIX" -> CurrencyFormatter.FormatType.UPPERCASE_SUFFIX;
+      case "COMMAS" -> CurrencyFormatter.FormatType.COMMAS;
+      case "QUALITY" -> CurrencyFormatter.FormatType.QUALITY;
+      default -> throw new QualityException("Invalid format type");
+    };
+    int decimalPlaces = section.getInt("decimal-places", 2);
     String symbol = section.getString("symbol");
     if (symbol == null)
       throw new QualityException("Symbol is null");
@@ -146,7 +158,7 @@ public class Currency {
       if (message != null)
         messages.put(messageType, message);
     }
-    return Currency.of(section.getName(), viewCommands, adminCommands, transferCommands, leaderboardCommands, leaderboardRefreshInterval, startingBalance, decimalPlaces, singular, plural, symbol, symbolPosition, customEvents, transactionLogging, messages);
+    return Currency.of(section.getName(), viewCommands, adminCommands, transferCommands, leaderboardCommands, leaderboardRefreshInterval, startingBalance, singular, plural, formatType, decimalPlaces, symbol, symbolPosition, customEvents, transactionLogging, messages);
   }
   
   public double getBalance(UUID uniqueId) {
@@ -158,7 +170,7 @@ public class Currency {
   }
   
   public String getFormattedAmount(double amount) {
-    String formattedAmount = Number.format(amount, Number.FormatType.COMMAS);
+    String formattedAmount = CurrencyFormatter.format(amount, CurrencyFormatter.FormatType.COMMAS);
     if (symbol == null)
       return formattedAmount;
     if (symbolPosition == 1)

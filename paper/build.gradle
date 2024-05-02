@@ -2,13 +2,9 @@ dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
     implementation 'dev.jorel:commandapi-bukkit-shade:9.4.0'
     compileOnly('me.clip:placeholderapi:2.11.5') {
-        exclude group: 'org.bstats', module: 'bstats-bukkit'
-        exclude group: 'net.kyori', module: 'adventure-platform-bukkit'
         exclude group: 'org.jetbrains', module: 'annotations'
     }
-    compileOnly('com.github.MilkBowl:VaultAPI:1.7.1') {
-        exclude group: 'org.bukkit', module: 'bukkit'
-    }
+    compileOnly('com.github.MilkBowl:VaultAPI:1.7.1')
     implementation 'org.bstats:bstats-bukkit:3.0.2'
     //Loaded via. PaperLibraryLoader
     compileOnly 'com.zaxxer:HikariCP:5.1.0'
@@ -23,5 +19,4 @@ shadowJar {
     archiveFileName = "QualityEconomy-${rootProject.version}.jar"
     relocate 'org.bstats', 'com.imnotstable.qualityeconomy.bstats'
     relocate 'dev.jorel.commandapi', 'com.imnotstable.qualityeconomy.commandapi'
-    exclude 'META-INF/**', 'LICENSE', 'module-info.class'
 }
