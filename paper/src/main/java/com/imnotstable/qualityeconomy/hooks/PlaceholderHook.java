@@ -4,7 +4,6 @@ import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.api.QualityEconomyAPI;
 import com.imnotstable.qualityeconomy.economy.Account;
 import com.imnotstable.qualityeconomy.economy.Currency;
-import com.imnotstable.qualityeconomy.util.CurrencyFormatter;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
