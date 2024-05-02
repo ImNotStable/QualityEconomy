@@ -170,7 +170,7 @@ public class Currency {
   }
   
   public String getFormattedAmount(double amount) {
-    String formattedAmount = CurrencyFormatter.format(amount, CurrencyFormatter.FormatType.COMMAS);
+    String formattedAmount = CurrencyFormatter.format(amount, formatType);
     if (symbol == null)
       return formattedAmount;
     if (symbolPosition == 1)
