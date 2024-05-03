@@ -28,7 +28,7 @@ public class Currency {
   private final String leaderboardCommand;
   private final String[] leaderboardAliases;
   private final int leaderboardRefreshInterval;
-  private final double defaultBalance;
+  private final double startingBalance;
   private final String singular;
   private final String plural;
   private final CurrencyFormatter.FormatType formatType;
@@ -44,7 +44,7 @@ public class Currency {
                    @NotNull String @NotNull [] adminCommands,
                    @NotNull String @NotNull [] transferCommands,
                    @NotNull String @NotNull [] leaderboardCommands, int leaderboardRefreshInterval,
-                   double defaultBalance,
+                   double startingBalance,
                    String singular, String plural,
                    CurrencyFormatter.FormatType formatType, int decimalPlaces, String symbol, String symbolPosition,
                    boolean customEvents, boolean transactionLogging,
@@ -91,7 +91,7 @@ public class Currency {
       this.leaderboardAliases = new String[0];
     this.leaderboardRefreshInterval = leaderboardRefreshInterval;
     
-    this.defaultBalance = defaultBalance;
+    this.startingBalance = startingBalance;
     this.singular = singular;
     this.plural = plural;
     this.formatType = formatType;

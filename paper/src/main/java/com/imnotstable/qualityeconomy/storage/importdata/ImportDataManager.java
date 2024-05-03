@@ -14,7 +14,7 @@ public class ImportDataManager {
   
   private static final ImportData<JsonObject> LEGACY = new Legacy();
   
-  private static final ImportData<JsonObject> V1_5 = new V1_5();
+  private static final ImportData<JsonObject> V1_5_2 = new V1_5_2();
   
   public static boolean importData(File file) {
     if (file.getName().endsWith(".json")) {
@@ -23,8 +23,8 @@ public class ImportDataManager {
         return false;
       if (!data.has("VERSION"))
         return LEGACY.importData(data);
-      if (data.get("VERSION").getAsString().equalsIgnoreCase("1.5.0"))
-        return V1_5.importData(data);
+      if (data.get("VERSION").getAsString().equalsIgnoreCase("1.5.1"))
+        return V1_5_2.importData(data);
     }
     throw new IllegalArgumentException("Invalid file format: " + file.getName());
   }

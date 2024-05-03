@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class V1_5 implements ImportData<JsonObject> {
+public class V1_5_2 implements ImportData<JsonObject> {
   
   public boolean importData(JsonObject rootJSON) {
     // Currency Import
@@ -29,12 +29,20 @@ public class V1_5 implements ImportData<JsonObject> {
         currencyData.getAsJsonArray(commandKey.toUpperCase()).forEach(command -> commands.add(command.getAsString()));
         currenciesYAML.set("currencies." + currency + "." + commandKey, commands);
       }
-      currenciesYAML.set("currencies." + currency + ".singular-name", currencyData.get("SINGULAR").getAsString());
-      currenciesYAML.set("currencies." + currency + ".plural-name", currencyData.get("PLURAL").getAsString());
+      currenciesYAML.set("currencies." + currency + ".leaderboard-refresh-interval", currencyData.get("LEADERBOARD-REFRESH-INTERVAL").getAsString());
+      currenciesYAML.set("currencies." + currency + ".starting-balance", currencyData.get("STARTING-BALANCE").getAsDouble());
+      currenciesYAML.set("currencies." + currency + ".singular-name", currencyData.get("SINGULAR-NAME").getAsString());
+      currenciesYAML.set("currencies." + currency + ".plural-name", currencyData.get("PLURAL-NAME").getAsString());
+      currenciesYAML.set("currencies." + currency + ".format-type", currencyData.get("FORMAT-TYPE").getAsString());
+      currenciesYAML.set("currencies." + currency + ".decimal-places", currencyData.get("DECIMAL-PLACES").getAsInt());
       currenciesYAML.set("currencies." + currency + ".symbol", currencyData.get("SYMBOL").getAsString());
       currenciesYAML.set("currencies." + currency + ".symbol-position", currencyData.get("SYMBOL-POSITION").getAsString());
-      currenciesYAML.set("currencies." + currency + ".decimal-places", currencyData.get("DECIMAL-PLACES").getAsInt());
-      currenciesYAML.set("currencies." + currency + ".starting-balance", currencyData.get("DEFAULT-BALANCE").getAsDouble());
+      currenciesYAML.set("currencies." + currency + ".custom-events", currencyData.get("CUSTOM-EVENTS").getAsString());
+      currenciesYAML.set("currencies." + currency + ".transaction-logging", currencyData.get("TRANSACTION-LOGGING").getAsDouble());
+      JsonObject messagesJSON = currencyData.getAsJsonObject("MESSAGES");
+      for (String messageKey : messagesJSON.keySet()) {
+        currenciesYAML.set("currencies." + currency + ".messages." + messageKey, messagesJSON.get(messageKey).getAsString());
+      }
     });
     try {
       currenciesYAML.save(QualityEconomy.getCurrencyConfig().getFile());

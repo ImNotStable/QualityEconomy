@@ -13,7 +13,7 @@ compileJava {
 }
 
 group 'com.imnotstable.qualityeconomy'
-version '1.5.1'
+version '1.5.2'
 
 allprojects {
     apply plugin: 'java'

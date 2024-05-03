@@ -138,8 +138,6 @@ public class StorageManager implements Listener {
       JsonObject currenciesJSON = new JsonObject();
       QualityEconomy.getCurrencyConfig().getCurrencies().forEach(currency -> {
         JsonObject currencyJSON = new JsonObject();
-        currencyJSON.addProperty("DEFAULT-BALANCE", currency.getDefaultBalance());
-        currencyJSON.addProperty("DECIMAL-PLACES", currency.getDecimalPlaces());
         JsonArray viewCommands = new JsonArray();
         viewCommands.add(currency.getViewCommand());
         for (String command : currency.getViewAliases())
@@ -160,12 +158,19 @@ public class StorageManager implements Listener {
         for (String command : currency.getLeaderboardAliases())
           leaderboardCommands.add(command);
         currencyJSON.add("LEADERBOARD-COMMANDS", leaderboardCommands);
+        currencyJSON.addProperty("LEADERBOARD-REFRESH-INTERVAL", currency.getLeaderboardRefreshInterval());
+        currencyJSON.addProperty("STARTING-BALANCE", currency.getStartingBalance());
+        currencyJSON.addProperty("SINGULAR-NAME", currency.getSingular());
+        currencyJSON.addProperty("PLURAL-NAME", currency.getPlural());
+        currencyJSON.addProperty("FORMAT-TYPE", currency.getFormatType().toString());
+        currencyJSON.addProperty("DECIMAL-PLACES", currency.getDecimalPlaces());
         currencyJSON.addProperty("SYMBOL", currency.getSymbol());
         currencyJSON.addProperty("SYMBOL-POSITION", currency.getSymbolPosition() == 1 ? "after" : "before");
-        currencyJSON.addProperty("SINGULAR", currency.getSingular());
-        currencyJSON.addProperty("PLURAL", currency.getPlural());
+        currencyJSON.addProperty("CUSTOM-EVENTS", currency.isCustomEvents());
+        currencyJSON.addProperty("TRANSACTION-LOGGING", currency.isTransactionLogging());
         JsonObject messagesJSON = new JsonObject();
         currency.getMessages().forEach((type, message) -> messagesJSON.addProperty(type.getKey(), message));
+        currencyJSON.add("MESSAGES", messagesJSON);
         currenciesJSON.add(currency.getName(), currencyJSON);
       });
       rootJSON.add("CURRENCIES", currenciesJSON);
