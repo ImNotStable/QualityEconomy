@@ -46,7 +46,7 @@ public enum EconomicTransactionType {
   }
   
   public CompletableFuture<Void> execute(EconomicTransaction transaction) {
-   return CompletableFuture.runAsync(() -> executeTransaction(transaction));
+    return CompletableFuture.runAsync(() -> executeTransaction(transaction));
   }
   
   private void executeTransaction(@NotNull EconomicTransaction transaction) {

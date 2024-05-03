@@ -35,21 +35,7 @@ public class MainCommand extends BaseCommand {
   
   private static MainCommand INSTANCE;
   private final Pattern IMPORT_FILE_PATTERN = Pattern.compile("^QualityEconomy \\d{4}.\\d{2}.\\d{2} \\d{2}-\\d{2}\\.json$");
-  
-  public static void load() {
-    if (INSTANCE != null)
-      return;
-    INSTANCE = new MainCommand();
-    INSTANCE.register();
-  }
-  
-  public void register() {
-    super.register(command);
-  }
-  
-  public void unregister() {
-    super.unregister(command);
-  }  private final CommandTree command = new CommandTree("qualityeconomy")
+  private final CommandTree command = new CommandTree("qualityeconomy")
     .withAliases("qe")
     .withPermission("qualityeconomy.admin")
     .then(new LiteralArgument("reload")
@@ -72,6 +58,21 @@ public class MainCommand extends BaseCommand {
       .then(new LiteralArgument("changeAllEntries")
         .withRequirement(sender -> Debug.DEBUG_MODE)
         .executes(this::changeAllEntries)));
+  
+  public static void load() {
+    if (INSTANCE != null)
+      return;
+    INSTANCE = new MainCommand();
+    INSTANCE.register();
+  }
+  
+  public void register() {
+    super.register(command);
+  }
+  
+  public void unregister() {
+    super.unregister(command);
+  }
   
   private void reload(CommandSender sender, CommandArguments args) {
     CompletableFuture.runAsync(() -> {

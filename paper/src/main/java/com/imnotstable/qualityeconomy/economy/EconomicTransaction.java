@@ -26,7 +26,7 @@ public class EconomicTransaction {
     this.amount = amount;
   }
   
-  public static EconomicTransaction startNewTransaction(@NotNull EconomicTransactionType type, @NotNull CommandSender sender, @NotNull Currency currency, double amount, @NotNull EconomyPlayer @NotNull... players) throws QualityException {
+  public static EconomicTransaction startNewTransaction(@NotNull EconomicTransactionType type, @NotNull CommandSender sender, @NotNull Currency currency, double amount, @NotNull EconomyPlayer @NotNull ... players) throws QualityException {
     if (type.getPlayerRequirement() != players.length)
       throw new QualityException("Economic Transaction failed to meet player requirement");
     return new EconomicTransaction(type, sender, players, currency, amount);
