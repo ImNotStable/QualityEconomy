@@ -2,11 +2,11 @@ package com.imnotstable.qualityeconomy.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.economy.Account;
 import com.imnotstable.qualityeconomy.economy.BalanceEntry;
+import com.imnotstable.qualityeconomy.storage.importdata.ImportDataManager;
 import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.util.Misc;
@@ -25,14 +25,10 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -116,119 +112,7 @@ public class StorageManager implements Listener {
         return true;
       });
     }
-    return CompletableFuture.supplyAsync(() -> {
-      JsonObject data;
-      try {
-        String rawJSON = new String(Files.readAllBytes(Path.of("plugins/QualityEconomy/" + information)));
-        data = new Gson().fromJson(rawJSON, JsonObject.class);
-      } catch (IOException exception) {
-        Logger.logError("Error while importing playerdata", exception);
-        return false;
-      } catch (InvalidPathException exception) {
-        Logger.logError("Invalid Path found", exception);
-        return false;
-      }
-      if (!data.has("VERSION"))
-        return legacyImportData(data);
-      if (data.get("VERSION").getAsString().equalsIgnoreCase("1.5.0"))
-        return importDataV1_5(data);
-      return true;
-    });
-  }
-  
-  private static boolean legacyImportData(JsonObject rootJSON) {
-    Timer timer = new Timer("importDatabase()");
-    AccountManager.clearAccounts();
-    getActiveStorageType().wipeDatabase();
-    Collection<Account> accounts = new ArrayList<>();
-    List<String> currencies = new ArrayList<>();
-    if (rootJSON.has("CUSTOM-CURRENCIES")) {
-      JsonArray currenciesJSON = rootJSON.getAsJsonArray("CUSTOM-CURRENCIES");
-      YamlConfiguration currenciesYAML = YamlConfiguration.loadConfiguration(QualityEconomy.getCurrencyConfig().getFile());
-      for (JsonElement currencyJSON : currenciesJSON) {
-        String currency = currencyJSON.getAsString();
-        currencies.add(currency);
-        currenciesYAML.set("currencies.admin-commands", List.of());
-        currenciesYAML.set("currencies.view-commands", List.of());
-        currenciesYAML.set("currencies.transfer-commands", List.of());
-        currenciesYAML.set("currencies.leaderboard-commands", List.of());
-        currenciesYAML.set("currencies.singular-name", currency);
-        currenciesYAML.set("currencies.plural-name", currency + "s");
-        currenciesYAML.set("currencies.symbol", currency.toCharArray()[0]);
-        currenciesYAML.set("currencies.symbol-position", "before");
-        currenciesYAML.set("currencies.decimal-places", 2);
-        currenciesYAML.set("currencies.starting-balance", 0.0);
-      }
-      rootJSON.remove("CUSTOM-CURRENCIES");
-      try {
-        currenciesYAML.save(QualityEconomy.getCurrencyConfig().getFile());
-      } catch (IOException exception) {
-        Logger.logError("Failed to save currency config while importing", exception);
-        return false;
-      }
-    }
-    rootJSON.entrySet().forEach(entry -> {
-      JsonObject accountJSON = entry.getValue().getAsJsonObject();
-      UUID uuid = UUID.fromString(entry.getKey());
-      String name = accountJSON.get("NAME").getAsString();
-      Collection<BalanceEntry> balances = new ArrayList<>();
-      balances.add(new BalanceEntry("default", accountJSON.get("BALANCE").getAsDouble(), accountJSON.get("PAYABLE").getAsBoolean()));
-      accountJSON.entrySet().forEach(rawEntry -> {
-        if (currencies.contains(rawEntry.getKey()))
-          balances.add(new BalanceEntry(rawEntry.getKey(), rawEntry.getValue().getAsDouble(), true));
-      });
-      accounts.add(new Account(uuid).setUsername(name).updateBalanceEntries(balances));
-    });
-    StorageManager.getActiveStorageType().wipeDatabase();
-    getActiveStorageType().createAccounts(accounts);
-    AccountManager.setupAccounts();
-    timer.end();
-    return true;
-  }
-  
-  private static boolean importDataV1_5(JsonObject rootJSON) {
-    // Currency Import
-    JsonObject currenciesJSON = rootJSON.getAsJsonObject("CURRENCIES");
-    YamlConfiguration currenciesYAML = YamlConfiguration.loadConfiguration(QualityEconomy.getCurrencyConfig().getFile());
-    currenciesJSON.entrySet().forEach(currencyJSON -> {
-      String currency = currencyJSON.getKey();
-      JsonObject currencyData = currenciesJSON.getAsJsonObject(currency);
-      for (String commandKey : new String[]{"admin-commands", "view-commands", "transfer-commands", "leaderboard-commands"}) {
-        List<String> commands = new ArrayList<>();
-        currencyData.getAsJsonArray(commandKey.toUpperCase()).forEach(command -> commands.add(command.getAsString()));
-        currenciesYAML.set("currencies." + currency + "." + commandKey, commands);
-      }
-      currenciesYAML.set("currencies." + currency + ".singular-name", currencyData.get("SINGULAR").getAsString());
-      currenciesYAML.set("currencies." + currency + ".plural-name", currencyData.get("PLURAL").getAsString());
-      currenciesYAML.set("currencies." + currency + ".symbol", currencyData.get("SYMBOL").getAsString());
-      currenciesYAML.set("currencies." + currency + ".symbol-position", currencyData.get("SYMBOL-POSITION").getAsString());
-      currenciesYAML.set("currencies." + currency + ".decimal-places", currencyData.get("DECIMAL-PLACES").getAsInt());
-      currenciesYAML.set("currencies." + currency + ".starting-balance", currencyData.get("DEFAULT-BALANCE").getAsDouble());
-    });
-    try {
-      currenciesYAML.save(QualityEconomy.getCurrencyConfig().getFile());
-    } catch (IOException exception) {
-      Logger.logError("Failed to save currency config while importing", exception);
-      return false;
-    }
-    // Account Import
-    JsonObject accountsJSON = rootJSON.getAsJsonObject("ACCOUNTS");
-    Collection<Account> accounts = new ArrayList<>();
-    accountsJSON.entrySet().forEach(accountJSON -> {
-      Account account = new Account(UUID.fromString(accountJSON.getKey()));
-      JsonObject accountData = accountJSON.getValue().getAsJsonObject();
-      account.setUsername(accountData.get("USERNAME").getAsString());
-      Collection<BalanceEntry> balances = new ArrayList<>();
-      accountData.getAsJsonObject("BALANCES").entrySet().forEach(balanceJSON -> {
-        JsonObject balanceData = balanceJSON.getValue().getAsJsonObject();
-        balances.add(new BalanceEntry(balanceJSON.getKey(), balanceData.get("BALANCE").getAsDouble(), balanceData.get("PAYABLE").getAsBoolean()));
-      });
-      accounts.add(account.updateBalanceEntries(balances));
-    });
-    StorageManager.getActiveStorageType().wipeDatabase();
-    getActiveStorageType().createAccounts(accounts);
-    AccountManager.setupAccounts();
-    return true;
+    return CompletableFuture.supplyAsync(() -> ImportDataManager.importData(new File("plugins/QualityEconomy/" + information)));
   }
   
   public static CompletableFuture<String> exportData(@NotNull ExportType exportType) {
