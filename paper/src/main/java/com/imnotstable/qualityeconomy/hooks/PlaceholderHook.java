@@ -8,7 +8,7 @@ import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -34,13 +34,13 @@ public class PlaceholderHook {
     return optionalCurrency.get();
   }
   
-  private static UUID grabUUID(String[] elements, Player player) throws Exception {
+  private static UUID grabUUID(String[] elements, OfflinePlayer player) throws Exception {
     if (elements.length == 3) {
       Optional<UUID> optionalUUID = Misc.isUUID(elements[2]);
       if (optionalUUID.isPresent())
         return optionalUUID.get();
-      Player target = Bukkit.getPlayerExact(elements[2]);
-      if (target == null)
+      OfflinePlayer target = Bukkit.getOfflinePlayer(elements[2]);
+      if (!target.hasPlayedBefore())
         throw new Exception("Invalid UUID/Player Name input");
       return target.getUniqueId();
     } else {
@@ -88,7 +88,7 @@ public class PlaceholderHook {
     
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Override
-    public String onPlaceholderRequest(Player player, @NotNull String input) {
+    public String onRequest(OfflinePlayer player, @NotNull String input) {
       String[] elements = input.split("_");
       try {
         return switch (elements[0]) {
