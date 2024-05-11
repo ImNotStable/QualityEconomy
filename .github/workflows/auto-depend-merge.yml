@@ -11,7 +11,7 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v2
         with:
-          github-token: "${{ secrets.GH_PAT }}"
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Check dependency
         id: check
         run: |
