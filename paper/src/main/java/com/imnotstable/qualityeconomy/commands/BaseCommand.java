@@ -12,7 +12,7 @@ public abstract class BaseCommand {
   public abstract void unregister();
   
   protected boolean register(CommandTree command) {
-    return register(command, true);
+    return register(command, command != null);
   }
   
   protected boolean register(CommandTree command, boolean conditions) {
@@ -24,7 +24,7 @@ public abstract class BaseCommand {
   }
   
   protected boolean unregister(CommandTree command) {
-    if (!isRegistered)
+    if (!isRegistered || command == null)
       return false;
     CommandAPI.unregister(command.getName(), true);
     for (String alias : command.getAliases())

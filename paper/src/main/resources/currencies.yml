@@ -1,16 +1,22 @@
 currencies:
   default: # DO NOT REMOVE! Default is a required currency, feel free to change the settings below :)
-    admin-commands: # Can be set to [] to disable the commands
-      - economy
-      - eco
-    view-commands: # Can be set to [] to disable the command
-      - balance
-      - bal
-    transfer-commands: # Can be set to [] to disable the command
-      - pay
-    leaderboard-commands: # Can be set to [] to disable the command
-      - balancetop
-      - baltop
+    # Using 'command: null' will disable the command
+    admin-command:
+      command: economy
+      aliases: [eco]
+      permission: qualityeconomy.admin
+    view-command:
+        command: balance
+        aliases: [bal]
+        permission: qualityeconomy.view
+    transfer-command:
+      command: pay
+      aliases: []
+      permission: qualityeconomy.transfer
+    leaderboard-command:
+      command: balancetop
+      aliases: [baltop]
+      permission: qualityeconomy.leaderboard
     # Number in seconds
     leaderboard-refresh-interval: 5
     starting-balance: 0.0

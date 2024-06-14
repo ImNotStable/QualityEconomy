@@ -1,4 +1,4 @@
-package com.imnotstable.qualityeconomy.util.storage;
+package com.imnotstable.qualityeconomy.storage.storageformats.sql;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
@@ -31,6 +31,7 @@ public class EasySQL {
   protected final String insertBalanceStatement = "INSERT INTO BALANCES(UUID,CURRENCY,BALANCE,PAYABLE) VALUES(?,?,?,?);";
   @Getter
   protected final String upsertBalanceStatement;
+  
   protected HikariDataSource dataSource;
   
   protected EasySQL(SQLDriver driver) {
