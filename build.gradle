@@ -6,37 +6,28 @@ plugins {
     id 'java-library'
 }
 
-compileJava {
-    sourceCompatibility = '17'
-    targetCompatibility = '17'
-    options.encoding = 'UTF-8'
-    jar.enabled = false
-}
-
 group 'com.imnotstable.qualityeconomy'
 version '1.5.3'
 
 allprojects {
-    apply plugin: 'java'
-    apply plugin: 'com.github.johnrengelman.shadow'
-    apply plugin: 'java-library'
     compileJava.sourceCompatibility = '17'
     compileJava.targetCompatibility = '17'
     compileJava.options.encoding = 'UTF-8'
     jar.enabled = false
 
     repositories {
-        mavenCentral()
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
         maven { url 'https://oss.sonatype.org/content/groups/public/' }
         maven { url 'https://jitpack.io' }
         maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
-        maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     }
-
 }
 
 subprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'java-library'
 
     dependencies {
         compileOnly 'org.projectlombok:lombok:1.18.32'
@@ -46,6 +37,7 @@ subprojects {
     }
 
     shadowJar {
+        minimize()
         exclude 'META-INF/**', 'LICENSE', 'module-info.class'
         from '../LICENSE'
         destinationDirectory = file('../libs')
