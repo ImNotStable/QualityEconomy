@@ -20,10 +20,11 @@ jobs:
             exit 1
           fi
         continue-on-error: true
-      - name: Approve a PR
+      - name: Approve and Merge a PR
         run: |
           echo $GH_TOKEN | gh auth login --with-token
           gh pr review --approve "$PR_URL"
+          gh pr merge "$PR_URL" --merge
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GH_PAT}}
