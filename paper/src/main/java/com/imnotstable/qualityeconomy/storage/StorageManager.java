@@ -1,18 +1,17 @@
 package com.imnotstable.qualityeconomy.storage;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import com.imnotstable.qualityeconomy.economy.Account;
 import com.imnotstable.qualityeconomy.economy.BalanceEntry;
 import com.imnotstable.qualityeconomy.storage.importdata.ImportDataManager;
-import com.imnotstable.qualityeconomy.storage.storageformats.SQLStorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
+import com.imnotstable.qualityeconomy.storage.storageformats.sql.SQLDriver;
+import com.imnotstable.qualityeconomy.storage.storageformats.sql.SQLStorageType;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.imnotstable.qualityeconomy.util.debug.Timer;
-import com.imnotstable.qualityeconomy.util.storage.SQLDriver;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -138,26 +137,12 @@ public class StorageManager implements Listener {
       JsonObject currenciesJSON = new JsonObject();
       QualityEconomy.getCurrencyConfig().getCurrencies().forEach(currency -> {
         JsonObject currencyJSON = new JsonObject();
-        JsonArray viewCommands = new JsonArray();
-        viewCommands.add(currency.getViewCommand());
-        for (String command : currency.getViewAliases())
-          viewCommands.add(command);
-        currencyJSON.add("VIEW-COMMANDS", viewCommands);
-        JsonArray adminCommands = new JsonArray();
-        adminCommands.add(currency.getAdminCommand());
-        for (String command : currency.getAdminAliases())
-          adminCommands.add(command);
-        currencyJSON.add("ADMIN-COMMANDS", adminCommands);
-        JsonArray transferCommands = new JsonArray();
-        transferCommands.add(currency.getTransferCommand());
-        for (String command : currency.getTransferAliases())
-          transferCommands.add(command);
-        currencyJSON.add("TRANSFER-COMMANDS", transferCommands);
-        JsonArray leaderboardCommands = new JsonArray();
-        leaderboardCommands.add(currency.getLeaderboardCommand());
-        for (String command : currency.getLeaderboardAliases())
-          leaderboardCommands.add(command);
-        currencyJSON.add("LEADERBOARD-COMMANDS", leaderboardCommands);
+        
+        currencyJSON.add("ADMIN-COMMAND", currency.getAdminCommand().toJson());
+        currencyJSON.add("VIEW-COMMAND", currency.getViewCommand().toJson());
+        currencyJSON.add("TRANSFER-COMMAND", currency.getTransferCommand().toJson());
+        currencyJSON.add("LEADERBOARD-COMMAND", currency.getLeaderboardCommand().toJson());
+        
         currencyJSON.addProperty("LEADERBOARD-REFRESH-INTERVAL", currency.getLeaderboardRefreshInterval());
         currencyJSON.addProperty("STARTING-BALANCE", currency.getStartingBalance());
         currencyJSON.addProperty("SINGULAR-NAME", currency.getSingular());

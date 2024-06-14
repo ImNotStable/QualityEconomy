@@ -39,7 +39,7 @@ public class CommandUtils {
       String rawAmount = info.input();
       double amount;
       try {
-        amount = CurrencyFormatter.unformat(rawAmount);
+        amount = currency.getUnformattedAmount(rawAmount);
       } catch (NumberFormatException exception) {
         throw CustomArgument.CustomArgumentException.fromAdventureComponent(Messages.getParsedMessage(currency.getMessage(errorMessage),
           "amount", rawAmount));

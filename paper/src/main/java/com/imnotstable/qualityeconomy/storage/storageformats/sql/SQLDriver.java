@@ -1,4 +1,4 @@
-package com.imnotstable.qualityeconomy.util.storage;
+package com.imnotstable.qualityeconomy.storage.storageformats.sql;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

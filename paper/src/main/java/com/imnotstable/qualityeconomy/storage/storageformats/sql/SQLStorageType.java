@@ -1,11 +1,10 @@
-package com.imnotstable.qualityeconomy.storage.storageformats;
+package com.imnotstable.qualityeconomy.storage.storageformats.sql;
 
 import com.imnotstable.qualityeconomy.economy.Account;
 import com.imnotstable.qualityeconomy.economy.BalanceEntry;
 import com.imnotstable.qualityeconomy.storage.AccountManager;
+import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
-import com.imnotstable.qualityeconomy.util.storage.EasySQL;
-import com.imnotstable.qualityeconomy.util.storage.SQLDriver;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
