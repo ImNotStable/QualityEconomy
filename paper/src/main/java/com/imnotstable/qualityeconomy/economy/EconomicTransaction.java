@@ -1,6 +1,6 @@
 package com.imnotstable.qualityeconomy.economy;
 
-import com.imnotstable.qualityeconomy.util.QualityException;
+import com.google.common.base.Preconditions;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.command.CommandSender;
@@ -12,7 +12,7 @@ public class EconomicTransaction {
   
   private final @NotNull EconomicTransactionType type;
   private final @NotNull CommandSender sender;
-  private final @NotNull EconomyPlayer[] economyPlayers;
+  private final @NotNull EconomyPlayer @NotNull [] economyPlayers;
   private final double amount;
   private final @NotNull Currency currency;
   private boolean cancelled = false;
@@ -26,9 +26,8 @@ public class EconomicTransaction {
     this.amount = amount;
   }
   
-  public static EconomicTransaction startNewTransaction(@NotNull EconomicTransactionType type, @NotNull CommandSender sender, @NotNull Currency currency, double amount, @NotNull EconomyPlayer @NotNull ... players) throws QualityException {
-    if (type.getPlayerRequirement() != players.length)
-      throw new QualityException("Economic Transaction failed to meet player requirement");
+  public static EconomicTransaction startNewTransaction(@NotNull EconomicTransactionType type, @NotNull CommandSender sender, @NotNull Currency currency, double amount, @NotNull EconomyPlayer @NotNull ... players) {
+    Preconditions.checkArgument(players.length == type.getPlayerRequirement(), "Economic Transaction failed to meet player requirement");
     return new EconomicTransaction(type, sender, players, currency, amount);
   }
   

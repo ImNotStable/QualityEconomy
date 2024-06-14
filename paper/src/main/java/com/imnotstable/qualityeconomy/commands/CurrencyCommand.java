@@ -16,7 +16,6 @@ import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
 import dev.jorel.commandapi.executors.CommandArguments;
-import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -125,27 +124,23 @@ public class CurrencyCommand {
         command = null;
     }
     
-    @SneakyThrows
     private void resetBalance(CommandSender sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
       EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_RESET, sender, currency, 0, EconomyPlayer.of(target)).execute();
     }
     
-    @SneakyThrows
     private void setBalance(CommandSender sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
       double balance = (double) args.get("amount");
       EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_SET, sender, currency, balance, EconomyPlayer.of(target)).execute();
     }
     
-    @SneakyThrows
     private void addBalance(CommandSender sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
       double balance = (double) args.get("amount");
       EconomicTransaction.startNewTransaction(EconomicTransactionType.BALANCE_ADD, sender, currency, balance, EconomyPlayer.of(target)).execute();
     }
     
-    @SneakyThrows
     private void removeBalance(CommandSender sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
       double balance = (double) args.get("amount");
@@ -195,7 +190,6 @@ public class CurrencyCommand {
       }
     }
     
-    @SneakyThrows
     private void pay(Player sender, CommandArguments args) {
       OfflinePlayer target = (OfflinePlayer) args.get("target");
       if (CommandUtils.requirement(QualityEconomyAPI.isPayable(target.getUniqueId()), currency, MessageType.TRANSFER_NOT_ACCEPTING_PAYMENTS, sender))

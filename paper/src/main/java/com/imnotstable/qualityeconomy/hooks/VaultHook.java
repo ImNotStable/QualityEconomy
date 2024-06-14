@@ -8,7 +8,6 @@ import com.imnotstable.qualityeconomy.economy.EconomicTransactionType;
 import com.imnotstable.qualityeconomy.economy.EconomyPlayer;
 import com.imnotstable.qualityeconomy.util.QualityException;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
-import lombok.SneakyThrows;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -155,7 +154,6 @@ public class VaultHook {
       return withdrawPlayer(offlinePlayer, amount);
     }
     
-    @SneakyThrows
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
       if (player == null)
@@ -188,7 +186,6 @@ public class VaultHook {
       return depositPlayer(offlinePlayer, amount);
     }
     
-    @SneakyThrows
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
       if (player == null)
