@@ -1,7 +1,7 @@
 dependencies {
     compileOnly project(':paper')
     compileOnly 'io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT'
-    implementation 'dev.jorel:commandapi-bukkit-shade:9.4.1'
+    implementation 'dev.jorel:commandapi-bukkit-shade:9.4.2'
     implementation 'org.bstats:bstats-bukkit:3.0.2'
 }
 
