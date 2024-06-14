@@ -21,7 +21,9 @@ jobs:
           fi
         continue-on-error: true
       - name: Approve a PR
-        run: gh pr review --approve "$PR_URL"
+        run: |
+          echo $GH_TOKEN | gh auth login --with-token
+          gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GH_TOKEN: ${{secrets.GH_PAT}}
