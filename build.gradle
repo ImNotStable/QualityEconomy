@@ -14,13 +14,6 @@ allprojects {
     compileJava.targetCompatibility = '17'
     compileJava.options.encoding = 'UTF-8'
     jar.enabled = false
-
-    repositories {
-        maven { url 'https://repo.papermc.io/repository/maven-public/' }
-        maven { url 'https://oss.sonatype.org/content/groups/public/' }
-        maven { url 'https://jitpack.io' }
-        maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
-    }
 }
 
 subprojects {
@@ -40,6 +33,7 @@ subprojects {
         minimize()
         exclude 'META-INF/**', 'LICENSE', 'module-info.class'
         from '../LICENSE'
+        archiveFileName = "QualityEconomy-${rootProject.version}-${project.name.capitalize()}.jar"
         destinationDirectory = file('../libs')
     }
 

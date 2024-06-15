@@ -30,8 +30,7 @@ public final class QualityLoader implements PluginLoader {
       if (input == null)
         return List.of();
       try (InputStreamReader reader = new InputStreamReader(input)) {
-        YamlConfiguration configuration = YamlConfiguration.loadConfiguration(reader);
-        return configuration.getStringList("libraries");
+        return YamlConfiguration.loadConfiguration(reader).getStringList("libraries");
       }
     } catch (Throwable exception) {
       classpathBuilder.getContext().getLogger().error("Failed to resolve libraries", exception);

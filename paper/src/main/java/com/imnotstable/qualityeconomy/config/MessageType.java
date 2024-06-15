@@ -32,7 +32,6 @@ public enum MessageType {
   LEADERBOARD_BALANCE_VIEW("leaderboard-command.balance-view", true),
   LEADERBOARD_NEXT_PAGE("leaderboard-command.next-page", true);
   
-  
   private final String key;
   private final boolean currencyDependent;
   
