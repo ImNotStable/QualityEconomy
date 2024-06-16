@@ -17,7 +17,7 @@ public class BalanceEntry {
     if (balance != null)
       this.balance = balance;
     else
-      this.balance = QualityEconomy.getCurrencyConfig().getDefaultBalance(currency);
+      this.balance = QualityEconomy.getCurrencyConfig().getStartingBalance(currency);
     if (payable != null)
       this.payable = payable;
     else

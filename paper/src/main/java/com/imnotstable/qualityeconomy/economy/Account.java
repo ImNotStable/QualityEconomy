@@ -1,7 +1,9 @@
 package com.imnotstable.qualityeconomy.economy;
 
+import com.google.common.base.Preconditions;
 import com.imnotstable.qualityeconomy.QualityEconomy;
 import lombok.Getter;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -9,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@ApiStatus.Internal
 public class Account {
   @Getter
   private final UUID uniqueId;
@@ -32,41 +35,27 @@ public class Account {
     return this;
   }
   
-  public double getDefaultBalance() {
-    return getBalance("default");
-  }
-  
-  public Account setDefaultBalance(double balance) {
-    return setBalance("default", balance);
-  }
-  
   public double getBalance(@NotNull String currency) {
     return getBalanceEntry(currency).getBalance();
   }
   
   public BalanceEntry getBalanceEntry(@NotNull String currency) {
+    Preconditions.checkArgument(QualityEconomy.getCurrencyConfig().getCurrency(currency).isPresent(), "Currency " + currency + " does not exist");
     if (!balances.containsKey(currency)) {
-      if (QualityEconomy.getCurrencyConfig().getCurrency(currency).isEmpty())
-        throw new IllegalArgumentException("Currency " + currency + " does not exist");
-      BalanceEntry balanceEntry = new BalanceEntry(currency, QualityEconomy.getCurrencyConfig().getDefaultBalance(currency), true);
+      BalanceEntry balanceEntry = new BalanceEntry(currency, QualityEconomy.getCurrencyConfig().getStartingBalance(currency), true);
       balances.put(currency, balanceEntry);
       return balanceEntry;
     }
     return balances.get(currency);
   }
   
+  public Account updateBalanceEntry(BalanceEntry balanceEntry) {
+    balances.put(balanceEntry.getCurrency(), balanceEntry);
+    return this;
+  }
+  
   public Collection<BalanceEntry> getBalanceEntries() {
     return balances.values();
-  }
-  
-  public Account setBalance(@NotNull String currency, double balance) {
-    getBalanceEntry(currency).setBalance(balance);
-    return this;
-  }
-  
-  public Account updateBalanceEntry(BalanceEntry balance) {
-    balances.put(balance.getCurrency(), balance);
-    return this;
   }
   
   public Account updateBalanceEntries(Collection<BalanceEntry> balanceEntries) {

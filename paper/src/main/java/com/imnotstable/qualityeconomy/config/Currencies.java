@@ -63,7 +63,7 @@ public final class Currencies extends BaseConfig {
     return Optional.ofNullable(currencies.get(name));
   }
   
-  public double getDefaultBalance(@NotNull String name) {
+  public double getStartingBalance(@NotNull String name) {
     return currencies.get(name).getStartingBalance();
   }
   

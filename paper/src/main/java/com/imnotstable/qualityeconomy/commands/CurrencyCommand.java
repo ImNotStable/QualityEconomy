@@ -69,10 +69,10 @@ public class CurrencyCommand {
     private View(@NotNull Currency currency) {
       this.currency = currency;
       Currency.Command viewCommand = currency.getViewCommand();
-      if (viewCommand.getCommand() != null)
-        command = new CommandTree(viewCommand.getCommand())
-          .withAliases(viewCommand.getAliases())
-          .withPermission(viewCommand.getPermission())
+      if (viewCommand.command() != null)
+        command = new CommandTree(viewCommand.command())
+          .withAliases(viewCommand.aliases())
+          .withPermission(viewCommand.permission())
           .then(CommandUtils.TargetArgument(currency, MessageType.VIEW_PLAYER_NOT_FOUND)
             .executes(this::viewOtherBalance))
           .executesPlayer(this::viewOwnBalance);
@@ -111,10 +111,10 @@ public class CurrencyCommand {
     private Admin(@NotNull Currency currency) {
       this.currency = currency;
       Currency.Command adminCommand = currency.getAdminCommand();
-      if (adminCommand.getCommand() != null)
-        command = new CommandTree(adminCommand.getCommand())
-          .withAliases(adminCommand.getAliases())
-          .withPermission(adminCommand.getPermission())
+      if (adminCommand.command() != null)
+        command = new CommandTree(adminCommand.command())
+          .withAliases(adminCommand.aliases())
+          .withPermission(adminCommand.permission())
           .then(CommandUtils.TargetArgument(currency, MessageType.ADMIN_PLAYER_NOT_FOUND)
             .then(new LiteralArgument("reset").executes(this::resetBalance))
             .then(new LiteralArgument("set").then(CommandUtils.AmountArgument(currency, MessageType.ADMIN_INVALID_NUMBER).executes(this::setBalance)))
@@ -167,10 +167,10 @@ public class CurrencyCommand {
     private Transfer(@NotNull Currency currency) {
       this.currency = currency;
       Currency.Command transferCommand = currency.getTransferCommand();
-      if (transferCommand.getCommand() != null)
-        command = new CommandTree(transferCommand.getCommand())
-          .withAliases(transferCommand.getAliases())
-          .withPermission(transferCommand.getPermission())
+      if (transferCommand.command() != null)
+        command = new CommandTree(transferCommand.command())
+          .withAliases(transferCommand.aliases())
+          .withPermission(transferCommand.permission())
           .then(new LiteralArgument("toggle")
             .executesPlayer(this::togglePay))
           .then(CommandUtils.TargetArgument(currency, MessageType.TRANSFER_PLAYER_NOT_FOUND)
@@ -224,12 +224,12 @@ public class CurrencyCommand {
     public Leaderboard(Currency currency) {
       this.currency = currency;
       Currency.Command leaderboardCommand = currency.getLeaderboardCommand();
-      if (leaderboardCommand.getCommand() != null)
-        command = new CommandTree(leaderboardCommand.getCommand())
-          .withAliases(leaderboardCommand.getAliases())
-          .withPermission(leaderboardCommand.getPermission())
+      if (leaderboardCommand.command() != null)
+        command = new CommandTree(leaderboardCommand.command())
+          .withAliases(leaderboardCommand.aliases())
+          .withPermission(leaderboardCommand.permission())
           .then(new LiteralArgument("update")
-            .withPermission(currency.getAdminCommand().getPermission())
+            .withPermission(currency.getAdminCommand().permission())
             .executes((sender, args) -> {
               updateBalanceTop();
             }))

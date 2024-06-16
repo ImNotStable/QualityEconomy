@@ -17,6 +17,10 @@ public class QualityEconomyAPI {
     return com.imnotstable.qualityeconomy.storage.AccountManager.getAccount(uniqueId);
   }
   
+  public static com.imnotstable.qualityeconomy.economy.BalanceEntry getBalanceEntry(@NotNull java.util.UUID uniqueId, @NotNull String currencyName) {
+    return getAccount(uniqueId).getBalanceEntry(currencyName);
+  }
+  
   public static double getBalance(@NotNull java.util.UUID uniqueId) {
     return getBalance(uniqueId, "default");
   }
@@ -82,10 +86,6 @@ public class QualityEconomyAPI {
   
   public static void setPayable(@NotNull java.util.UUID uniqueId, @NotNull String currencyName, boolean payable) {
     getBalanceEntry(uniqueId, currencyName).setPayable(payable);
-  }
-  
-  public static com.imnotstable.qualityeconomy.economy.BalanceEntry getBalanceEntry(@NotNull java.util.UUID uniqueId, @NotNull String currencyName) {
-    return getAccount(uniqueId).getBalanceEntry(currencyName);
   }
   
 }

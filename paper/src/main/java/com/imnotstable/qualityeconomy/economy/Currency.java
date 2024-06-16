@@ -73,13 +73,13 @@ public class Currency {
   }
   
   public static Currency of(String name,
-                                      Command viewCommands, Command adminCommands, Command transferCommands, Command leaderboardCommands,
-                                      int leaderboardRefreshInterval,
-                                      double startingBalance,
-                                      String singular, String plural,
-                                      CurrencyFormatter.FormatType formatType, int decimalPlaces, String symbol, String symbolPosition,
-                                      boolean customEvents, boolean transactionLogging,
-                                      Map<MessageType, String> messages) {
+                            Command viewCommands, Command adminCommands, Command transferCommands, Command leaderboardCommands,
+                            int leaderboardRefreshInterval,
+                            double startingBalance,
+                            String singular, String plural,
+                            CurrencyFormatter.FormatType formatType, int decimalPlaces, String symbol, String symbolPosition,
+                            boolean customEvents, boolean transactionLogging,
+                            Map<MessageType, String> messages) {
     return new Currency(name, viewCommands, adminCommands, transferCommands, leaderboardCommands, leaderboardRefreshInterval, startingBalance, singular, plural, formatType, decimalPlaces, symbol, symbolPosition, customEvents, transactionLogging, messages);
   }
   
@@ -178,17 +178,7 @@ public class Currency {
   }
   
   @Getter
-  public static class Command {
-    
-    private final @Nullable String command;
-    private final @NotNull String @NotNull [] aliases;
-    private final @Nullable String permission;
-    
-    public Command(@Nullable String command, @NotNull String @NotNull [] aliases, @Nullable String permission) {
-      this.command = command;
-      this.aliases = aliases;
-      this.permission = permission;
-    }
+  public record Command(@Nullable String command, @NotNull String @NotNull [] aliases, @Nullable String permission) {
     
     public static Command fromYaml(@Nullable ConfigurationSection section) {
       if (section == null)
