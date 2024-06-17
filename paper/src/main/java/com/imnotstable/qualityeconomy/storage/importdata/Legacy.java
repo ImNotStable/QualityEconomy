@@ -61,7 +61,7 @@ public class Legacy implements ImportData<JsonObject> {
         if (currencies.contains(rawEntry.getKey()))
           balances.add(new BalanceEntry(rawEntry.getKey(), rawEntry.getValue().getAsDouble(), true));
       });
-      accounts.add(new Account(uuid).setUsername(name).updateBalanceEntries(balances));
+      accounts.add(new Account(uuid).setUsername(name).initializeBalanceEntries(balances));
     });
     StorageManager.getActiveStorageType().wipeDatabase();
     StorageManager.getActiveStorageType().createAccounts(accounts);

@@ -5,12 +5,17 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 public class BalanceEntry {
   
   private final String currency;
   private double balance;
   private boolean payable;
+  
+  private final Set<Double> updateTypes = new HashSet<>();
   
   public BalanceEntry(@NotNull String currency, @Nullable Double balance, @Nullable Boolean payable) {
     this.currency = currency;
@@ -25,16 +30,19 @@ public class BalanceEntry {
   }
   
   public BalanceEntry setBalance(double balance) {
+    updateTypes.add(balance - this.balance);
     this.balance = balance;
     return this;
   }
   
   public BalanceEntry increaseBalance(double amount) {
+    updateTypes.add(amount);
     balance += amount;
     return this;
   }
   
   public BalanceEntry decreaseBalance(double amount) {
+    updateTypes.add(-amount);
     balance -= amount;
     return this;
   }

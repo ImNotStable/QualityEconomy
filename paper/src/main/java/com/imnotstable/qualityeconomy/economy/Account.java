@@ -40,7 +40,7 @@ public class Account {
   }
   
   public BalanceEntry getBalanceEntry(@NotNull String currency) {
-    Preconditions.checkArgument(QualityEconomy.getCurrencyConfig().getCurrency(currency).isPresent(), "Currency " + currency + " does not exist");
+    Preconditions.checkState(QualityEconomy.getCurrencyConfig().getCurrency(currency).isPresent(), "Currency " + currency + " does not exist");
     if (!balances.containsKey(currency)) {
       BalanceEntry balanceEntry = new BalanceEntry(currency, QualityEconomy.getCurrencyConfig().getStartingBalance(currency), true);
       balances.put(currency, balanceEntry);
@@ -49,7 +49,8 @@ public class Account {
     return balances.get(currency);
   }
   
-  public Account updateBalanceEntry(BalanceEntry balanceEntry) {
+  public Account initializeBalanceEntry(BalanceEntry balanceEntry) {
+    Preconditions.checkState(!balances.containsKey(balanceEntry.getCurrency()), "BalanceEntry for currency " + balanceEntry.getCurrency() + " already exists");
     balances.put(balanceEntry.getCurrency(), balanceEntry);
     return this;
   }
@@ -58,8 +59,8 @@ public class Account {
     return balances.values();
   }
   
-  public Account updateBalanceEntries(Collection<BalanceEntry> balanceEntries) {
-    balanceEntries.forEach(this::updateBalanceEntry);
+  public Account initializeBalanceEntries(Collection<BalanceEntry> balanceEntries) {
+    balanceEntries.forEach(this::initializeBalanceEntry);
     return this;
   }
   

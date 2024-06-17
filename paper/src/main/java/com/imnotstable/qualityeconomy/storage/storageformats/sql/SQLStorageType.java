@@ -146,7 +146,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
         balanceStatement.setString(1, uuid.toString());
         ResultSet balanceResultSet = balanceStatement.executeQuery();
         while (balanceResultSet.next()) {
-          account.updateBalanceEntry(new BalanceEntry(
+          account.initializeBalanceEntry(new BalanceEntry(
             balanceResultSet.getString("CURRENCY"),
             balanceResultSet.getDouble("BALANCE"),
             balanceResultSet.getBoolean("PAYABLE")));
