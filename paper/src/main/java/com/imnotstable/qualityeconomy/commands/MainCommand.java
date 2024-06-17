@@ -126,7 +126,7 @@ public class MainCommand extends BaseCommand {
         Account account = new Account(UUID.randomUUID());
         account.setUsername(account.getUniqueId().toString().split("-")[0]);
         for (String currency : currencies)
-          account.updateBalanceEntry(new BalanceEntry(currency, random.nextDouble(1_000_000_000_000.0), random.nextBoolean()));
+          account.initializeBalanceEntry(new BalanceEntry(currency, random.nextDouble(1_000_000_000_000.0), random.nextBoolean()));
         accounts.add(account);
       }
       StorageManager.getActiveStorageType().createAccounts(accounts);

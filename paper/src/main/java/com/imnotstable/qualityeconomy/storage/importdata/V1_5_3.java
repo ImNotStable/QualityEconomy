@@ -64,7 +64,7 @@ public class V1_5_3 implements ImportData<JsonObject> {
         JsonObject balanceData = balanceJSON.getValue().getAsJsonObject();
         balances.add(new BalanceEntry(balanceJSON.getKey(), balanceData.get("BALANCE").getAsDouble(), balanceData.get("PAYABLE").getAsBoolean()));
       });
-      accounts.add(account.updateBalanceEntries(balances));
+      accounts.add(account.initializeBalanceEntries(balances));
     });
     StorageManager.getActiveStorageType().wipeDatabase();
     StorageManager.getActiveStorageType().createAccounts(accounts);

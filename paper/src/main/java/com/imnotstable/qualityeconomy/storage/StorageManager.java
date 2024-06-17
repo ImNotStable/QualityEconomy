@@ -104,7 +104,7 @@ public class StorageManager implements Listener {
           String username = user.getString("last-account-name", uuid.toString());
           double balance = Double.parseDouble(user.getString("money", "0"));
           boolean payable = user.getBoolean("accepting-pay", true);
-          accounts.add(new Account(uuid).setUsername(username).updateBalanceEntry(new BalanceEntry("default", balance, payable)));
+          accounts.add(new Account(uuid).setUsername(username).initializeBalanceEntry(new BalanceEntry("default", balance, payable)));
         }
         StorageManager.getActiveStorageType().wipeDatabase();
         StorageManager.getActiveStorageType().createAccounts(accounts);
