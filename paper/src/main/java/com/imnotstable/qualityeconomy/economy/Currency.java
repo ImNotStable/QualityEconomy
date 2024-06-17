@@ -177,7 +177,6 @@ public class Currency {
     return messages.get(type);
   }
   
-  @Getter
   public record Command(@Nullable String command, @NotNull String @NotNull [] aliases, @Nullable String permission) {
     
     public static Command fromYaml(@Nullable ConfigurationSection section) {

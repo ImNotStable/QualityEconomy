@@ -13,7 +13,7 @@ public final class Config extends BaseConfig {
   public String STORAGE_TYPE;
   public long BACKUP_INTERVAL;
   public long AUTO_SAVE_ACCOUNTS_INTERVAL;
-  public Map<String, String> DATABASE_INFORMATION = new HashMap<>();
+  public final Map<String, String> DATABASE_INFORMATION = new HashMap<>();
   public Map<String, Object> DATABASE_INFORMATION_ADVANCED_SETTINGS;
   public boolean UPDATE_NOTIFICATIONS;
   

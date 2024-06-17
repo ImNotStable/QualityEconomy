@@ -9,6 +9,7 @@ import com.imnotstable.qualityeconomy.storage.importdata.ImportDataManager;
 import com.imnotstable.qualityeconomy.storage.storageformats.StorageType;
 import com.imnotstable.qualityeconomy.storage.storageformats.sql.SQLDriver;
 import com.imnotstable.qualityeconomy.storage.storageformats.sql.SQLStorageType;
+import com.imnotstable.qualityeconomy.util.FileUtils;
 import com.imnotstable.qualityeconomy.util.Misc;
 import com.imnotstable.qualityeconomy.util.debug.Logger;
 import com.imnotstable.qualityeconomy.util.debug.Timer;
@@ -182,7 +183,7 @@ public class StorageManager implements Listener {
         Logger.logError("Error while exporting database", exception);
         return null;
       }
-      return dataFile.getName();
+      return FileUtils.compress(dataFile);
     });
   }
   

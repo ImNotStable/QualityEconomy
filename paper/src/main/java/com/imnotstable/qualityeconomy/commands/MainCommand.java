@@ -110,7 +110,7 @@ public class MainCommand extends BaseCommand {
   private void exportDatabase(CommandSender sender, CommandArguments args) {
     StorageManager.exportData(StorageManager.ExportType.NORMAL).thenAccept(dataFilePath -> {
       if (dataFilePath != null)
-        sender.sendMessage(Component.text("Exported database to QualityEconomy " + dataFilePath + ".json", NamedTextColor.GREEN));
+        sender.sendMessage(Component.text("Exported database to QualityEconomy " + dataFilePath, NamedTextColor.GREEN));
       else
         sender.sendMessage(Component.text("Failed to export database", NamedTextColor.RED));
     });

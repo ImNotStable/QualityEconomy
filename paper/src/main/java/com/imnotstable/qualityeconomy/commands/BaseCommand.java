@@ -18,7 +18,7 @@ public abstract class BaseCommand {
   protected boolean register(CommandTree command, boolean conditions) {
     if (isRegistered || !conditions)
       return false;
-    command.register();
+    command.register("qualityeconomy");
     isRegistered = true;
     return true;
   }
