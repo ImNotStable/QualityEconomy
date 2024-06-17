@@ -25,14 +25,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Comparator;
 
-public class CurrencyCommand {
+public class CurrencyCommands {
   
   private final View view;
   private final Admin admin;
   private final Transfer transfer;
   private final Leaderboard leaderboard;
   
-  public CurrencyCommand(@NotNull Currency currency) {
+  public CurrencyCommands(@NotNull Currency currency) {
     this.view = new View(currency);
     this.admin = new Admin(currency);
     this.transfer = new Transfer(currency);

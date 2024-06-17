@@ -2,13 +2,10 @@ package com.imnotstable.qualityeconomy.storage.importdata;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.imnotstable.qualityeconomy.util.debug.Logger;
+import com.imnotstable.qualityeconomy.util.FileUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 
 public class ImportDataManager {
   
@@ -16,31 +13,28 @@ public class ImportDataManager {
   
   private static final ImportData<JsonObject> V1_5_2 = new V1_5_2();
   
+  private static final ImportData<JsonObject> V1_5_3 = new V1_5_3();
+  
   public static boolean importData(File file) {
-    if (file.getName().endsWith(".json")) {
-      JsonObject data = getFormattedData(file);
-      if (data == null)
-        return false;
-      if (!data.has("VERSION"))
-        return LEGACY.importData(data);
-      if (data.get("VERSION").getAsString().equalsIgnoreCase("1.5.1"))
-        return V1_5_2.importData(data);
-    }
-    throw new IllegalArgumentException("Invalid file format: " + file.getName());
+    if (!file.getName().endsWith(".json"))
+      throw new IllegalArgumentException("Invalid file format: " + file.getName());
+    JsonObject data = getFormattedData(file);
+    if (data == null)
+      return false;
+    if (!data.has("VERSION"))
+      return LEGACY.importData(data);
+    return switch (data.get("VERSION").getAsString()) {
+      case "1.5.1", "1.5.2" -> V1_5_2.importData(data);
+      case "1.5.3" -> V1_5_3.importData(data);
+      default -> throw new IllegalStateException("Unexpected value: " + data.get("VERSION").getAsString());
+    };
   }
   
   private static @Nullable JsonObject getFormattedData(File file) {
     if (!file.exists())
       throw new IllegalArgumentException("File does not exist: " + file);
-    try {
-      String rawJSON = new String(Files.readAllBytes(file.toPath()));
-      return new Gson().fromJson(rawJSON, JsonObject.class);
-    } catch (IOException exception) {
-      Logger.logError("Error while importing playerdata", exception);
-    } catch (InvalidPathException exception) {
-      Logger.logError("Invalid Path found", exception);
-    }
-    return null;
+    String rawJSON = FileUtils.decompress(file).toString();
+    return new Gson().fromJson(rawJSON, JsonObject.class);
   }
   
 }

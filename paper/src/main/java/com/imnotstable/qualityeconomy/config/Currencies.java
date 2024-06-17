@@ -1,7 +1,7 @@
 package com.imnotstable.qualityeconomy.config;
 
 import com.imnotstable.qualityeconomy.QualityEconomy;
-import com.imnotstable.qualityeconomy.commands.CurrencyCommand;
+import com.imnotstable.qualityeconomy.commands.CurrencyCommands;
 import com.imnotstable.qualityeconomy.economy.Account;
 import com.imnotstable.qualityeconomy.economy.Currency;
 import com.imnotstable.qualityeconomy.util.QualityException;
@@ -19,7 +19,7 @@ import java.util.Set;
 public final class Currencies extends BaseConfig {
   
   private final Map<String, Currency> currencies = new HashMap<>();
-  private final Map<String, CurrencyCommand> currencyCommands = new HashMap<>();
+  private final Map<String, CurrencyCommands> currencyCommands = new HashMap<>();
   
   public Currencies(@NotNull QualityEconomy plugin) {
     super(plugin, "currencies.yml");
@@ -46,12 +46,12 @@ public final class Currencies extends BaseConfig {
   }
   
   private void loadCommands() {
-    currencies.values().forEach(currency -> currencyCommands.put(currency.getName(), new CurrencyCommand(currency)));
-    currencyCommands.values().forEach(CurrencyCommand::register);
+    currencies.values().forEach(currency -> currencyCommands.put(currency.getName(), new CurrencyCommands(currency)));
+    currencyCommands.values().forEach(CurrencyCommands::register);
   }
   
   private void unloadCommands() {
-    currencyCommands.values().forEach(CurrencyCommand::unregister);
+    currencyCommands.values().forEach(CurrencyCommands::unregister);
     currencyCommands.clear();
   }
   

@@ -32,7 +32,6 @@ subprojects {
     shadowJar {
         minimize()
         exclude 'META-INF/**', 'LICENSE', 'module-info.class'
-        from '../LICENSE'
         archiveFileName = "QualityEconomy-${rootProject.version}-${project.name.capitalize()}.jar"
         destinationDirectory = file('../libs')
     }
