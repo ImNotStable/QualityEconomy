@@ -13,7 +13,7 @@ dependencies {
     implementation 'org.bstats:bstats-bukkit:3.0.2'
     //Loaded via. PaperLibraryLoader
     compileOnly 'com.zaxxer:HikariCP:5.1.0'
-    compileOnly 'com.h2database:h2:2.2.224'
+    compileOnly 'com.h2database:h2:2.3.230'
     compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.4.0'
     compileOnly 'com.google.code.gson:gson:2.11.0'
 }
