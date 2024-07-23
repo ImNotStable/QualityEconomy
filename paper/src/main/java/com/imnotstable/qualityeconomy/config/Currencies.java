@@ -41,10 +41,6 @@ public final class Currencies extends BaseConfig {
     loadCommands();
   }
   
-  public Account getLeaderboardAccount(Currency currency, int position) {
-    return currencyCommands.get(currency.getName()).getLeaderboardAccount(position);
-  }
-  
   private void loadCommands() {
     currencies.values().forEach(currency -> currencyCommands.put(currency.getName(), new CurrencyCommands(currency)));
     currencyCommands.values().forEach(CurrencyCommands::register);
@@ -65,6 +61,10 @@ public final class Currencies extends BaseConfig {
   
   public double getStartingBalance(@NotNull String name) {
     return currencies.get(name).getStartingBalance();
+  }
+  
+  public Account getLeaderboardAccount(Currency currency, int position) {
+    return currencyCommands.get(currency.getName()).getLeaderboardAccount(position);
   }
   
 }

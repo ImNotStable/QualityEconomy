@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
-public class V1_5_3 implements ImportData<JsonObject> {
+public class V1_5_4 implements ImportData<JsonObject> {
   
   public boolean importData(JsonObject rootJSON) {
     // Currency Import

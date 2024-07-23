@@ -170,7 +170,7 @@ public class SQLStorageType extends EasySQL implements StorageType {
           for (BalanceEntry entry : account.getBalanceEntries()) {
             balanceStatement.setString(1, account.getUniqueId().toString());
             balanceStatement.setString(2, entry.getCurrency());
-            balanceStatement.setDouble(3, entry.getBalance());
+            balanceStatement.setDouble(3, entry.getBalanceChange());
             balanceStatement.setBoolean(4, entry.isPayable());
             balanceStatement.addBatch();
           }
@@ -179,6 +179,10 @@ public class SQLStorageType extends EasySQL implements StorageType {
         accountStatement.executeBatch();
         balanceStatement.executeBatch();
         connection.commit();
+        AccountManager.getAllAccounts().stream()
+          .map(Account::getBalanceEntries)
+          .flatMap(Collection::stream)
+          .forEach(BalanceEntry::resetBalanceChange);
       } catch (SQLException exception) {
         Logger.logError("Failed to update accounts", exception);
         connection.rollback();
