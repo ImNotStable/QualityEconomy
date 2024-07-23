@@ -13,7 +13,7 @@ public class ImportDataManager {
   
   private static final ImportData<JsonObject> V1_5_2 = new V1_5_2();
   
-  private static final ImportData<JsonObject> V1_5_3 = new V1_5_3();
+  private static final ImportData<JsonObject> V1_5_4 = new V1_5_4();
   
   public static boolean importData(File file) {
     if (!file.getName().endsWith(".json"))
@@ -25,7 +25,7 @@ public class ImportDataManager {
       return LEGACY.importData(data);
     return switch (data.get("VERSION").getAsString()) {
       case "1.5.1", "1.5.2" -> V1_5_2.importData(data);
-      case "1.5.3" -> V1_5_3.importData(data);
+      case "1.5.3", "1.5.4" -> V1_5_4.importData(data);
       default -> throw new IllegalStateException("Unexpected value: " + data.get("VERSION").getAsString());
     };
   }

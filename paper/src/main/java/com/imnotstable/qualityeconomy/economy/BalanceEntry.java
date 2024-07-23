@@ -10,6 +10,7 @@ public class BalanceEntry {
   
   private final String currency;
   private double balance;
+  private double balanceChange = 0;
   private boolean payable;
   
   public BalanceEntry(@NotNull String currency, @Nullable Double balance, @Nullable Boolean payable) {
@@ -25,17 +26,25 @@ public class BalanceEntry {
   }
   
   public BalanceEntry setBalance(double balance) {
+    balanceChange += balance - this.balance;
     this.balance = balance;
     return this;
   }
   
   public BalanceEntry increaseBalance(double amount) {
+    balanceChange += amount;
     balance += amount;
     return this;
   }
   
   public BalanceEntry decreaseBalance(double amount) {
+    balanceChange -= amount;
     balance -= amount;
+    return this;
+  }
+  
+  public BalanceEntry resetBalanceChange() {
+    this.balanceChange = 0;
     return this;
   }
   
