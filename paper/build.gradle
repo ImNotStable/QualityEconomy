@@ -7,18 +7,37 @@ repositories {
 
 dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.21-R0.1-SNAPSHOT'
-    implementation 'dev.jorel:commandapi-bukkit-shade:9.5.3'
-    compileOnly 'me.clip:placeholderapi:2.11.6'
+
+    // Plugin Dependencies
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
+    compileOnly 'me.clip:placeholderapi:2.11.6'
+
+    // Shaded
+    implementation 'dev.jorel:commandapi-bukkit-shade:9.5.3'
     implementation 'org.bstats:bstats-bukkit:3.0.2'
+
     //Loaded via. PaperLibraryLoader
-    compileOnly 'com.zaxxer:HikariCP:5.1.0'
     compileOnly 'com.h2database:h2:2.3.232'
     compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.4.1'
+    compileOnly 'com.zaxxer:HikariCP:5.1.0'
     compileOnly 'com.google.code.gson:gson:2.11.0'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 shadowJar {
+    dependencies {
+        include dependency("dev.jorel:commandapi-bukkit-shade:9.5.1")
+        include dependency("org.bstats:bstats-bukkit:3.0.2")
+    }
     relocate 'org.bstats', 'com.imnotstable.qualityeconomy.bstats'
     relocate 'dev.jorel.commandapi', 'com.imnotstable.qualityeconomy.commandapi'
 }

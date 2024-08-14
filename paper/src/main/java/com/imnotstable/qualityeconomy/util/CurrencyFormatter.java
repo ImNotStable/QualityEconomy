@@ -14,8 +14,8 @@ public class CurrencyFormatter {
   private static final DecimalFormat NORMAL_FORMAT = new DecimalFormat("#");
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
   private static final DecimalFormat COMMA_FORMAT = new DecimalFormat("#,###.##");
-  private static final Pattern SUFFIX_PATTERN = Pattern.compile("\\d+(?:\\.\\d*)?[a-zA-Z]{1,2}");
-  private static final Pattern COMMA_PATTERN = Pattern.compile("^(?:[1-9][0-9]{0,2}|1000)(?:,\\d{3})*(?:\\.\\d*)?$");
+  private static final Pattern SUFFIX_PATTERN = Pattern.compile("\\d{1,3}(?:\\.\\d{0,2})?[a-zA-Z]{1,2}");
+  private static final Pattern COMMA_PATTERN = Pattern.compile("[1-9][0-9]{0,2}(?:,\\d{3})*(?:\\.\\d*)?");
   
   public static String format(double value, FormatType formatType) {
     return formatType.format(value);

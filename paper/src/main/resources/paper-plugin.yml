@@ -9,9 +9,9 @@ dependencies:
   server:
     PlaceholderAPI:
       load: BEFORE
-      required: true
+      required: false
       join-classpath: true
     Vault:
       load: BEFORE
-      required: true
+      required: false
       join-classpath: true

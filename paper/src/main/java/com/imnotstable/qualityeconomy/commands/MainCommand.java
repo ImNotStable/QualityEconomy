@@ -10,6 +10,7 @@ import com.imnotstable.qualityeconomy.util.debug.Debug;
 import com.imnotstable.qualityeconomy.util.debug.Timer;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
+import dev.jorel.commandapi.arguments.DoubleArgument;
 import dev.jorel.commandapi.arguments.GreedyStringArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.LiteralArgument;
@@ -54,10 +55,18 @@ public class MainCommand extends BaseCommand {
       .then(new LiteralArgument("createFakeEntries")
         .withRequirement(sender -> Debug.DEBUG_MODE)
         .then(new IntegerArgument("entries", 1)
-          .executes(this::createFakeEntries)))
+          .then(new DoubleArgument("from")
+            .setOptional(true)
+            .then(new DoubleArgument("to")
+              .setOptional(true)
+          .executes(this::createFakeEntries)))))
       .then(new LiteralArgument("changeAllEntries")
         .withRequirement(sender -> Debug.DEBUG_MODE)
-        .executes(this::changeAllEntries)));
+        .then(new DoubleArgument("from")
+          .setOptional(true)
+          .then(new DoubleArgument("to")
+            .setOptional(true)
+            .executes(this::changeAllEntries)))));
   
   public static void load() {
     if (INSTANCE != null)
@@ -117,6 +126,13 @@ public class MainCommand extends BaseCommand {
   }
   
   private void createFakeEntries(CommandSender sender, CommandArguments args) {
+    double from = Optional.ofNullable(args.get("from")).map(Double.class::cast).orElse(0.0);
+    double to;
+    if (args.get("from") != null && args.get("to") == null)
+      to = from;
+    else
+      to = Optional.ofNullable(args.get("to")).map(Double.class::cast).orElse(1_000_000_000_000.0);
+    
     CompletableFuture.runAsync(() -> {
       int entries = (int) args.get("entries");
       String[] currencies = QualityEconomy.getCurrencyConfig().getCurrencies().stream().map(Currency::getName).toArray(String[]::new);
@@ -126,7 +142,7 @@ public class MainCommand extends BaseCommand {
         Account account = new Account(UUID.randomUUID());
         account.setUsername(account.getUniqueId().toString().split("-")[0]);
         for (String currency : currencies)
-          account.initializeBalanceEntry(new BalanceEntry(currency, random.nextDouble(1_000_000_000_000.0), random.nextBoolean()));
+          account.initializeBalanceEntry(new BalanceEntry(currency, random.nextDouble(from, to), random.nextBoolean()));
         accounts.add(account);
       }
       StorageManager.getActiveStorageType().createAccounts(accounts);
@@ -136,12 +152,19 @@ public class MainCommand extends BaseCommand {
   }
   
   private void changeAllEntries(CommandSender sender, CommandArguments args) {
+    double from = Optional.ofNullable(args.get("from")).map(Double.class::cast).orElse(0.0);
+    double to;
+    if (args.get("from") != null && args.get("to") == null)
+      to = from;
+    else
+      to = Optional.ofNullable(args.get("to")).map(Double.class::cast).orElse(1_000_000_000_000.0);
+    
     CompletableFuture.runAsync(() -> {
       Collection<Account> accounts = AccountManager.getAllAccounts();
       Random random = new Random();
       for (Account account : accounts)
         for (BalanceEntry entry : account.getBalanceEntries()) {
-          entry.setBalance(random.nextDouble(1_000_000_000_000.0));
+          entry.setBalance(random.nextDouble(from, to));
           entry.setPayable(random.nextBoolean());
         }
     });

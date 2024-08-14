@@ -22,6 +22,10 @@ subprojects {
     apply plugin: 'io.github.goooler.shadow'
     apply plugin: 'java-library'
 
+    repositories {
+        mavenCentral()
+    }
+
     dependencies {
         compileOnly 'org.projectlombok:lombok:1.18.34'
         annotationProcessor 'org.projectlombok:lombok:1.18.34'
