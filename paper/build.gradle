@@ -14,7 +14,7 @@ dependencies {
 
     // Shaded
     implementation 'dev.jorel:commandapi-bukkit-shade:9.5.3'
-    implementation 'org.bstats:bstats-bukkit:3.0.2'
+    implementation 'org.bstats:bstats-bukkit:3.0.3'
 
     //Loaded via. PaperLibraryLoader
     compileOnly 'com.h2database:h2:2.3.232'
@@ -36,7 +36,7 @@ test {
 shadowJar {
     dependencies {
         include dependency("dev.jorel:commandapi-bukkit-shade:9.5.1")
-        include dependency("org.bstats:bstats-bukkit:3.0.2")
+        include dependency("org.bstats:bstats-bukkit:3.0.3")
     }
     relocate 'org.bstats', 'com.imnotstable.qualityeconomy.bstats'
     relocate 'dev.jorel.commandapi', 'com.imnotstable.qualityeconomy.commandapi'
