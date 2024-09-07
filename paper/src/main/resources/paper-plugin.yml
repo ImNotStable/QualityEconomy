@@ -3,7 +3,7 @@ author: "ImNotStable"
 main: com.imnotstable.qualityeconomy.QualityEconomy
 loader: com.imnotstable.qualityeconomy.QualityLoader
 version: '@version@'
-api-version: 1.19
+api-version: "1.21.1"
 load: STARTUP
 dependencies:
   server:
