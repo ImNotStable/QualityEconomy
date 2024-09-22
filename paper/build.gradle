@@ -14,7 +14,7 @@ dependencies {
 
     // Shaded
     implementation 'dev.jorel:commandapi-bukkit-shade-mojang-mapped:9.5.3'
-    implementation 'org.bstats:bstats-bukkit:3.0.3'
+    implementation 'org.bstats:bstats-bukkit:3.1.0'
 
     //Loaded via. PaperLibraryLoader
     compileOnly 'com.h2database:h2:2.3.232'
