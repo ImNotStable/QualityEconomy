@@ -20,7 +20,7 @@ dependencies {
     compileOnly 'com.h2database:h2:2.3.232'
     compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.5.1'
     compileOnly 'com.zaxxer:HikariCP:6.2.1'
-    compileOnly 'com.google.code.gson:gson:2.11.0'
+    compileOnly 'com.google.code.gson:gson:2.12.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
