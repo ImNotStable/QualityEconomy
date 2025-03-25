@@ -19,7 +19,7 @@ dependencies {
     //Loaded via. PaperLibraryLoader
     compileOnly 'com.h2database:h2:2.3.232'
     compileOnly 'org.mariadb.jdbc:mariadb-java-client:3.5.2'
-    compileOnly 'com.zaxxer:HikariCP:6.2.1'
+    compileOnly 'com.zaxxer:HikariCP:6.3.0'
     compileOnly 'com.google.code.gson:gson:2.12.1'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.12.1'
