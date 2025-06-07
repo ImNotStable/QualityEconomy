@@ -22,7 +22,7 @@ dependencies {
     compileOnly 'com.zaxxer:HikariCP:6.3.0'
     compileOnly 'com.google.code.gson:gson:2.13.1'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
